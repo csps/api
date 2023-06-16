@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.0",
+  "version": "1.0.0-pre.1",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
