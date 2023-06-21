@@ -10,8 +10,6 @@ import bcrypt from 'bcrypt';
 
 export function login(request: Request, response: Response){
     switch(request.method){
-        case 'GET':
-            break;
         case 'POST':
             postLogin(request,response)
             break;
