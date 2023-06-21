@@ -40,7 +40,7 @@ class Student {
    * Get student from the database using the student ID
    * @param id Student ID
    */
-  public static fromId(id: number, callback: (error: ErrorTypes | null, student: Student | null) => void) {
+  public static fromId(id: number, callback: (error: ErrorTypes | null, student: Student | null, password: string | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
@@ -49,13 +49,13 @@ class Student {
       // If has error
       if (error) {
         console.error(error);
-        callback(ErrorTypes.DB_ERROR, null); // (has error, no results)
+        callback(ErrorTypes.DB_ERROR, null, null); // (has error, no results)
         return;
       }
 
       // If no results
       if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, null); // (has error, no results)
+        callback(ErrorTypes.DB_EMPTY_RESULT, null, null); // (has error, no results)
         return;
       }
 
@@ -80,7 +80,7 @@ class Student {
       );
 
       // Return student object
-      callback(null, student); // (no errors, student object)
+      callback(null, student, data.password); // (no errors, student object)
     });
   }
 }
