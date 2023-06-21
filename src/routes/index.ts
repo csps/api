@@ -1,4 +1,5 @@
 import { example } from "../core/example";
+import { login } from "../core/auth/login";
 
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
@@ -10,4 +11,5 @@ import { example } from "../core/example";
  */
 export const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET"], handler: example },
+  { path: "/login", methods: ["POST"], handler: login },
 ];
