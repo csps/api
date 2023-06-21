@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import ErrorTypes from "./errors";
 
 declare global {
   // Allowed HTTP methods
@@ -11,3 +12,7 @@ declare global {
     handler: (request: Request, response: Response) => void;
   }
 }
+
+export {
+  ErrorTypes
+};

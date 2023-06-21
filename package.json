@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.1",
+  "version": "1.0.0-pre.2",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
@@ -35,6 +35,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1"
