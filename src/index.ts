@@ -3,6 +3,7 @@ import express from "express";
 import { getRouteName, getPattern } from "./utils/route";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import { routes } from "./routes";
+import Database from "./db/database";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -51,6 +52,12 @@ app.use("*", (request, response) => {
   handleNotFound(request, response);
 });
 
+/**
+ * Start the server
+ */
 app.listen(port, () => {
+  // Initialize database
+  Database.getInstance();
+  // Log message
   console.log(`[+] UC Main CSPS backend API is listening on port ${port}`);
 });

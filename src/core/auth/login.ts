@@ -16,11 +16,11 @@ export function login(request: Request, response: Response) {
 }
 
 export function postLogin(request: Request, response: Response) {
-  Student.fromId(request.body.id, (error, student, password) => {
-    if (error === null) {
+  Student.fromId(request.body.id, (error, student) => {
+    if (error === null || student === null) {
       response.send(result.error("Login Failed"))
     } else {
-      const pw = password || "";
+      const pw = student.getPassword() || "";
       const isSuccess = validatePassword(request.body.password, pw)
       if (isSuccess === true) {
         const token = jwt.sign({ data: student }, process.env.SECRET_KEY || "", { expiresIn: '1d' });
