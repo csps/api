@@ -12,6 +12,9 @@ const app = express();
 // Set the port
 const port = process.env.PORT || 4000;
 
+/**
+ * Handle requests specified in routes
+ */
 app.use(routes.map(r => r.path), (request, response) => {
   // Set default response content type
   response.setHeader("Content-Type", "application/json");
@@ -38,6 +41,14 @@ app.use(routes.map(r => r.path), (request, response) => {
       return route.handler(request, response); 
     }
   }
+});
+
+/**
+ * Handle requests that are not specified in the routes
+ */
+app.use("*", (request, response) => {
+  // Send 404
+  handleNotFound(request, response);
 });
 
 app.listen(port, () => {
