@@ -13,5 +13,5 @@ import { product } from "../core/Services/products";
 export const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET"], handler: example },
   { path: "/login", methods: ["POST"], handler: login },
-  { path: "/product", methods: ["GET"], handler: product},
+  { path: "/product/:id", methods: ["GET"], handler: product},
 ];
