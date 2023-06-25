@@ -8,39 +8,51 @@ import { ErrorTypes } from "../../types";
  */
 class Student {
   private id: number;
-  private dbid: number;
+  private rid: number;
   private email: string;
   private firstName: string;
   private lastName: string;
   private yearLevel: string;
   private birthdate: string;
+  private password?: string;
 
   /**
    * Student Private Constructor
+   * @param id Student ID
+   * @param rid Student Primary Key ID
+   * @param email Student Email Address
+   * @param firstName Student First Name
+   * @param lastName Student Last Name
+   * @param yearLevel Student Year Level
+   * @param birthdate Student Birthdate (YYYY-MM-DD)
+   * @param password Student Password
    */
   private constructor(
     id: number,
-    dbid: number,
+    rid: number,
     email: string,
     firstName: string,
     lastName: string,
     yearLevel: string,
-    birthdate: string
+    birthdate: string,
+    password?: string
   ) {
     this.id = id;
-    this.dbid = dbid;
+    this.rid = rid;
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
     this.yearLevel = yearLevel;
     this.birthdate = birthdate;
+    this.password = password;
   }
 
   /**
    * Get student from the database using the student ID
    * @param id Student ID
+   * @param callback Callback function
    */
-  public static fromId(id: number, callback: (error: ErrorTypes | null, student: Student | null, password: string | null) => void) {
+  public static fromId(id: string, callback: (error: ErrorTypes | null, student: Student | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
@@ -49,13 +61,13 @@ class Student {
       // If has error
       if (error) {
         console.error(error);
-        callback(ErrorTypes.DB_ERROR, null, null); // (has error, no results)
+        callback(ErrorTypes.DB_ERROR, null);
         return;
       }
 
       // If no results
       if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, null, null); // (has error, no results)
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
         return;
       }
 
@@ -76,12 +88,21 @@ class Student {
         // Student Year Level
         data.year_level,
         // Student Birth Date
-        data.birth_date
+        data.birth_date,
+        // Student password
+        data.password
       );
 
       // Return student object
-      callback(null, student, data.password); // (no errors, student object)
+      callback(null, student);
     });
+  }
+
+  /**
+   * Get student password
+   */
+  public getPassword() {
+    return this.password || "";
   }
 }
 
