@@ -2,9 +2,9 @@ import Database from "../database";
 import { ErrorTypes } from "../../types";
 
 /**
- * Products Model
+ * Product Model
  * This model contains all the Product Information and Quantity :D
- * @author ampats11 (Jeremy Andy F. Ampatin)
+ * @author ampats04 (Jeremy Andy F. Ampatin)
 */
 
 
@@ -23,7 +23,7 @@ class Product{
  * Product Private Constructor
  */
 
-private constructor(
+public constructor(
 
     id: number,
     dbid: number,
@@ -60,10 +60,7 @@ private constructor(
                 console.error(error);
                     callback(ErrorTypes.DB_ERROR, null);
                     return;
-            }
-
-            //If has no error
-            if (results.length === 0){
+            } else if (results.length === 0){
                     callback(ErrorTypes.DB_EMPTY_RESULT,null);
                     return;
             }
