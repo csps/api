@@ -20,7 +20,7 @@ class Product{
 
 
 /**
- * Product Private Constructor
+ * Product Public Constructor
  */
 
 public constructor(
