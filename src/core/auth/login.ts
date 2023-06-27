@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
  */
 export function login(request: Request, response: Response) {
   switch (request.method) {
-    case 'POST':
+    case 'POST':      
       postLogin(request, response)
       break;
   }
@@ -17,35 +17,36 @@ export function login(request: Request, response: Response) {
 
 export function postLogin(request: Request, response: Response) {
   Student.fromId(request.body.id, (error, student) => {
-    if (error === null || student === null) {
+    if (error !== null || student === null) {
       response.send(result.error("Login Failed"))
     } else {
-      const pw = student.getPassword() || "";
-      const isSuccess = validatePassword(request.body.password, pw)
-      if (isSuccess === true) {
-        const token = jwt.sign({ data: student }, process.env.SECRET_KEY || "", { expiresIn: '1d' });
-        response.send(result.success("Login Successful", { token: token }))
-      } else {
-        response.send(result.error("Login Failed"))
-      }
+      const pw = student.getPassword() || "";      
+      validatePassword(request.body.password, pw, (isSuccess) => {
+        if (isSuccess === true) {
+          const token = jwt.sign({ data: student }, process.env.SECRET_KEY || "", { expiresIn: '1d' });
+          response.send(result.success("Login Successful", { token: token }))
+        } else {
+          response.send(result.error("Login Failed"))
+        }
+      })
     }
   })
 
 }
 
-export function validatePassword(passwordInput: string, password: string) {
-  bcrypt.compare(passwordInput, password, (error, result) => {
+export function validatePassword(passwordInput: string, password: string, callback: (isSuccess: Boolean) => void) {
+  const flag = bcrypt.compare(passwordInput, password, (error, result) => {
     if (error) {
       console.error(error);
-      return false;
+      callback(false)
     }
 
     if (result) {
       console.log('Password matches!');
-      return true
+      callback(true)
     } else {
       console.log('Password does not match!');
+      callback(false)
     }
   });
-  return false
 }

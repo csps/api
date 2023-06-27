@@ -13,6 +13,7 @@ const app = express();
 // Set the port
 const port = process.env.PORT || 4000;
 
+app.use(express.urlencoded())
 /**
  * Handle requests specified in routes
  */
