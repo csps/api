@@ -11,7 +11,7 @@ import Database from '../database';
 
 class Products {
 
-  public static getAll(response: Response, callback: any) {
+  public static getAll(response: Response) {
  
     const db = Database.getInstance();
 
@@ -19,10 +19,8 @@ class Products {
        
       if(error){
         console.log(error);
-        callback(ErrorTypes.DB_ERROR, null);
         return;
       } else if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT,null);
         return;
       }
 
