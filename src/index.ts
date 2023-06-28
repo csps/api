@@ -53,10 +53,7 @@ app.use(routes.map(r => r.path), (request, response) => {
 /**
  * Handle requests that are not specified in the routes
  */
-app.use("*", (request, response) => {
-  // Send 404
-  handleNotFound(request, response);
-});
+app.use("*", handleNotFound)
 
 /**
  * Start the server

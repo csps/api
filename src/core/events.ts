@@ -35,6 +35,7 @@ export function getEvents(request: Request, response: Response) {
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
       response.status(404).send(result.error("No events found."));
+      return;
     }
     
     // Return the events
