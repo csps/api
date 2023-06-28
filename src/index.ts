@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
+import helmet from "helmet";
 import { getRouteName, getPattern } from "./utils/route";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import { routes } from "./routes";
@@ -12,8 +13,11 @@ dotenv.config();
 const app = express();
 // Set the port
 const port = process.env.PORT || 4000;
+
 // Use URL encoded body parser
 app.use(express.urlencoded({ extended: true }));
+// Use helmet for security
+app.use(helmet());
 
 /**
  * Handle requests specified in routes
