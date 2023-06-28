@@ -8,7 +8,6 @@ import { ErrorTypes } from "../../types";
 */
 class Product {
   private id: number;
-  private rid: number;
   private name: string;
   private thumbnail: string;
   private short_descprition: string;
@@ -19,7 +18,6 @@ class Product {
   /**
    * Product Public Constructor
    * @param id Product ID
-   * @param rid Product Primary Key ID
    * @param name Product Name
    * @param thumbnail Product URL Thumbnail
    * @param short_description Product Short Description
@@ -28,7 +26,6 @@ class Product {
    */
   public constructor(
     id: number,
-    rid: number,
     name: string,
     thumbnail: string,
     short_description: string,
@@ -36,7 +33,6 @@ class Product {
     stock: number
   ) {
     this.id = id;
-    this.rid = rid;
     this.name = name;
     this.thumbnail = thumbnail;
     this.short_descprition = short_description;
@@ -72,8 +68,6 @@ class Product {
       // Create Product Object
       const product = new Product(
         //Product ID 
-        data.product_id,
-        //Product Primary key ID
         data.id,
         //Product Name
         data.name,
@@ -119,7 +113,6 @@ class Product {
       for (const data of results) {
         // Create Product Object
         const product = new Product(
-          data.product_id,
           data.id,
           data.name,
           data.thumbnail,
