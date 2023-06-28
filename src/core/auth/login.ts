@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 /**
+ * Login API
  * @author TotalElderBerry (Brian Keith Lisondra)
  */
 export function login(request: Request, response: Response) {

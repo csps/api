@@ -52,7 +52,7 @@ class Student {
    * @param id Student ID
    * @param callback Callback function
    */
-  public static fromId(id: string, callback: (error: ErrorTypes | null, student: Student | null) => void) {
+  public static fromId(id: number, callback: (error: ErrorTypes | null, student: Student | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 

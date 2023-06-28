@@ -1,7 +1,7 @@
 import { example } from "../core/example";
 import { login } from "../core/auth/login";
-import { product } from "../core/Services/product";
-import { products } from "../core/Services/products";
+import { product } from "../core/product";
+import { products } from "../core/products";
 import { student } from "../core/student";
 import { event, events } from "../core/event";
 

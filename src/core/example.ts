@@ -34,27 +34,27 @@ export function example(request: Request, response: Response) {
 /**
  * GET /example (read)
  */
-export function getExample(request: Request, response: Response) {
+function getExample(request: Request, response: Response) {
   response.send(result.success("I'm a GET request!"));
 }
 
 /**
  * POST /example (create)
  */
-export function postExample(request: Request, response: Response) {
+function postExample(request: Request, response: Response) {
   response.send(result.success("I'm a POST request!", { name: "Example" }));
 }
 
 /**
  * DELETE /example (delete)
  */
-export function deleteExample(request: Request, response: Response) {
+function deleteExample(request: Request, response: Response) {
   response.send(result.error("I'm a DELETE request!"));
 }
 
 /**
  * PUT /example (update)
  */
-export function putExample(request: Request, response: Response) {
+function putExample(request: Request, response: Response) {
   response.send(result.error("I'm a PUT request!"));
 }
