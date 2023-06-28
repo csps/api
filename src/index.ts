@@ -12,8 +12,9 @@ dotenv.config();
 const app = express();
 // Set the port
 const port = process.env.PORT || 4000;
+// Use URL encoded body parser
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.urlencoded())
 /**
  * Handle requests specified in routes
  */
