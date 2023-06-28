@@ -3,7 +3,8 @@ import { login } from "../core/auth/login";
 import { product } from "../core/product";
 import { products } from "../core/products";
 import { student } from "../core/student";
-import { event, events } from "../core/event";
+import { event } from "../core/event";
+import { events } from "../core/events";
 
 
 /**
