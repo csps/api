@@ -1,5 +1,6 @@
-import { Response} from 'express';
-import Products from '../../db/models/products';
+import { Response } from 'express';
+import Product from '../../db/models/product';
+import { ErrorTypes } from '../../types';
 
 
 /**
@@ -20,7 +21,20 @@ export function products(request: any, response: Response){
 
 export function getAllProducts(response: Response){
 
-    Products.getAll(response);
+    Product.getAll(response, (error,product) => {
+
+        if(error === ErrorTypes.DB_ERROR){
+           response.status(500).json({
+                error: 'Internal Server Error'
+           });
+        } else if (error === ErrorTypes.DB_EMPTY_RESULT){
+            response.status(404).json({
+                error: 'Products not Found'
+            });
+        } else {
+            response.json(product);
+        }
+    });
 
     }
 

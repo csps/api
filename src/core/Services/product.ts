@@ -1,7 +1,5 @@
 import type {Response, Request} from "express"
-import { result } from "../../utils/response";
 import Product from "../../db/models/product";
-import { error } from "console";
 import { ErrorTypes } from "../../types";
 
 

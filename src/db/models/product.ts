@@ -1,5 +1,6 @@
 import Database from "../database";
 import { ErrorTypes } from "../../types";
+import { Response } from 'express';
 
 /**
  * Product Model
@@ -91,6 +92,45 @@ public constructor(
             callback(null,product); // (no errors, product object)
         });
     }
+
+    public static getAll(response: Response, callback: (error: ErrorTypes | null, product: Product[] | null) => void) {
+ 
+        const db = Database.getInstance();
+    
+        db.query('SELECT * FROM products', [], (error, results) => {
+           
+          if(error){
+            console.log(error);
+              callback(ErrorTypes.DB_ERROR,null);
+              return;
+           
+          } else if (results.length === 0) {
+              callback(ErrorTypes.DB_EMPTY_RESULT,null);
+            return;
+          }
+    
+    
+          const products: Product[] = [];
+    
+          for(const data of results){
+    
+              const product = new Product(  
+                data.product_id,
+                data.id,
+                data.name,
+                data.thumbnail,
+                data.short_descprition,
+                data.likes,
+                data.stock,
+              );
+    
+              products.push(product);
+          }
+          
+          callback(null, products);
+        });
+       
+      }
 }
 
 export default Product;
