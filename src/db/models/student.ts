@@ -1,12 +1,12 @@
 import Database from "../database";
-import { ErrorTypes } from "../../types";
+import { DatabaseModel, ErrorTypes } from "../../types";
 
 /**
  * Student model
  * This model represents a student in the database
  * @author mavyfaby (Maverick Fabroa)
  */
-class Student {
+class Student extends DatabaseModel {
   private id: number;
   private rid: number;
   private email: string;
@@ -37,6 +37,7 @@ class Student {
     birthdate: string,
     password?: string
   ) {
+    super();
     this.id = id;
     this.rid = rid;
     this.email = email;
@@ -95,6 +96,63 @@ class Student {
 
       // Return student object
       callback(null, student);
+    });
+  }
+
+  /**
+   * Get Product list from the database 
+   * @param callback 
+   */
+  public static getAll(callback: (error: ErrorTypes | null, product: Student[] | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query('SELECT * FROM students', [], (error, results) => {
+      // If has an error
+      if (error) {
+        console.log(error);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create Students
+      const students: Student[] = [];
+
+      // Loop through the results
+      for (const data of results) {
+        // Create Product Object
+        const student = new Student(
+          // Student ID / Student Number
+          data.student_id,
+          // Student Primary Key ID
+          data.id,
+          // Student Email Address
+          data.email_address,
+          // Student First Name
+          data.first_name,
+          // Student Last Name
+          data.last_name,
+          // Student Year Level
+          data.year_level,
+          // Student Birth Date
+          data.birth_date,
+          // Student password
+          data.password
+        );
+        
+        // Push the student object to the array
+        students.push(student);
+      }
+
+      // Return the students
+      callback(null, students);
     });
   }
 

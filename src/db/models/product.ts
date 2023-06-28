@@ -1,12 +1,12 @@
 import Database from "../database";
-import { ErrorTypes } from "../../types";
+import { ErrorTypes, DatabaseModel } from "../../types";
 
 /**
  * Product Model
  * This model contains all the Product Information and Quantity :D
  * @author ampats04 (Jeremy Andy F. Ampatin)
 */
-class Product {
+class Product extends DatabaseModel {
   private id: number;
   private name: string;
   private thumbnail: string;
@@ -32,6 +32,7 @@ class Product {
     likes: number,
     stock: number
   ) {
+    super();
     this.id = id;
     this.name = name;
     this.thumbnail = thumbnail;
@@ -40,50 +41,7 @@ class Product {
     this.stock = stock;
   }
 
-  /**
-   * Get Product list from the database using the Product ID generated
-   * @param id Product ID
-   */
-  public static fromId(id: number, callback: (error: ErrorTypes | null, product: Product | null) => void) {
-    // Get database instance
-    const db = Database.getInstance();
 
-    // Query the database
-    db.query("SELECT * FROM products WHERE id = ?", [id], (error, results) => {
-      // If has an error
-      if (error) {
-        console.error(error);
-        callback(ErrorTypes.DB_ERROR, null);
-        return;
-      }
-      
-      // If no results
-      if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, null);
-        return;
-      }
-
-      // Get result
-      const data = results[0];
-      // Create Product Object
-      const product = new Product(
-        //Product ID 
-        data.id,
-        //Product Name
-        data.name,
-        //Product URL Thumbnail
-        data.thumbnail,
-        //Product Short Description
-        data.short_descprition,
-        //Product Popularity
-        data.likes,
-        //Proudct Stocks
-        data.stock,
-      );
-
-      callback(null, product); // (no errors, product object)
-    });
-  }
 
   /**
    * Get Product list from the database 
@@ -128,7 +86,6 @@ class Product {
       // Return the products
       callback(null, products);
     });
-
   }
 }
 

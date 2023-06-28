@@ -25,7 +25,7 @@ export function events(request: Request, response: Response) {
  */
 export function getEvents(request: Request, response: Response) {
   // Get all events
-  Event.getEvents((error, events) => {
+  Event.getAll((error, events) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error("Error getting events from database."));

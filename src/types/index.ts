@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import ErrorTypes from "./errors";
 
 declare global {
   // Allowed HTTP methods
@@ -13,6 +12,22 @@ declare global {
   }
 }
 
+// Error types
+enum ErrorTypes {
+  DB_ERROR,
+  DB_EMPTY_RESULT
+}
+
+abstract class DatabaseModel {
+  static fromId(id: number, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
+    throw new Error("Method not implemented.");
+  }
+
+  static getAll(callback: (error: ErrorTypes | null, product: DatabaseModel[] | null) => void) {
+    throw new Error("Method not implemented.");
+  }
+}
+
 export {
-  ErrorTypes
+  ErrorTypes, DatabaseModel
 };

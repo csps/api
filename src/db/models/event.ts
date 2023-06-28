@@ -1,11 +1,11 @@
 import Database from "../database";
-import { ErrorTypes } from "../../types";
+import { DatabaseModel, ErrorTypes } from "../../types";
 
 /**
  * Event model
  * @author TotalElderBerry (Brian Keith Lisondra)
  */
-class Event {
+class Event extends DatabaseModel {
   private id: number;
   private title: String;
   private description: String;
@@ -36,6 +36,7 @@ class Event {
     endTime: Date,
     venue: string,
   ) {
+    super();
     this.id = id;
     this.title = title;
     this.description = description;
@@ -93,7 +94,7 @@ class Event {
    * Get all events
    * @param callback 
    */
-  public static getEvents(callback: (error: ErrorTypes | null, events: Event[] | null) => void) {
+  public static getAll(callback: (error: ErrorTypes | null, events: Event[] | null) => void) {
     const db = Database.getInstance();
 
     db.query("SELECT * FROM events", [], (err, result) => {

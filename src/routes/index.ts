@@ -5,6 +5,7 @@ import { products } from "../core/products";
 import { student } from "../core/student";
 import { event } from "../core/event";
 import { events } from "../core/events";
+import { students } from "../core/students";
 
 
 /**
@@ -16,11 +17,21 @@ import { events } from "../core/events";
  * - handler: The function that will be executed when the path is requested
  */
 export const routes: AppRoutes[] = [
+  // Example
   { path: "/example", methods: ["GET"], handler: example },
+
+  // Login
   { path: "/login", methods: ["POST"], handler: login },
-  { path: "/products/:id", methods: ["GET"], handler: product },
+
+  // Products
   { path: "/products", methods: ["GET"], handler: products  },
+  { path: "/products/:id", methods: ["GET"], handler: product },
+
+  // Students
+  { path: "/students", methods: ["GET"], handler: students },
   { path: "/students/:id", methods: ["GET"], handler: student },
-  { path: "/events/:id", methods: ["GET"], handler: event },
+
+  // Events
   { path: "/events", methods: ["GET"], handler: events },
+  { path: "/events/:id", methods: ["GET"], handler: event },
 ];
