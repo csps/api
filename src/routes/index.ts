@@ -15,6 +15,8 @@ import { students } from "../core/students";
  * - path: The path of the request
  * - methods: The methods that will be accepted by the path
  * - handler: The function that will be executed when the path is requested
+ * 
+ * NOTE: Order matters. The first route that matches the path will be executed.
  */
 export const routes: AppRoutes[] = [
   // Example
@@ -24,14 +26,14 @@ export const routes: AppRoutes[] = [
   { path: "/login", methods: ["POST"], handler: login },
 
   // Products
-  { path: "/products", methods: ["GET"], handler: products  },
   { path: "/products/:id", methods: ["GET"], handler: product },
+  { path: "/products", methods: ["GET"], handler: products  },
 
   // Students
-  { path: "/students", methods: ["GET"], handler: students },
   { path: "/students/:id", methods: ["GET"], handler: student },
+  { path: "/students", methods: ["GET"], handler: students },
 
   // Events
-  { path: "/events", methods: ["GET"], handler: events },
   { path: "/events/:id", methods: ["GET"], handler: event },
+  { path: "/events", methods: ["GET"], handler: events },
 ];
