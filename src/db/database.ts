@@ -1,4 +1,5 @@
 import mysql from "mysql";
+import { sanitizeArray } from "../utils/security";
 
 /**
  * Singleton Database class
@@ -53,7 +54,7 @@ class Database {
    * @param callback Callback function (error, results)
    */
   public query(query: string, values: any[], callback: (error: mysql.MysqlError | null, results: any) => void) {
-    return Database.pool.query(query, values, callback);
+    return Database.pool.query(query, sanitizeArray(values), callback);
   }
 
   /**
