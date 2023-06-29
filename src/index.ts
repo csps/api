@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
-import { getRouteName, getPattern } from "./utils/route";
+import { getPattern } from "./utils/route";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import { routes } from "./routes";
 import Database from "./db/database";
@@ -25,10 +25,8 @@ app.use(helmet());
 app.use(routes.map(r => r.path), (request, response) => {
   // Set default response content type
   response.setHeader("Content-Type", "application/json");
-  // Get route name
-  const routeName = getRouteName(request.originalUrl);
   // Get route pattern
-  const pattern = getPattern(routeName);
+  const pattern = getPattern(request.originalUrl);
 
   // If no pattern is found, return 404
   if (pattern === null) {

@@ -42,24 +42,3 @@ export function getPattern(requestPath: string) {
   // Otherwise, false
   return null;
 }
-
-/**
- * Get route name from the URL path
- * @param path URL Path
- * @returns the route name
- */
-export function getRouteName(route: string) {
-  // remove query parameters from the route
-  const queryIndex = route.indexOf('?');
-
-  if (queryIndex !== -1) {
-    route = route.slice(0, queryIndex);
-  }
-
-  // remove trailing slash from the route
-  if (route.slice(-1) === '/') {
-    route = route.slice(0, -1);
-  }
-
-  return route;
-}

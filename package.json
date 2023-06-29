@@ -1,11 +1,11 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.16",
+  "version": "1.0.0-pre.17",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
     "start": "NODE_ENV=production node dist/index.js",
-    "test": "jest",
+    "test": "jest --verbose",
     "build": "npm test && tsc"
   },
   "repository": {
