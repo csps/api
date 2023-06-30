@@ -14,6 +14,7 @@ class Product extends DatabaseModel {
   private short_descprition: string;
   private likes: number;
   private stock: number;
+  private dateStamp?: string;
 
   /**
    * Product Public Constructor
@@ -27,6 +28,7 @@ class Product extends DatabaseModel {
     this.short_descprition = data.short_description;
     this.likes = data.likes;
     this.stock = data.stock;
+    this.dateStamp = data.dateStamp;
   }
 
   /**
@@ -64,6 +66,7 @@ class Product extends DatabaseModel {
           short_description: data.short_descprition,
           likes: data.likes,
           stock: data.stock,
+          dateStamp: data.date_stamp
         });
         
         // Push the product object to the array

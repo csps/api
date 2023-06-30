@@ -15,6 +15,7 @@ class Event extends DatabaseModel {
   private startTime: Date;
   private endTime: Date;
   private venue: String;
+  private dateStamp?: string;
 
   /**
    * Event Model
@@ -30,6 +31,7 @@ class Event extends DatabaseModel {
     this.startTime = data.startTime;
     this.endTime = data.endTime;
     this.venue = data.venue;
+    this.dateStamp = data.dateStamp;
   }
 
   /**
@@ -67,7 +69,8 @@ class Event extends DatabaseModel {
         date: data.date,
         startTime: data.startTime,
         endTime: data.endTime,
-        venue: data.venue
+        venue: data.venue,
+        dateStamp: data.date_stamp
       });
 
       // Return the event
@@ -105,7 +108,8 @@ class Event extends DatabaseModel {
           date: data.date,
           startTime: data.startTime,
           endTime: data.endTime,
-          venue: data.venue
+          venue: data.venue,
+          dateStamp: data.date_stamp
         });
 
         allEvents.push(event)

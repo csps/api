@@ -10,6 +10,7 @@ export type StudentType = {
   yearLevel: string;
   birthdate: string;
   password?: string;
+  dateStamp?: string;
 }
 
 /**
@@ -22,6 +23,7 @@ export type ProductType = {
   short_description: string;
   likes: number;
   stock: number;
+  dateStamp?: string;
 }
 
 /**
@@ -36,4 +38,5 @@ export type EventType = {
   startTime: Date;
   endTime: Date;
   venue: String;
+  dateStamp?: string;
 };

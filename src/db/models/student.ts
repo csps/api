@@ -16,6 +16,7 @@ class Student extends DatabaseModel {
   private yearLevel: string;
   private birthdate: string;
   private password?: string;
+  private dateStamp?: string;
 
   /**
    * Student Private Constructor
@@ -31,6 +32,7 @@ class Student extends DatabaseModel {
     this.yearLevel = data.yearLevel;
     this.birthdate = data.birthdate;
     this.password = data.password;
+    this.dateStamp = data.dateStamp;
   }
   
   /**
@@ -76,7 +78,9 @@ class Student extends DatabaseModel {
         // Student Birth Date
         birthdate: data.birth_date,
         // Student password
-        password: data.password
+        password: data.password,
+        // Student Date Stamp
+        dateStamp: data.date_stamp
       });
 
       // Return student object
@@ -129,7 +133,9 @@ class Student extends DatabaseModel {
           // Student Birth Date
           birthdate: data.birth_date,
           // Student password
-          password: data.password
+          password: data.password,
+          // Student Date Stamp
+          dateStamp: data.date_stamp
         });
         
         // Push the student object to the array
