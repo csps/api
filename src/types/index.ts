@@ -15,11 +15,13 @@ declare global {
 // Error types
 enum ErrorTypes {
   DB_ERROR,
-  DB_EMPTY_RESULT
+  DB_EMPTY_RESULT,
+  DB_STUDENT_ALREADY_EXISTS,
+  DB_EMAIL_ALREADY_EXISTS
 }
 
 abstract class DatabaseModel {
-  static fromId(id: number, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
+  static fromId(id: number | string, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
     throw new Error("Method not implemented.");
   }
 

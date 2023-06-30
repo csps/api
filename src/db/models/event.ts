@@ -67,8 +67,8 @@ class Event extends DatabaseModel {
         description: data.description,
         thumbnail: data.thumbnail,
         date: data.date,
-        startTime: data.startTime,
-        endTime: data.endTime,
+        startTime: data.start_time,
+        endTime: data.end_time,
         venue: data.venue,
         dateStamp: data.date_stamp
       });
@@ -106,8 +106,8 @@ class Event extends DatabaseModel {
           description: data.description,
           thumbnail: data.thumbnail,
           date: data.date,
-          startTime: data.startTime,
-          endTime: data.endTime,
+          startTime: data.start_time,
+          endTime: data.end_time,
           venue: data.venue,
           dateStamp: data.date_stamp
         });

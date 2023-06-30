@@ -32,6 +32,7 @@ export const routes: AppRoutes[] = [
   // Students
   { path: "/students/:id", methods: ["GET"], handler: student },
   { path: "/students", methods: ["GET"], handler: students },
+  { path: "/student", methods: ["POST"], handler: student },
 
   // Events
   { path: "/events/:id", methods: ["GET"], handler: event },

@@ -2,7 +2,7 @@
  * Student type data
  */
 export type StudentType = {
-  id: number;
+  id: string;
   rid?: number;
   email: string;
   firstName: string;
