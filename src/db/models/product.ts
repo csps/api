@@ -1,5 +1,6 @@
 import Database from "../database";
 import { ErrorTypes, DatabaseModel } from "../../types";
+import type { ProductType } from "../../types/models";
 
 /**
  * Product Model
@@ -14,34 +15,19 @@ class Product extends DatabaseModel {
   private likes: number;
   private stock: number;
 
-
   /**
    * Product Public Constructor
-   * @param id Product ID
-   * @param name Product Name
-   * @param thumbnail Product URL Thumbnail
-   * @param short_description Product Short Description
-   * @param likes Product Popularity
-   * @param stock Product Stocks
+   * @param data
    */
-  public constructor(
-    id: number,
-    name: string,
-    thumbnail: string,
-    short_description: string,
-    likes: number,
-    stock: number
-  ) {
+  public constructor(data: ProductType) {
     super();
-    this.id = id;
-    this.name = name;
-    this.thumbnail = thumbnail;
-    this.short_descprition = short_description;
-    this.likes = likes;
-    this.stock = stock;
+    this.id = data.id;
+    this.name = data.name;
+    this.thumbnail = data.thumbnail;
+    this.short_descprition = data.short_description;
+    this.likes = data.likes;
+    this.stock = data.stock;
   }
-
-
 
   /**
    * Get Product list from the database 
@@ -67,17 +53,18 @@ class Product extends DatabaseModel {
 
       // Create Product Object
       const products: Product[] = [];
+    
       // Loop through the results
       for (const data of results) {
         // Create Product Object
-        const product = new Product(
-          data.id,
-          data.name,
-          data.thumbnail,
-          data.short_descprition,
-          data.likes,
-          data.stock,
-        );
+        const product = new Product({
+          id: data.id,
+          name: data.name,
+          thumbnail: data.thumbnail,
+          short_description: data.short_descprition,
+          likes: data.likes,
+          stock: data.stock,
+        });
         
         // Push the product object to the array
         products.push(product);

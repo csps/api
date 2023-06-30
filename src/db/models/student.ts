@@ -1,5 +1,6 @@
 import Database from "../database";
 import { DatabaseModel, ErrorTypes } from "../../types";
+import type { StudentType } from "../../types/models";
 
 /**
  * Student model
@@ -8,7 +9,7 @@ import { DatabaseModel, ErrorTypes } from "../../types";
  */
 class Student extends DatabaseModel {
   private id: number;
-  private rid: number;
+  private rid?: number;
   private email: string;
   private firstName: string;
   private lastName: string;
@@ -18,36 +19,20 @@ class Student extends DatabaseModel {
 
   /**
    * Student Private Constructor
-   * @param id Student ID
-   * @param rid Student Primary Key ID
-   * @param email Student Email Address
-   * @param firstName Student First Name
-   * @param lastName Student Last Name
-   * @param yearLevel Student Year Level
-   * @param birthdate Student Birthdate (YYYY-MM-DD)
-   * @param password Student Password
+   * @param data Student data
    */
-  private constructor(
-    id: number,
-    rid: number,
-    email: string,
-    firstName: string,
-    lastName: string,
-    yearLevel: string,
-    birthdate: string,
-    password?: string
-  ) {
+  private constructor(data: StudentType) {
     super();
-    this.id = id;
-    this.rid = rid;
-    this.email = email;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.yearLevel = yearLevel;
-    this.birthdate = birthdate;
-    this.password = password;
+    this.id = data.id;
+    this.rid = data.rid;
+    this.email = data.email;
+    this.firstName = data.firstName;
+    this.lastName = data.lastName;
+    this.yearLevel = data.yearLevel;
+    this.birthdate = data.birthdate;
+    this.password = data.password;
   }
-
+  
   /**
    * Get student from the database using the student ID
    * @param id Student ID
@@ -74,25 +59,25 @@ class Student extends DatabaseModel {
 
       // Get result
       const data = results[0];
-      // Create student object from data
-      const student = new Student(
+      // Create Student object
+      const student = new Student({
         // Student ID / Student Number
-        data.student_id,
+        id: data.student_id,
         // Student Primary Key ID
-        data.id,
+        rid: data.id,
         // Student Email Address
-        data.email_address,
+        email: data.email_address,
         // Student First Name
-        data.first_name,
+        firstName: data.first_name,
         // Student Last Name
-        data.last_name,
+        lastName: data.last_name,
         // Student Year Level
-        data.year_level,
+        yearLevel: data.year_level,
         // Student Birth Date
-        data.birth_date,
+        birthdate: data.birth_date,
         // Student password
-        data.password
-      );
+        password: data.password
+      });
 
       // Return student object
       callback(null, student);
@@ -127,25 +112,25 @@ class Student extends DatabaseModel {
 
       // Loop through the results
       for (const data of results) {
-        // Create Product Object
-        const student = new Student(
+        // Create Student object
+        const student = new Student({
           // Student ID / Student Number
-          data.student_id,
+          id: data.student_id,
           // Student Primary Key ID
-          data.id,
+          rid: data.id,
           // Student Email Address
-          data.email_address,
+          email: data.email_address,
           // Student First Name
-          data.first_name,
+          firstName: data.first_name,
           // Student Last Name
-          data.last_name,
+          lastName: data.last_name,
           // Student Year Level
-          data.year_level,
+          yearLevel: data.year_level,
           // Student Birth Date
-          data.birth_date,
+          birthdate: data.birth_date,
           // Student password
-          data.password
-        );
+          password: data.password
+        });
         
         // Push the student object to the array
         students.push(student);

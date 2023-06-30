@@ -1,5 +1,6 @@
 import Database from "../database";
 import { DatabaseModel, ErrorTypes } from "../../types";
+import { EventType } from "../../types/models";
 
 /**
  * Event model
@@ -16,35 +17,19 @@ class Event extends DatabaseModel {
   private venue: String;
 
   /**
-   * 
-   * @param id Event ID
-   * @param title Event Title
-   * @param description Event Description
-   * @param thumbnail Event Thumbnail
-   * @param date Event Date
-   * @param startTime Event Start Time 
-   * @param endTime Event End Time
-   * @param venue Event venue
+   * Event Model
+   * @param data Event data
    */
-  private constructor(
-    id: number,
-    title: string,
-    description: string,
-    thumbnail: string,
-    date: Date,
-    startTime: Date,
-    endTime: Date,
-    venue: string,
-  ) {
+  private constructor(data: EventType) {
     super();
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.thumbnail = thumbnail;
-    this.date = date;
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.venue = venue;
+    this.id = data.id;
+    this.title = data.title;
+    this.description = data.description;
+    this.thumbnail = data.thumbnail;
+    this.date = data.date;
+    this.startTime = data.startTime;
+    this.endTime = data.endTime;
+    this.venue = data.venue;
   }
 
   /**
@@ -74,16 +59,16 @@ class Event extends DatabaseModel {
       // Get the first result
       const data = results[0]
       // Create a new event
-      const event = new Event(
-        data.id,
-        data.title,
-        data.description,
-        data.thumbnail,
-        data.date,
-        data.startTime,
-        data.endTime,
-        data.venue
-      )
+      const event = new Event({
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        thumbnail: data.thumbnail,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        venue: data.venue
+      });
 
       // Return the event
       callback(null, event)
@@ -111,16 +96,18 @@ class Event extends DatabaseModel {
       const allEvents: Event[] = []
 
       result.forEach((data: any) => {
-        const event = new Event(
-          data.id,
-          data.title,
-          data.description,
-          data.thumbnail,
-          data.date,
-          data.startTime,
-          data.endTime,
-          data.venue
-        )
+        // Create a new event
+        const event = new Event({
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          thumbnail: data.thumbnail,
+          date: data.date,
+          startTime: data.startTime,
+          endTime: data.endTime,
+          venue: data.venue
+        });
+
         allEvents.push(event)
       });
 
