@@ -1,6 +1,7 @@
 import Database from "../database";
 import { ErrorTypes, DatabaseModel } from "../../types";
 import type { ProductType } from "../../types/models";
+import { Log } from "../../utils/log";
 
 /**
  * Product Model
@@ -42,7 +43,7 @@ class Product extends DatabaseModel {
     db.query('SELECT * FROM products', [], (error, results) => {
       // If has an error
       if (error) {
-        console.log(error);
+        Log.e(error.message);
         callback(ErrorTypes.DB_ERROR, null);
         return;
       }

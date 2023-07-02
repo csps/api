@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { getPattern } from "./utils/route";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import { routes } from "./routes";
+import { Log } from "./utils/log";
 import Database from "./db/database";
 
 // Load environment variables from .env file
@@ -18,6 +19,8 @@ const port = process.env.PORT || 4000;
 app.use(express.urlencoded({ extended: true }));
 // Use helmet for security
 app.use(helmet());
+// Use custom logger
+app.use(Log.getMiddleware());
 
 /**
  * Handle requests specified in routes
@@ -25,6 +28,7 @@ app.use(helmet());
 app.use(routes.map(r => r.path), (request, response) => {
   // Set default response content type
   response.setHeader("Content-Type", "application/json");
+
   // Get route pattern
   const pattern = getPattern(request.originalUrl);
 
@@ -60,5 +64,5 @@ app.listen(port, () => {
   // Initialize database
   Database.getInstance();
   // Log message
-  console.log(`[+] UC Main CSPS backend API is listening on port ${port}`);
+  Log.s(`UC Main CSPS backend API is listening on port ${port}`);
 });

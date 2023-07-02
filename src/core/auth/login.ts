@@ -3,6 +3,7 @@ import { result } from "../../utils/response";
 import Student from "../../db/models/student"
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { Log } from "../../utils/log";
 
 /**
  * Login API
@@ -43,10 +44,10 @@ export function validatePassword(passwordInput: string, password: string, callba
     }
 
     if (result) {
-      console.log('Password matches!');
+      Log.e('Password matches!');
       callback(true)
     } else {
-      console.log('Password does not match!');
+      Log.e('Password does not match!');
       callback(false)
     }
   });

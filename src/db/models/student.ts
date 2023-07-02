@@ -6,6 +6,7 @@ import type { StudentType } from "../../types/models";
 import { getDatestamp } from "../../utils/date";
 import { DatabaseHelper } from "../helper";
 import { StudentColumns, Tables } from "../structure";
+import { Log } from "../../utils/log";
 
 /**
  * Student model
@@ -105,7 +106,7 @@ class Student extends DatabaseModel {
     db.query('SELECT * FROM students', [], (error, results) => {
       // If has an error
       if (error) {
-        console.log(error);
+        Log.e(error.message);
         callback(ErrorTypes.DB_ERROR, null);
         return;
       }
@@ -237,7 +238,7 @@ class Student extends DatabaseModel {
         ], (error, results) => {
           // If has an error
           if (error) {
-            console.log(error);
+            Log.e(error.message);
             callback(ErrorTypes.DB_ERROR, null);
             return;
           }

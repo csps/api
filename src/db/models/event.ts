@@ -1,6 +1,7 @@
 import Database from "../database";
 import { DatabaseModel, ErrorTypes } from "../../types";
 import { EventType } from "../../types/models";
+import { Log } from "../../utils/log";
 
 /**
  * Event model
@@ -47,7 +48,7 @@ class Event extends DatabaseModel {
     db.query("SELECT * from events WHERE id = ?", [id], (error, results) => {
       // If has an error
       if (error) {
-        console.log(error);
+        Log.e(error.message);
         callback(ErrorTypes.DB_ERROR, null);
         return
       }
