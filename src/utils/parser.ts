@@ -11,6 +11,12 @@ export class Parser {
    */
   static getMiddleware() {
     return function(request: Request, response: Response, next: Function) {
+      // If request method is GET
+      if (request.method === "GET") {
+        // Continue to the next middleware
+        return next();
+      }
+
       // Try parsing the body
       const body = Parser.toJSON(request.body);
 
