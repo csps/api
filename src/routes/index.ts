@@ -1,9 +1,6 @@
 import { example } from "../core/example";
 import { login } from "../core/auth/login";
-import { product } from "../core/product";
 import { products } from "../core/products";
-import { student } from "../core/student";
-import { event } from "../core/event";
 import { events } from "../core/events";
 import { students } from "../core/students";
 
@@ -26,15 +23,14 @@ export const routes: AppRoutes[] = [
   { path: "/login", methods: ["POST"], handler: login },
 
   // Products
-  { path: "/products/:id", methods: ["GET"], handler: product },
+  { path: "/products/:id", methods: ["GET"], handler: products },
   { path: "/products", methods: ["GET"], handler: products  },
 
   // Students
-  { path: "/students/:id", methods: ["GET"], handler: student },
-  { path: "/students", methods: ["GET"], handler: students },
-  { path: "/student", methods: ["POST"], handler: student },
+  { path: "/students/:id", methods: ["GET"], handler: students },
+  { path: "/students", methods: ["GET", "POST"], handler: students },
 
   // Events
-  { path: "/events/:id", methods: ["GET"], handler: event },
+  { path: "/events/:id", methods: ["GET"], handler: events },
   { path: "/events", methods: ["GET"], handler: events },
 ];

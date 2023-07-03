@@ -78,6 +78,45 @@ class Product extends DatabaseModel {
       callback(null, products);
     });
   }
+
+  /**
+ * Get Product list from the database using the Product ID generated
+ * @param id Product ID
+ */
+  public static fromId(id: number, callback: (error: ErrorTypes | null, product: Product | null) => void){
+    // Get database instance
+    const db = Database.getInstance();
+    //Query the database
+    db.query("SELECT * FROM products WHERE id = ?", [id], (error,results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Get result
+      const data = results[0];
+      // Create Product Object
+      const product = new Product({
+        id: data.id,
+        name: data.name,
+        thumbnail: data.thumbnail,
+        short_description: data.short_descprition,
+        likes: data.likes,
+        stock: data.stock,
+      });
+
+      // Return the product
+      callback(null,product); // (no errors, product object)
+    });
+  }
 }
 
 export default Product;
