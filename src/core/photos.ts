@@ -4,6 +4,7 @@ import { ErrorTypes } from "../types";
 import { isNumber } from "../utils/string";
 import { Photo } from "../db/models/photo";
 import { PhotoType } from "../types/models";
+import { getPattern } from "../utils/route";
 
 /**
  * Photos API
@@ -50,9 +51,9 @@ function getPhotos(request: Request, response: Response) {
 function getPhoto(request: Request, response: Response) {
   // Get {id} from request parameters
   const { id } = request.params;
-  // Get {raw} from request query
-  const { raw } = request.query;
-  
+  // Is raw?
+  const isRaw = getPattern(request.originalUrl)?.endsWith("raw");
+
   // If {id} is not a number
   if (!isNumber(id)) {
     response.status(400).send(result.error("Invalid Photo ID!"));
@@ -69,21 +70,20 @@ function getPhoto(request: Request, response: Response) {
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT || photo === null) {
-      response.status(404).send(result.error("Photo doesn't exist!"));
+      response.status(404).send(isRaw ? '' : result.error("Photo doesn't exist!"));
       return;
     }
 
     // Get photo data
     const data = photo.getData();
 
-    // If {raw} is set to 1
-    if (raw === '1') {
+    // If using the raw route
+    if (isRaw) {
       // Send the photo data  
-      response
+      return response
         .setHeader('Content-Type', photo.getType())
         .setHeader('Content-Length', data.length)
         .end(data);
-      return;
     }
 
     // Ohterwise, return the photo data
