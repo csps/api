@@ -21,6 +21,12 @@ export function isEmail(value: string):  boolean {
   return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)
 }
 
+export function isUrl(value: string): boolean {
+
+  return /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(value);
+
+}
+
 /**
  * Check if a string is in YYYY-MM-DD format
  * @param value Date string to check

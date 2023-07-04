@@ -24,7 +24,7 @@ export const routes: AppRoutes[] = [
 
   // Products
   { path: "/products/:id", methods: ["GET"], handler: products },
-  { path: "/products", methods: ["GET"], handler: products  },
+  { path: "/products", methods: ["GET", "POST"], handler: products  },
 
   // Students
   { path: "/students/:id", methods: ["GET"], handler: students },

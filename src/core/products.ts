@@ -7,6 +7,9 @@ import Product from '../db/models/product';
 /**
  * Products API
  * @author ampats04 (Jeremy Andy F. Ampatin)
+ * 
+ * @param request Exprese request
+ * @param response Express response
  */
 export function products(request: any, response: Response) {
   switch (request.method) {
@@ -21,6 +24,7 @@ export function products(request: any, response: Response) {
 
 /**
  * GET /products
+ * 
  * @param request Express Request Object
  * @param response Express Response Object
  */
@@ -55,6 +59,7 @@ function getProducts(request: Request, response: Response) {
 
 /**
  * GET /products/:id
+ * 
  * @param request Express Request Object
  * @param response Express Response Object
  */
@@ -90,6 +95,7 @@ function getProduct(request: Request, response: Response) {
 
 /**
  * POST /products
+ * 
  * @param request 
  * @param response 
  */

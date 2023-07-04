@@ -2,7 +2,7 @@ import Database from "../database";
 import { ErrorTypes, DatabaseModel } from "../../types";
 import type { ProductType } from "../../types/models";
 import { Log } from "../../utils/log";
-import { isNumber } from "../../utils/string";
+import { isNumber, isUrl } from "../../utils/string";
 import { getDatestamp } from "../../utils/date";
 
 /**
@@ -127,23 +127,20 @@ class Product extends DatabaseModel {
    */
 
   public static validate(data: any){
-    //check if product id is empty
-    if (!data.id) return ["Product id is required!", "product_id"];
     //check if name is empty
     if (!data.name) return ["Name is required!", "name"];
     //check if thumbnail is empty
-    if (!data.thumbnail) return ["Thumbnail is required!", "thumbnail"];
+    if (data.thumbnail.trim().length === 0) return ["Thumbnail is required!", "thumbnail"];
     //check if Short Description is empty
     if (!data.short_descprition) return ["Short Description is required!", "short_description"];
-    //check if likes is empty
-    if (!data.likes) return ["Likes is required!", "likes"];
-    //check if stock
-    if (!data.stock) return ["Stocks is required!", "stock"];
-    //Check if stock is a number
-    if (!isNumber(data.stock)) return ["Stocks must be numeric", "stock"];
     //Check if Short Description doesn't exceed 255 characters
     if (data.short_descprition.length > 255) return ["Short Description must not exceed 255 characters!", "short_description"];
-
+    //Check if Likes is not less than 0
+    if (data.likes.length < 0 ) return ["Likes must not be below 0", "likes"];
+    //Check if stocks is not less than 0
+    if (data.stock.length < 0) return ["Stocks must not be below 0", "stock"];
+    //Check if thumbnail URL format is correct 
+    if (!isUrl(data.thumbnail)) return ["Invalid thumbnail URL format", "thumbnail"];
   }
 
   /**
