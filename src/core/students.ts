@@ -99,11 +99,11 @@ function getStudent(request: Request, response: Response) {
  */
 function postStudents(request: Request, response: Response) {
   // Validate the student data
-  const validation = Student.validate(request.body);
+  const error = Student.validate(request.body);
 
   // If has an error
-  if (validation) {
-    response.status(400).send(result.error(validation[0], validation[1]));
+  if (error) {
+    response.status(400).send(result.error(error[0], error[1]));
     return;
   }
 

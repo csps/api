@@ -40,3 +40,11 @@ export enum ProductColumns {
   VARIATIONS = "variations",
   DATE_STAMP = "date_stamp",
 }
+
+export enum PhotoColumns {
+  ID = "id",
+  DATA = "data",
+  WIDTH = "width",
+  HEIGHT = "height",
+  DATE_STAMP = "date_stamp",
+}

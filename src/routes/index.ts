@@ -3,6 +3,7 @@ import { login } from "../core/auth/login";
 import { products } from "../core/products";
 import { events } from "../core/events";
 import { students } from "../core/students";
+import { photos } from "../core/photos";
 
 
 /**
@@ -33,4 +34,8 @@ export const routes: AppRoutes[] = [
   // Events
   { path: "/events/:id", methods: ["GET"], handler: events },
   { path: "/events", methods: ["GET"], handler: events },
+
+  // Photos
+  { path: "/photos/:id", methods: ["GET"], handler: photos },
+  { path: "/photos", methods: ["POST"], handler: photos },
 ];

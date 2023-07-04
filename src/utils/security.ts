@@ -2,7 +2,12 @@
  * Sanitize a value
  * @param value Value to sanitize
  */
-export function sanitize(value: any): string {
+export function sanitize(value: any): any {
+  // If buffer, return as is
+  if (Buffer.isBuffer(value)) {
+    return value;
+  }
+
   // if undefined or null, return empty string
   if (value === undefined || value === null) {
     return '';

@@ -40,3 +40,15 @@ export type EventType = {
   venue: String;
   dateStamp?: string;
 };
+
+/**
+ * Photo type data
+ */
+export type PhotoType = {
+  id: number;
+  data: Buffer;
+  type: string;
+  width: number;
+  height: number;
+  dateStamp?: string;
+}
