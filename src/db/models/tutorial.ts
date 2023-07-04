@@ -7,7 +7,7 @@ import { Tables, TutorialColumns } from "../structure";
 import { getDatestamp } from "../../utils/date";
 
 /**
- * Events API
+ * Tutorials API
  * @author TotalElderBerry (Brian Keith Lisondra)
  * 
  * @param request Express request object
