@@ -2,6 +2,8 @@ import Database from "../database";
 import { ErrorTypes, DatabaseModel } from "../../types";
 import type { ProductType } from "../../types/models";
 import { Log } from "../../utils/log";
+import { isNumber } from "../../utils/string";
+import { getDatestamp } from "../../utils/date";
 
 /**
  * Product Model
@@ -117,6 +119,125 @@ class Product extends DatabaseModel {
       callback(null,product); // (no errors, product object)
     });
   }
+
+
+  /**
+   * Validate Product Data
+   * @param data Product Data
+   */
+
+  public static validate(data: any){
+    //check if product id is empty
+    if (!data.id) return ["Product id is required!", "product_id"];
+    //check if name is empty
+    if (!data.name) return ["Name is required!", "name"];
+    //check if thumbnail is empty
+    if (!data.thumbnail) return ["Thumbnail is required!", "thumbnail"];
+    //check if Short Description is empty
+    if (!data.short_descprition) return ["Short Description is required!", "short_description"];
+    //check if likes is empty
+    if (!data.likes) return ["Likes is required!", "likes"];
+    //check if stock
+    if (!data.stock) return ["Stocks is required!", "stock"];
+    //Check if stock is a number
+    if (!isNumber(data.stock)) return ["Stocks must be numeric", "stock"];
+    //Check if Short Description doesn't exceed 255 characters
+    if (data.short_descprition.length > 255) return ["Short Description must not exceed 255 characters!", "short_description"];
+
+  }
+
+  /**
+   * Insert product data to the database
+   * @param product Product Data
+   * @param callback Callback Function
+   */
+
+  public static insert(product: ProductType, callback: (error: ErrorTypes | null, product: Product | null) => void) {
+
+    // Get database instance
+    const db = Database.getInstance();
+    
+    // Get the current date
+    const datestamp = getDatestamp();
+
+    //Query the Database
+
+    db.query("INSERT INTO products (name, thumbnail, short_description, likes, stocks, date_stamp) VALUES (?,?,?,?,?,?)", [
+      product.name,
+      product.thumbnail,
+      product.short_description,
+      product.likes,
+      product.stock,
+      datestamp
+    ], (error, results) => {
+      // If has an error
+      if (error) {
+        console.log(error);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // Set the primary key ID
+      product.id = results.insertId;
+      // Set the date stamp
+      product.dateStamp = datestamp;
+
+      // Return the student
+      callback(null, new Product(product));
+
+    });
+    
+  }
+  
+  /**
+   * Get primary key ID
+   */
+
+  public getId(){
+    return this.id || -1;
+  }
+
+  /**
+   * Get name
+   */
+
+  public getName(){
+    return this.name;
+  }
+
+  /**
+   * Get Thumbnail 
+   */
+
+  public getThumbnail(){
+    return this.thumbnail;
+  }
+
+  /**
+   * Get Short Description
+   */
+
+  public getShortDescription(){
+    return this.short_descprition;
+  }
+
+  /**
+   * Get Likes
+   */
+
+  public getLikes(){
+    return this.likes;
+  }
+
+  /**
+   * Get Stock
+   */
+
+  public getStock(){
+    return this.stock;
+  }
+
+  
 }
 
 export default Product;

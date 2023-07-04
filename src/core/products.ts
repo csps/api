@@ -13,6 +13,9 @@ export function products(request: any, response: Response) {
     case 'GET':
       getProducts(request, response);
       break;
+    case 'POST':
+      postProducts(request, response);
+      break;
   }
 }
 
@@ -81,6 +84,38 @@ function getProduct(request: Request, response: Response) {
 
     // Return the product
     response.send(result.success("Product found!", product));
+  });
+
+}
+
+/**
+ * POST /products
+ * @param request 
+ * @param response 
+ */
+
+function postProducts(request: Request, response: Response){
+
+  // Validate the product data
+
+  const validation = Product.validate(request.body);
+
+  // If has an error
+  if (validation){
+    response.status(400).send(result.error(validation[0], validation[1]));
+    return;
+  }
+
+  // Insert the student to the database
+
+  Product.insert(request.body, (error, product) => {
+    // If has an error
+    if(error === ErrorTypes.DB_ERROR){
+      response.status(500).send(result.error("Error inserting product to database. "));
+    }
+
+    // Otherwise, return the product data
+    response.send(result.success("Product Succesfully created!", product));
   });
 
 }
