@@ -53,3 +53,15 @@ export function getPattern(requestPath: string) {
   // Otherwise, false
   return null;
 }
+
+/**
+ * Get the main route name
+ * @param path 
+ * @returns 
+ */
+export function getMainRoute(path: string): string {
+  // Get the index of the second slash
+  const i = path.indexOf("/", 1);
+  // Return the main route name
+  return path.slice(0, i === -1 ? path.length : i);
+}

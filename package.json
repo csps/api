@@ -31,7 +31,7 @@
     "@types/jest": "^29.5.2",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/mysql": "^2.15.21",
-    "@types/node": "^20.4.0",
+    "@types/node": "^20.4.1",
     "chalk": "~4.1.2",
     "ts-jest": "^29.1.1",
     "ts-node-dev": "^2.0.0",

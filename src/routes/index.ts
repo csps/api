@@ -1,9 +1,6 @@
-import { example } from "../core/example";
-import { login } from "../core/auth/login";
-import { products } from "../core/products";
-import { events } from "../core/events";
-import { students } from "../core/students";
-import { photos } from "../core/photos";
+import {
+  events, example, login, photos, products, students
+} from "../core";
 
 
 /**
