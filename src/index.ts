@@ -58,7 +58,15 @@ app.use(routes.map(r => r.path), (request, response) => {
 /**
  * Handle requests that are not specified in the routes
  */
-app.use("*", handleNotFound)
+app.use("*", (request, response) => {
+  // If requesting for favicon, return image
+  if (request.originalUrl === "/favicon.ico") {
+    return response.sendFile("favicon.ico", { root: "./assets" });
+  }
+
+  // Otherwise, return 404
+  return handleNotFound(request, response);
+});
 
 /**
  * Start the server

@@ -1,9 +1,10 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.29",
+  "version": "1.0.0-pre.30",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
+    "dev": "npm test && npm run dev-no-test",
+    "dev-no-test": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
     "start": "NODE_ENV=production node dist/index.js",
     "test": "jest --verbose",
     "build": "npm test && tsc"
