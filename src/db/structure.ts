@@ -38,5 +38,11 @@ export enum ProductColumns {
   LIKES = "likes",
   STOCK = "stock",
   VARIATIONS = "variations",
+  PRICE = "price",
   DATE_STAMP = "date_stamp",
+  
+}
+
+export enum VariationColumns{
+  
 }

@@ -2,7 +2,7 @@ import Database from "../database";
 import { ErrorTypes, DatabaseModel } from "../../types";
 import type { ProductType } from "../../types/models";
 import { Log } from "../../utils/log";
-import { isNumber, isUrl } from "../../utils/string";
+import { isNumber } from "../../utils/string";
 import { getDatestamp } from "../../utils/date";
 
 /**
@@ -13,10 +13,12 @@ import { getDatestamp } from "../../utils/date";
 class Product extends DatabaseModel {
   private id: number;
   private name: string;
-  private thumbnail: string;
-  private short_descprition: string;
+  private thumbnail: number;
+  private short_description: string;
+  private description: string;
   private likes: number;
   private stock: number;
+  private price: number;
   private dateStamp?: string;
 
   /**
@@ -28,9 +30,11 @@ class Product extends DatabaseModel {
     this.id = data.id;
     this.name = data.name;
     this.thumbnail = data.thumbnail;
-    this.short_descprition = data.short_description;
+    this.short_description = data.short_description;
+    this.description = data.description;
     this.likes = data.likes;
     this.stock = data.stock;
+    this.price = data.price;
     this.dateStamp = data.dateStamp;
   }
 
@@ -67,8 +71,10 @@ class Product extends DatabaseModel {
           name: data.name,
           thumbnail: data.thumbnail,
           short_description: data.short_descprition,
+          description: data.description,
           likes: data.likes,
           stock: data.stock,
+          price: data.price,
           dateStamp: data.date_stamp
         });
         
@@ -111,7 +117,9 @@ class Product extends DatabaseModel {
         name: data.name,
         thumbnail: data.thumbnail,
         short_description: data.short_descprition,
+        description: data.description,
         likes: data.likes,
+        price: data.price,
         stock: data.stock,
       });
 
@@ -133,14 +141,22 @@ class Product extends DatabaseModel {
     if (data.thumbnail.trim().length === 0) return ["Thumbnail is required!", "thumbnail"];
     //check if Short Description is empty
     if (!data.short_descprition) return ["Short Description is required!", "short_description"];
-    //Check if Short Description doesn't exceed 255 characters
-    if (data.short_descprition.length > 255) return ["Short Description must not exceed 255 characters!", "short_description"];
+    //check if Description is empty
+    if (!data.description) return ["Description is required", 'description'];
+    //Check if Price is empty
+    if (!data.price) return ["Price is required!", 'price'];
+    //Check if Short Description doesn't exceed 128 characters
+    if (data.short_descprition.length > 128) return ["Short Description must not exceed 128 characters!", "short_description"];
     //Check if Likes is not less than 0
     if (data.likes.length < 0 ) return ["Likes must not be below 0", "likes"];
     //Check if stocks is not less than 0
     if (data.stock.length < 0) return ["Stocks must not be below 0", "stock"];
-    //Check if thumbnail URL format is correct 
-    if (!isUrl(data.thumbnail)) return ["Invalid thumbnail URL format", "thumbnail"];
+    //Check if Thumbnail is in Numeric
+    if (!isNumber(data.thumbnail)) return ["Thumbnail Format must be numeric", "thumbnail"];  
+    //Check if price is in correct format
+    if (!isNumber(data.price)) return ["Price must be Numeric", "price"];
+    //Check if price is nelow 0
+    if (data.price < 0 ) return ["Price must be greater than 0", "price"];
   }
 
   /**
@@ -159,12 +175,14 @@ class Product extends DatabaseModel {
 
     //Query the Database
 
-    db.query("INSERT INTO products (name, thumbnail, short_description, likes, stocks, date_stamp) VALUES (?,?,?,?,?,?)", [
+    db.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stocks, price, date_stamp) VALUES (?,?,?,?,?,?,?,?)", [
       product.name,
       product.thumbnail,
       product.short_description,
+      product.description,
       product.likes,
       product.stock,
+      product.price,
       datestamp
     ], (error, results) => {
       // If has an error
@@ -185,6 +203,7 @@ class Product extends DatabaseModel {
     });
     
   }
+
   
   /**
    * Get primary key ID
@@ -215,7 +234,15 @@ class Product extends DatabaseModel {
    */
 
   public getShortDescription(){
-    return this.short_descprition;
+    return this.short_description;
+  }
+
+  /**
+   * Get Description
+   */
+
+  public getDescription(){
+    return this.description;
   }
 
   /**
@@ -234,6 +261,12 @@ class Product extends DatabaseModel {
     return this.stock;
   }
 
+  /**
+   * Get Price
+   */
+  public getPrice(){
+    return this.price;
+  }
   
 }
 

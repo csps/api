@@ -19,10 +19,12 @@ export type StudentType = {
 export type ProductType = {
   id: number;
   name: string;
-  thumbnail: string;
+  thumbnail: number;
   short_description: string;
+  description: string;
   likes: number;
   stock: number;
+  price: number;
   dateStamp?: string;
 }
 
