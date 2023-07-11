@@ -1,7 +1,7 @@
-import Database from "../database";
-import { ErrorTypes, DatabaseModel } from "../../types";
-import type { ProductType } from "../../types/models";
 import { Log } from "../../utils/log";
+import { ErrorTypes } from "../../types/enums";
+import Database, { DatabaseModel } from "../database";
+import type { ProductType } from "../../types/models";
 
 /**
  * Product Model

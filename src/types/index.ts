@@ -10,26 +10,20 @@ declare global {
     methods: HttpMethod[];
     handler: (request: Request, response: Response) => void;
   }
-}
 
-// Error types
-enum ErrorTypes {
-  DB_ERROR,
-  DB_EMPTY_RESULT,
-  DB_STUDENT_ALREADY_EXISTS,
-  DB_EMAIL_ALREADY_EXISTS
-}
-
-abstract class DatabaseModel {
-  static fromId(id: number | string, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
-    throw new Error("Method not implemented.");
+  type EmailButton = {
+    label: string,
+    url: string,
   }
-
-  static getAll(callback: (error: ErrorTypes | null, product: DatabaseModel[] | null) => void) {
-    throw new Error("Method not implemented.");
+  
+  type EmailMetaData = {
+    to: string, 
+    cc: string[],
+    bcc: string[],
+    subject: string,
+    title: string,
+    message: string,
+    buttons: EmailButton[],
+    attachments: File[]
   }
 }
-
-export {
-  ErrorTypes, DatabaseModel
-};

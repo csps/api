@@ -1,5 +1,19 @@
 import mysql from "mysql";
 import { sanitizeArray } from "../utils/security";
+import { ErrorTypes } from "../types/enums";
+
+/**
+ * Database Model class
+ */
+export abstract class DatabaseModel {
+  static fromId(id: number | string, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
+    throw new Error("Method not implemented.");
+  }
+
+  static getAll(callback: (error: ErrorTypes | null, product: DatabaseModel[] | null) => void) {
+    throw new Error("Method not implemented.");
+  }
+}
 
 /**
  * Singleton Database class

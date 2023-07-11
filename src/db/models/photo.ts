@@ -1,8 +1,8 @@
-import type { PhotoType } from "../../types/models";
-import { DatabaseModel, ErrorTypes } from "../../types";
-import { getDatestamp } from "../../utils/date";
-import Database from "../database";
 import { Log } from "../../utils/log";
+import { ErrorTypes } from "../../types/enums";
+import { getDatestamp } from "../../utils/date";
+import type { PhotoType } from "../../types/models";
+import Database, { DatabaseModel } from "../database";
 
 /**
  * Photos model

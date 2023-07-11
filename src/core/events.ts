@@ -1,5 +1,5 @@
 import Event from "../db/models/event";
-import { ErrorTypes } from "../types";
+import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import type { Request, Response } from "express";
 import { isNumber } from "../utils/string";

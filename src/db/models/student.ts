@@ -1,12 +1,11 @@
-import Database from "../database";
-import { DatabaseModel, ErrorTypes } from "../../types";
-import { isDate, isEmail, isNumber } from "../../utils/string";
-
-import type { StudentType } from "../../types/models";
+import { Log } from "../../utils/log";
 import { getDatestamp } from "../../utils/date";
+import { isDate, isEmail, isNumber } from "../../utils/string";
+import { ErrorTypes } from "../../types/enums";
 import { DatabaseHelper } from "../helper";
 import { StudentColumns, Tables } from "../structure";
-import { Log } from "../../utils/log";
+import Database, { DatabaseModel } from "../database";
+import type { StudentType } from "../../types/models";
 
 /**
  * Student model

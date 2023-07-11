@@ -1,6 +1,6 @@
 import type { Response, Request } from "express";
 import { result } from "../utils/response";
-import { ErrorTypes } from "../types";
+import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import { Photo } from "../db/models/photo";
 import { PhotoType } from "../types/models";
