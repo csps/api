@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.31",
+  "version": "1.0.0-pre.32",
   "main": "dist/index.js",
   "scripts": {
     "dev": "npm test && npm run dev-no-test",
@@ -33,6 +33,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/mysql": "^2.15.21",
     "@types/node": "^20.4.1",
+    "@types/nodemailer": "^6.4.8",
     "chalk": "~4.1.2",
     "ts-jest": "^29.1.1",
     "ts-node-dev": "^2.0.0",
@@ -45,7 +46,8 @@
     "express": "^4.18.2",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.9.3"
   },
   "overrides": {
     "semver": "~7.5.2"

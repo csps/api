@@ -2,10 +2,11 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import { getPattern } from "./utils/route";
-import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import { routes } from "./routes";
 import { Log } from "./utils/log";
 import { Parser } from "./utils/parser";
+import { checkCredentials } from "./utils/validate";
+import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import Database from "./db/database";
 
 // Load environment variables from .env file
@@ -72,6 +73,8 @@ app.use("*", (request, response) => {
  * Start the server
  */
 app.listen(port, () => {
+  // Check env credentials
+  checkCredentials();
   // Initialize database
   Database.getInstance();
   // Log message

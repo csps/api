@@ -17,13 +17,32 @@ declare global {
   }
   
   type EmailMetaData = {
+    /**
+     * Email recipient
+     * - Email
+     * - Name \<Email\>
+     */
     to: string, 
-    cc: string[],
-    bcc: string[],
     subject: string,
-    title: string,
     message: string,
-    buttons: EmailButton[],
-    attachments: File[]
+    title?: string,
+    cc?: string[],
+    bcc?: string[],
+    buttons?: EmailButton[],
+    attachments?: File[]
+  }
+
+  namespace NodeJS {
+    interface ProcessEnv {
+      DB_HOST: string,
+      DB_USER: string,
+      DB_PASS: string,
+      DB_NAME: string,
+      SMTP_NAME: string,
+      SMTP_HOST: string,
+      SMTP_PORT: number,
+      SMTP_USER: string,
+      SMTP_PASS: string
+    }
   }
 }
