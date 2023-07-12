@@ -23,7 +23,6 @@ export function getPattern(requestPath: string) {
 
       // Patterns should be e.g [ 'students , 5 ]
       // Request patterns should be e.g. [ 'students', ':id' ]
-
       
       // If the length of the patterns are not equal, continue
       if (patterns.length !== requestPatterns.length) {
