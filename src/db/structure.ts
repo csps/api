@@ -43,6 +43,9 @@ export enum ProductColumns {
   
 }
 
-export enum VariationColumns{
-  
+export enum ProductVariationColumns{
+  ID = "id",
+  TYPE = "type",
+  NAME = "name",  
+  PHOTOID = "photo_id",
 }

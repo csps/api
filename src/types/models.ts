@@ -26,6 +26,7 @@ export type ProductType = {
   stock: number;
   price: number;
   dateStamp?: string;
+  variations: ProductVariation[];
 }
 
 /**
@@ -41,4 +42,16 @@ export type EventType = {
   endTime: Date;
   venue: String;
   dateStamp?: string;
+};
+
+/**
+ * Product Variation data
+ */
+
+export type ProductVariation = {
+
+  id: number;
+  type: string;
+  name: string;
+  photoID: number;
 };

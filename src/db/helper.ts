@@ -6,7 +6,8 @@ import {
   Tables,
   StudentColumns,
   ProductColumns,
-  EventColumns
+  EventColumns,
+  ProductVariationColumns
 } from "./structure";
 
 /**
@@ -21,7 +22,7 @@ export class DatabaseHelper {
    * @param value Value to check
    * @param callback Callback function
    */
-  public static isDataExist(table: Tables, column: StudentColumns | ProductColumns | EventColumns, value: string, callback: (error: ErrorTypes | null, result: boolean) => void) {
+  public static isDataExist(table: Tables, column: StudentColumns | ProductColumns | EventColumns | ProductVariationColumns, value: string, callback: (error: ErrorTypes | null, result: boolean) => void) {
     // Get database instance
     const db = Database.getInstance();
 
