@@ -184,9 +184,8 @@ class Product extends DatabaseModel {
 
   /**
    * Validate Product Data
-   * @param data Product Data
+   * @param data Raw product Data
    */
-
   public static validate(data: any) {
     //check if name is empty
     if (!data.name) return ["Name is required!", "name"];
@@ -198,8 +197,8 @@ class Product extends DatabaseModel {
     if (!data.price) return ["Price is required!", 'price'];
     //Check if Short Description doesn't exceed 128 characters
     if (data.short_description.length > 128) return ["Short Description must not exceed 128 characters!", "short_description"];
-    //Check if Likes is not less than 0
-    if (data.likes < 0) return ["Likes must not be below 0", "likes"];
+    // If not stock
+    if (!data.stock) return ["Stock is required!", "stock"];
     //Check if stocks is not less than 0
     if (data.stock < 0) return ["Stocks must not be below 0", "stock"];
     //Check if Thumbnail is in Numeric
@@ -215,7 +214,6 @@ class Product extends DatabaseModel {
    * @param product Product Data
    * @param callback Callback Function
    */
-
   public static insert(product: ProductType, callback: (error: ErrorTypes | null, product: Product | null) => void) {
     // Get database instance
     const db = Database.getInstance();
@@ -228,7 +226,7 @@ class Product extends DatabaseModel {
       product.thumbnail,
       product.short_description,
       product.description,
-      product.likes,
+      0, // Default likes to 0
       product.stock,
       product.price,
       datestamp
@@ -242,12 +240,16 @@ class Product extends DatabaseModel {
 
       // Set the primary key ID
       const productID = results.insertId;
+      // Set product ID
+      product.id = productID;
+      // Set likes
+      product.likes = 0;
       // Set the date stamp
       product.dateStamp = datestamp;
-      // variation array
+      // List of variations
       const productVariations = product.variations || []
 
-
+      // If has variations
       if (productVariations.length > 0) {
         const variationValues = productVariations.map((variation) => [
           productID,
@@ -268,15 +270,15 @@ class Product extends DatabaseModel {
             product.id = productID;
 
             callback(null, new Product(product));
-          });
+          }
+        );
+        
+        return;
       }
-      else {
-        product.id = productID;
-        // Return the student
-        callback(null, new Product(product));
-      }
-    });
 
+      // Return the student
+      callback(null, new Product(product));
+    });
   }
 
   /**
