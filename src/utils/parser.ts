@@ -39,7 +39,7 @@ export class Parser {
    * Convert a string to JSON
    * @param request 
    */
-  private static toJSON(text: string): object | null {
+  public static toJSON(text: string): object | null {
     try {
       return JSON.parse(text);
     } catch (error) {
