@@ -61,7 +61,7 @@ export class Log {
         // Check if the body is a string
         if (typeof body === "object") {
           // Set the body to the response locals
-          response.locals.body = JSON.stringify({ success: body.success, message: body.message });
+          response.locals.body = JSON.stringify({ success: body.success, message: body.message }, null, 0);
         }
 
         // Call the old send function
@@ -118,11 +118,20 @@ export class Log {
       bgLog = chalk.bgWhite;
       txLog = chalk.white;
     }
-    
+
+    // Get the response status
+    const { statusCode, statusMessage, locals } = response;
+    // Get the response data
+    const responseData = locals.body || "";
+    // Get the request data
+    const requestData = request.originalUrl.startsWith("/photos") ? "*photos*" : (
+      Object.keys(request.body).length > 0 ? JSON.stringify(JSON.parse(request.body), null, 0) : ""
+    );
+
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${ip}] [${date}] [${method} ${url}] [${response.statusCode} ${response.statusMessage}] [${response.locals.body || ""}] [${request.originalUrl.startsWith("/photos") ? "*photos*" : JSON.stringify(request.body)}]`
+        `[${ip}] [${date}] [${method} ${url}] [${statusCode} ${statusMessage}] [${requestData}] [${responseData}]`
       )
     );
   }
