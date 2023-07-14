@@ -1,8 +1,6 @@
-import { example } from "../core/example";
-import { login } from "../core/auth/login";
-import { products } from "../core/products";
-import { events } from "../core/events";
-import { students } from "../core/students";
+import {
+  events, example, login, photos, products, students
+} from "../core";
 
 
 /**
@@ -33,4 +31,9 @@ export const routes: AppRoutes[] = [
   // Events
   { path: "/events/:id", methods: ["GET"], handler: events },
   { path: "/events", methods: ["GET"], handler: events },
+
+  // Photos
+  { path: "/photos/:id/raw", methods: ["GET"], handler: photos },
+  { path: "/photos/:id", methods: ["GET"], handler: photos },
+  { path: "/photos", methods: ["POST"], handler: photos },
 ];

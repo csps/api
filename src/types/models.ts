@@ -47,11 +47,21 @@ export type EventType = {
 /**
  * Product Variation data
  */
-
 export type ProductVariation = {
-
   id: number;
   type: string;
   name: string;
   photoID: number;
 };
+
+ /*
+ * Photo type data
+ */
+export type PhotoType = {
+  id: number;
+  data: Buffer;
+  type: string;
+  width: number;
+  height: number;
+  dateStamp?: string;
+}

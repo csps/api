@@ -1,4 +1,4 @@
-import { ErrorTypes } from "../types"
+import { ErrorTypes } from "../types/enums"
 import { sanitize } from "../utils/security";
 import Database from "./database"
 

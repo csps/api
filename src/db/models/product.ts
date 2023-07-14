@@ -1,10 +1,24 @@
-  import Database from "../database";
-  import { ErrorTypes, DatabaseModel } from "../../types";
-  import type { ProductType, ProductVariation } from "../../types/models";
-  import { Log } from "../../utils/log";
-  import { isNumber } from "../../utils/string";
-  import { getDatestamp } from "../../utils/date";
+import { Log } from "../../utils/log";
+import { ErrorTypes } from "../../types/enums";
+import Database, { DatabaseModel } from "../database";
+import { isNumber } from "../../utils/string";
+import { getDatestamp } from "../../utils/date";
+import type { ProductType, ProductVariation } from "../../types/models";
 
+/**
+ * Product Model
+ * This model contains all the Product Information and Quantity :D
+ * @author ampats04 (Jeremy Andy F. Ampatin)
+*/
+class Product extends DatabaseModel {
+  private id: number;
+  private name: string;
+  private thumbnail: string;
+  private short_descprition: string;
+  private likes: number;
+  private stock: number;
+  private dateStamp?: string;
+  
   /**
    * Product Model
    * This model contains all the Product Information and Quantity :D

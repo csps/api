@@ -6,7 +6,7 @@
  * 
  * If it has a second parameter, it will be the data to be sent to the client.
  * 
- * - result.success("I'm a success", "Data") = { success: true, message: "I'm a success", data: "" }
+ * - result.success("I'm a success", "Data") = { success: true, message: "I'm a success", data: "Data" }
  */
 export const result = {
   /**

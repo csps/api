@@ -1,5 +1,5 @@
-import Database from "../database";
-import { DatabaseModel, ErrorTypes } from "../../types";
+import Database, { DatabaseModel } from "../database";
+import { ErrorTypes } from "../../types/enums";
 import { EventType } from "../../types/models";
 import { Log } from "../../utils/log";
 

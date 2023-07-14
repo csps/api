@@ -17,7 +17,7 @@ export function login(request: Request, response: Response) {
   }
 }
 
-export function postLogin(request: Request, response: Response) {
+function postLogin(request: Request, response: Response) {
   Student.fromId(request.body.id, (error, student) => {
     if (error !== null || student === null) {
       response.send(result.error("Login Failed"))
@@ -36,7 +36,7 @@ export function postLogin(request: Request, response: Response) {
 
 }
 
-export function validatePassword(passwordInput: string, password: string, callback: (isSuccess: Boolean) => void) {
+function validatePassword(passwordInput: string, password: string, callback: (isSuccess: Boolean) => void) {
   const flag = bcrypt.compare(passwordInput, password, (error, result) => {
     if (error) {
       console.error(error);

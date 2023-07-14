@@ -122,7 +122,7 @@ export class Log {
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${ip}] [${method} ${url}] [${date}] [${response.statusCode} ${response.statusMessage}] [${response.locals.body}] [${JSON.stringify(request.body)}]`
+        `[${ip}] [${date}] [${method} ${url}] [${response.statusCode} ${response.statusMessage}] [${response.locals.body || ""}] [${request.originalUrl.startsWith("/photos") ? "*photos*" : JSON.stringify(request.body)}]`
       )
     );
   }
