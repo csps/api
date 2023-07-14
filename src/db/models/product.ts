@@ -191,17 +191,17 @@ class Product extends DatabaseModel {
     //check if name is empty
     if (!data.name) return ["Name is required!", "name"];
     //check if Short Description is empty
-    if (!data.short_descpription) return ["Short Description is required!", "short_description"];
+    if (!data.short_description) return ["Short Description is required!", "short_description"];
     //check if Description is empty
     if (!data.description) return ["Description is required", 'description'];
     //Check if Price is empty
     if (!data.price) return ["Price is required!", 'price'];
     //Check if Short Description doesn't exceed 128 characters
-    if (data.short_descprition.length > 128) return ["Short Description must not exceed 128 characters!", "short_description"];
+    if (data.short_description.length > 128) return ["Short Description must not exceed 128 characters!", "short_description"];
     //Check if Likes is not less than 0
-    if (data.likes.length < 0) return ["Likes must not be below 0", "likes"];
+    if (data.likes < 0) return ["Likes must not be below 0", "likes"];
     //Check if stocks is not less than 0
-    if (data.stock.length < 0) return ["Stocks must not be below 0", "stock"];
+    if (data.stock < 0) return ["Stocks must not be below 0", "stock"];
     //Check if Thumbnail is in Numeric
     if (!isNumber(data.thumbnail)) return ["Thumbnail Format must be numeric", "thumbnail"];
     //Check if price is in correct format
