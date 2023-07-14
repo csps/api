@@ -10,7 +10,7 @@ const months28 = [2];
  * @param value String to check
  */
 export function isNumber(value: string): boolean {
-  return /^\d+$/.test(value)
+  return /^\d*\.?\d+$/.test(value)
 }
 
 /**
@@ -20,6 +20,17 @@ export function isNumber(value: string): boolean {
 export function isEmail(value: string):  boolean {
   return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)
 }
+
+/**
+ * 
+ * @param value String to Check
+ */
+export function isUrl(value: string): boolean {
+
+return /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(value);
+
+}
+
 
 /**
  * Check if a string is in YYYY-MM-DD format

@@ -7,17 +7,24 @@ import Product from '../db/models/product';
 /**
  * Products API
  * @author ampats04 (Jeremy Andy F. Ampatin)
+ * 
+ * @param request Exprese request
+ * @param response Express response
  */
 export function products(request: any, response: Response) {
   switch (request.method) {
     case 'GET':
       getProducts(request, response);
       break;
+    case 'POST':
+      postProducts(request, response);
+      break;
   }
 }
 
 /**
  * GET /products
+ * 
  * @param request Express Request Object
  * @param response Express Response Object
  */
@@ -52,6 +59,7 @@ function getProducts(request: Request, response: Response) {
 
 /**
  * GET /products/:id
+ * 
  * @param request Express Request Object
  * @param response Express Response Object
  */
@@ -81,6 +89,45 @@ function getProduct(request: Request, response: Response) {
 
     // Return the product
     response.send(result.success("Product found!", product));
+  });
+
+}
+
+/**
+ * POST /products
+ * 
+ * @param request 
+ * @param response 
+ */
+
+function postProducts(request: Request, response: Response){
+
+  // Validate the product data
+
+  const validation = Product.validate(request.body);
+
+  // If has an error
+  if (validation){
+    response.status(400).send(result.error(validation[0], validation[1]));
+    return;
+  }
+
+  // Insert the student to the database
+
+  Product.insert(request.body, (error, product) => {
+
+    // If has an error
+    switch(error){
+      case ErrorTypes.DB_ERROR:
+        response.status(500).send(result.error("Error inserting Product to database."));
+        break;
+      case ErrorTypes.DB_PRODUCT_ALREADY_EXISTS:
+        response.status(400).send(result.error("Product already exists."));
+      break;
+    }
+
+    // Otherwise, return the product data
+    response.send(result.success("Product Succesfully created!", product));
   });
 
 }
