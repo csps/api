@@ -5,6 +5,13 @@ import { isNumber } from "../../utils/string";
 import { getDatestamp } from "../../utils/date";
 import type { ProductType, ProductVariation } from "../../types/models";
 
+import {
+  PRODUCT_EMPTY_NAME, PRODUCT_EMPTY_SHORT_DESCRIPTION, PRODUCT_EMPTY_DESCRIPTION,
+  PRODUCT_EMPTY_PRICE, PRODUCT_EMPTY_STOCK, PRODUCT_EMPTY_THUMBNAIL,
+  PRODUCT_LIMIT_SHORT_DESCRIPTION, PRODUCT_LIMIT_PRICE, PRODUCT_LIMIT_STOCK,
+  PRODUCT_INVALID_PRICE, PRODUCT_INVALID_STOCK, PRODUCT_INVALID_THUMBNAIL,
+} from "../../strings/strings.json";
+
 /**
  * Product Model
  * This model contains all the Product Information and Quantity :D
@@ -187,26 +194,31 @@ class Product extends DatabaseModel {
    * @param data Raw product Data
    */
   public static validate(data: any) {
-    //check if name is empty
-    if (!data.name) return ["Name is required!", "name"];
-    //check if Short Description is empty
-    if (!data.short_description) return ["Short Description is required!", "short_description"];
-    //check if Description is empty
-    if (!data.description) return ["Description is required", 'description'];
-    //Check if Price is empty
-    if (!data.price) return ["Price is required!", 'price'];
-    //Check if Short Description doesn't exceed 128 characters
-    if (data.short_description.length > 128) return ["Short Description must not exceed 128 characters!", "short_description"];
-    // If not stock
-    if (!data.stock) return ["Stock is required!", "stock"];
-    //Check if stocks is not less than 0
-    if (data.stock < 0) return ["Stocks must not be below 0", "stock"];
-    //Check if Thumbnail is in Numeric
-    if (!isNumber(data.thumbnail)) return ["Thumbnail Format must be numeric", "thumbnail"];
-    //Check if price is in correct format
-    if (!isNumber(data.price)) return ["Price must be Numeric", "price"];
-    //Check if price is below 0
-    if (data.price < 0) return ["Price must be greater than 0", "price"];
+    // If name is empty
+    if (!data.name) return [PRODUCT_EMPTY_NAME, "name"];
+    // If Short Description is empty
+    if (!data.short_description) return [PRODUCT_EMPTY_SHORT_DESCRIPTION, "short_description"];
+    // If Short Description exceeds 128 characters
+    if (data.short_description.length > 128) return [PRODUCT_LIMIT_SHORT_DESCRIPTION, "short_description"];
+    // If Description is empty
+    if (!data.description) return [PRODUCT_EMPTY_DESCRIPTION, 'description'];
+    // If Price is empty
+    if (!data.price) return [PRODUCT_EMPTY_PRICE, 'price'];
+    // If Price is not in correct format
+    if (!isNumber(data.price)) return [PRODUCT_INVALID_PRICE, "price"];
+    // If Price is less than 0
+    if (data.price < 0) return [PRODUCT_LIMIT_PRICE, "price"];
+    // If Stock is empty
+    if (!data.stock) return [PRODUCT_EMPTY_STOCK, "stock"];
+    // If Stock is not in correct format
+    if (!isNumber(data.stock)) return [PRODUCT_INVALID_STOCK, "stock"];
+    // If Stock is less than 0
+    if (data.stock < 0) return [PRODUCT_LIMIT_STOCK, "stock"];
+    // If Thumbnail is empty
+    if (!data.thumbnail) return [PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
+    // If Thumbnail is not in correct format
+    if (!isNumber(data.thumbnail)) return [PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
+    
   }
 
   /**

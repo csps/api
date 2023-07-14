@@ -7,6 +7,16 @@ import { StudentColumns, Tables } from "../structure";
 import Database, { DatabaseModel } from "../database";
 import type { StudentType } from "../../types/models";
 
+import {
+  STUDENT_GET_ERROR, STUDENT_POST_ERROR, STUDENT_NOT_FOUND,
+  STUDENT_ALREADY_EXIST, STUDENT_EMAIL_ALREADY_EXIST, STUDENT_CREATED,
+  STUDENT_FOUND, STUDENT_EMPTY_ID, STUDENT_EMPTY_YEAR_LEVEL,
+  STUDENT_EMPTY_FIRST_NAME, STUDENT_EMPTY_LAST_NAME, STUDENT_EMPTY_BIRTHDATE,
+  STUDENT_EMPTY_EMAIL, STUDENT_EMPTY_PASSWORD, STUDENT_LIMIT_ID,
+  STUDENT_LIMIT_YEAR_LEVEL, STUDENT_INVALID_BIRTHDATE, STUDENT_INVALID_EMAIL,
+  STUDENT_INVALID_PASSWORD
+} from "../../strings/strings.json";
+
 /**
  * Student model
  * This model represents a student in the database
@@ -158,29 +168,29 @@ class Student extends DatabaseModel {
    */
   public static validate(data: any) {
     // Check if student id is empty
-    if (!data.id)return ["Student id is required!", "student_id"];
+    if (!data.id) return [STUDENT_EMPTY_ID, "student_id"];
     // Check if year level is empty
-    if (!data.yearLevel) return ["Year level is required!", "year_level"];
+    if (!data.yearLevel) return [STUDENT_EMPTY_YEAR_LEVEL, "year_level"];
     // Check if first name is empty
-    if (!data.firstName) return ["First name is required!", "first_name"];
+    if (!data.firstName) return [STUDENT_EMPTY_FIRST_NAME, "first_name"];
     // Check if last name is empty
-    if (!data.lastName) return ["Last name is required!", "last_name"];
+    if (!data.lastName) return [STUDENT_EMPTY_LAST_NAME, "last_name"];
     // Check if birthdate is empty
-    if (!data.birthdate) return ["Birthdate is required!", "birthdate"];
+    if (!data.birthdate) return [STUDENT_EMPTY_BIRTHDATE, "birthdate"];
     // Check if email is empty
-    if (!data.email) return ["Email is required!", "email"];
+    if (!data.email) return [STUDENT_EMPTY_EMAIL, "email"];
     // Check if password is empty
-    if (!data.password) return ["Password is required!", "password"];
+    if (!data.password) return [STUDENT_EMPTY_PASSWORD, "password"];
     // Check if student id is a number
-    if (!isNumber(data.id) || data.id.length >= 16) return ["Invalid student id!", "student_id"];
+    if (!isNumber(data.id) || data.id.length >= 16) return [STUDENT_LIMIT_ID, "student_id"];
     // Check if year level is a number and valid
-    if (!isNumber(data.yearLevel) || data.yearLevel < 1 || data.yearLevel > 4) return ["Invalid year level!", "year_level"];
+    if (!isNumber(data.yearLevel) || data.yearLevel < 1 || data.yearLevel > 4) return [STUDENT_LIMIT_YEAR_LEVEL, "year_level"];
     // Check if birthdate is valid
-    if (!isDate(data.birthdate)) return ["Invalid birthdate!", "birthdate"];
+    if (!isDate(data.birthdate)) return [STUDENT_INVALID_BIRTHDATE, "birthdate"];
     // Check if email is valid
-    if (!isEmail(data.email.trim())) return ["Invalid email address!", "email"];
+    if (!isEmail(data.email.trim())) return [STUDENT_INVALID_EMAIL, "email"];
     // Check if password is at least 8 characters
-    if (data.password.trim().length < 8) return ["Password must be at least 8 characters!", "password"];
+    if (data.password.trim().length < 8) return [STUDENT_INVALID_PASSWORD, "password"];
   }
 
   /**

@@ -4,6 +4,7 @@ import Student from "../../db/models/student"
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Log } from "../../utils/log";
+import { LOGIN_SUCCESS, LOGIN_FAILED } from "../../strings/strings.json";
 
 /**
  * Login API
@@ -20,15 +21,15 @@ export function login(request: Request, response: Response) {
 function postLogin(request: Request, response: Response) {
   Student.fromId(request.body.id, (error, student) => {
     if (error !== null || student === null) {
-      response.send(result.error("Login Failed"))
+      response.send(result.error(LOGIN_FAILED))
     } else {
       const pw = student.getPassword() || "";      
       validatePassword(request.body.password, pw, (isSuccess) => {
         if (isSuccess === true) {
           const token = jwt.sign({ data: student }, process.env.SECRET_KEY || "", { expiresIn: '1d' });
-          response.send(result.success("Login Successful", { token: token }))
+          response.send(result.success(LOGIN_SUCCESS, { token: token }))
         } else {
-          response.send(result.error("Login Failed"))
+          response.send(result.error(LOGIN_FAILED))
         }
       })
     }

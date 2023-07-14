@@ -4,6 +4,11 @@ import { getDatestamp } from "../../utils/date";
 import type { PhotoType } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 
+import {
+  PHOTO_EMPTY_DATA, PHOTO_EMPTY_TYPE,
+  PHOTO_EMPTY_WIDTH, PHOTO_EMPTY_HEIGHT
+} from "../../strings/strings.json";
+
 /**
  * Photos model
  * This model represents a photo in the database
@@ -100,7 +105,6 @@ export class Photo extends DatabaseModel {
 
       // Set the date stamp
       photo.dateStamp = datestamp;
-
       // Return the student
       callback(null, new Photo(photo));
     });
@@ -112,13 +116,13 @@ export class Photo extends DatabaseModel {
    */
   public static validate(data: any) {
     // If data is empty
-    if (!data.data) return ["Empty data!", "data"];
+    if (!data.data) return [PHOTO_EMPTY_DATA, "data"];
     // If type is empty
-    if (!data.type) return ["Empty type!", "type"];
+    if (!data.type) return [PHOTO_EMPTY_TYPE, "type"];
     // If width is empty
-    if (!data.width) return ["Empty width!", "width"];
+    if (!data.width) return [PHOTO_EMPTY_WIDTH, "width"];
     // If height is empty
-    if (!data.height) return ["Empty height!", "height"];
+    if (!data.height) return [PHOTO_EMPTY_HEIGHT, "height"];
   }
 
   /**
