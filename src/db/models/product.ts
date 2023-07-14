@@ -72,7 +72,7 @@ class Product extends DatabaseModel {
           id: data.id,
           name: data.name,
           thumbnail: data.thumbnail,
-          short_description: data.short_descprition,
+          short_description: data.short_description,
           description: data.description,
           likes: data.likes,
           stock: data.stock,
