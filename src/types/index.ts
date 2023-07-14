@@ -11,15 +11,6 @@ declare global {
     handler: (request: Request, response: Response) => void;
   }
 
-  // Error types
-  enum ErrorTypes {
-    DB_ERROR,
-    DB_EMPTY_RESULT,
-    DB_STUDENT_ALREADY_EXISTS,
-    DB_EMAIL_ALREADY_EXISTS,
-    DB_PRODUCT_ALREADY_EXISTS,
-  }
-
   type EmailButton = {
     label: string,
     url: string,

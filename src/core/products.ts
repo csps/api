@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ErrorTypes } from '../types';
+import { ErrorTypes } from '../types/enums';
 import { result } from '../utils/response';
 import { isNumber } from '../utils/string';
 import Product from '../db/models/product';
@@ -48,7 +48,7 @@ function getProducts(request: Request, response: Response) {
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("No products found"));
+      response.status(404).send(result.error("No products found!"));
       return;
     }
     
@@ -99,11 +99,8 @@ function getProduct(request: Request, response: Response) {
  * @param request 
  * @param response 
  */
-
 function postProducts(request: Request, response: Response){
-
   // Validate the product data
-
   const validation = Product.validate(request.body);
 
   // If has an error
@@ -113,9 +110,7 @@ function postProducts(request: Request, response: Response){
   }
 
   // Insert the student to the database
-
   Product.insert(request.body, (error, product) => {
-
     // If has an error
     switch(error){
       case ErrorTypes.DB_ERROR:

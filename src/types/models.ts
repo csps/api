@@ -49,9 +49,10 @@ export type EventType = {
  */
 export type ProductVariation = {
   id: number;
-  type: string;
-  name: string;
+  productID: number;
+  variationType: number;
   photoID: number;
+  name: string;
 };
 
  /*
