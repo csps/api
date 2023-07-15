@@ -30,7 +30,7 @@ export const routes: AppRoutes[] = [
 
   // Events
   { path: "/events/:id", methods: ["GET"], handler: events },
-  { path: "/events", methods: ["GET"], handler: events },
+  { path: "/events", methods: ["GET", "POST"], handler: events },
 
   // Photos
   { path: "/photos/:id/raw", methods: ["GET"], handler: photos },

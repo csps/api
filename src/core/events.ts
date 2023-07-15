@@ -16,6 +16,9 @@ export function events(request: Request, response: Response) {
     case 'GET':
       getEvents(request, response)
       break;
+
+    case 'POST':
+      postEvents(request,response);
   }
 }
 
@@ -85,5 +88,37 @@ function getEvent(request: Request, response: Response) {
     // Return the event
     response.send(result.success(event))
   })
+}
+
+/**
+ * POST /events
+ * @param request
+ * @param response
+ */
+function postEvents(request: Request, response: Response){
+  // Validate the Event Data
+  const validation = Event.validate(request.body);
+
+  // If has an error
+  if (validation){
+    response.status(400).send(result.error(validation[0], validation[1]));
+    return;
+  }
+
+  Event.insert(request.body, (error, event) => {
+    
+    // If has an error
+    switch(error){
+      case ErrorTypes.DB_ERROR:
+        response.status(500).send(result.error("Error Insert Event in Database."));
+        break;
+      case ErrorTypes.DB_EVENT_ALREADY_EXISTS:
+        response.status(400).send(result.error("Event already Existed"));
+        break;
+      
+    }
+    // Otherwise, return the Event Data
+    response.send(result.success("Event Succesfully created!", event));
+  });
 }
 
