@@ -54,8 +54,13 @@ class Tutorial extends DatabaseModel {
   public static fromAcademicYear(year: number, callback: (error: ErrorTypes | null, tutorial: Tutorial[] | null) => void) {
     // Get database instance
     const db = Database.getInstance();
+    // Get start date
+    const startDate = `${year}-08-01`; // TODO: Change this to a dynamic date
+    // Get end date
+    const endDate = `${year + 1}-07-01`; // TODO: Change this to a dynamic date
+
     // Query the database
-    db.query("SELECT * FROM tutorials WHERE YEAR(date_stamp) = ? OR YEAR(date_stamp) = ?", [year, year + 1], (error, results) => {
+    db.query("SELECT * FROM tutorials WHERE date_stamp > ? AND date_stamp < ?", [startDate, endDate], (error, results) => {
       // If has error
       if (error) {
         Log.e(error.message);
