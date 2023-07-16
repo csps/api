@@ -2,16 +2,21 @@ import Database, { DatabaseModel } from "../database";
 import { ErrorTypes } from "../../types/enums";
 import { EventType } from "../../types/models";
 import { Log } from "../../utils/log";
+import { getDatestamp } from "../../utils/date";
+import { error } from "console";
+import { isDate } from "util/types";
+import { isTime } from "../../utils/string";
 
 /**
  * Event model
  * @author TotalElderBerry (Brian Keith Lisondra)
+ * @author ampats04 (Jeremy Andy F. Ampatin)
  */
 class Event extends DatabaseModel {
   private id: number;
   private title: String;
   private description: String;
-  private thumbnail: String;
+  private thumbnail: Number;
   private date: Date;
   private startTime: Date;
   private endTime: Date;
@@ -119,6 +124,134 @@ class Event extends DatabaseModel {
       callback(null, allEvents)
     })
   }
+  /**
+   * Insert Event Data to the Database
+   * @param event 
+   * @param callback 
+   */
+
+  public static insert(event: EventType, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
+
+    // Get Database Instance
+    const db = Database.getInstance();
+
+    // Query the Database
+    db.query("INSERT INTO events (title, thumbnail, description, date, start_time, end_time, venue) VALUES (?,?,?,?,?,?,?)",[
+      event.thumbnail,
+      event.title,
+      event.description,
+      event.date,
+      event.startTime,
+      event.endTime,
+      event.venue,
+    ], (error, results) => {
+      //If has an error
+      if (error){
+        console.log(error);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      //Set the primary key ID
+      event.id = results.insertId;
+      
+      // Return the Event
+      callback(null, new Event(event));
+    });
+  }
+
+/**
+ * Validate Event Data
+ * @param data Raw Event Data
+ */
+
+public static validate(data: any ){
+  
+  //Check if Title is Empty
+  if(!data.title) return ["Title is Required!", "title"];
+  //Check if Thumbnail is Empty
+  if(!data.thumbnail) return ["Thumbnail is Required!", "thumbnail"];
+  //Check if Description is Empty
+  if(!data.description) return ["Description is Required!", "description"];
+  //Check if date is Empty
+  if(!data.date) return ["Date is Required!", "date"];
+  //Check if Start Time is Empty
+  if(!data.start_time) return ["Start Time is Required!", "start_time"];
+  //Check if End Time is Empty
+  if(!data.end_time) return ["End Time is Required!", "end_time"];
+  //Check if Venue is Empty
+  if(!data.venue) return ["Venue is Required!", "venue"];
+  //Check if Date is invalid
+  if(!isDate(data.date)) return ["Date is Invalid!", "date"];
+  //Check if it is an Old Date
+  if(data.date) return ["Old Date Inputted", "date"];
+  //Check if Start Time is invalid
+  if(!isTime(data.startTime)) return ["Invalid Time Format", "start_time"];
+  //Check if End Time is invalid
+  if(!isTime(data.endTime)) return ["Invalid Time Format", "end_time"];
+  //Check if End Time is Lesser than Start Time
+  if(data.endTime >= data.startTime) return ["End Time must be Lesser than Start Time!" , "end_time"]
+
+}
+/**
+ * Get the Primary ID
+ */
+
+public getId(){
+  return this.id;
+}
+
+/**
+ * Get thumbnail
+ */
+
+public getThumbnail(){
+  return this.thumbnail;
+}
+
+/**
+ * Get Description
+ */
+
+public getDescription(){
+  return this.description;
+}
+
+public getTitle(){
+  return this.title;
+}
+
+/**
+ * Get Date
+ */
+
+public getDate(){
+  return this.date;
+}
+
+/**
+ * Get Start Time
+ */
+
+public getStartTime(){
+  return this.startTime;
+}
+
+/**
+ * Get End Time
+ */
+
+public getEndTime(){
+  return this.endTime;
+}
+
+/**
+ * Get DateStamp
+ */
+
+public getDateStamp(){
+  return this.dateStamp;
+}
 }
 
 export default Event

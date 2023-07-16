@@ -19,6 +19,7 @@ export enum StudentColumns {
 
 export enum EventColumns {
   ID = "id",
+  YEAR = "year",
   THUMBNAIL = "thumbnail",
   TITLE = "title",
   DESCRIPTION = "description",

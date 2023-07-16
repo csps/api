@@ -30,7 +30,16 @@ export function isUrl(value: string): boolean {
 return /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(value);
 
 }
+/**
+ * Check if a string is a Time
+ * @param value 
+ */
+export function isTime(value: string): boolean{
 
+  const timeRegex = /^(0?[1-9]1[0-2]):[0-5][0-9] (AM|PM)$/i;
+
+  return timeRegex.test(value);
+}
 
 /**
  * Check if a string is in YYYY-MM-DD format
@@ -39,6 +48,10 @@ return /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(value);
 export function isDate(value: string): boolean {
   // Trim the string
   value = value.trim();
+
+  //Create the current date as reference
+  const currentDate = new Date();
+
 
   // If length is not 10, return false
   if (value.length !== 10) return false;
@@ -68,7 +81,7 @@ export function isDate(value: string): boolean {
     (months30.includes(month) && day > 30) ||
     (months28.includes(month) && day > 28)
   ) return false;
-
+  
  // Otherwise, return true
   return true; 
 }

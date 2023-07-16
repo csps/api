@@ -36,7 +36,7 @@ export type EventType = {
   id: number;
   title: String;
   description: String;
-  thumbnail: String;
+  thumbnail: Number;
   date: Date;
   startTime: Date;
   endTime: Date;
