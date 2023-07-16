@@ -21,6 +21,10 @@ class Tutorial extends DatabaseModel {
   private remarks: String;
   private date_stamp: String;
 
+  /**
+   * Tutorial Public Constructor
+   * @param data Raw Tutorial Data
+   */
   public constructor(data: TutorialType) {
     super();
     this.id = data.id;
@@ -32,15 +36,77 @@ class Tutorial extends DatabaseModel {
     this.remarks = data.remarks?.trim();
     this.date_stamp = data.date_stamp.trim();
   }
-
-  public get getDateStamp() {
-    return this.date_stamp;
-  }
-
+  
+  /**
+   * Get tutorial by ID
+   * @param id 
+   * @param callback 
+   */
   public static fromId(id: number, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
 
   }
 
+  /**
+   * Get tutorial by academic year
+   * @param year 
+   * @param callback 
+   */
+  public static fromAcademicYear(year: number, callback: (error: ErrorTypes | null, tutorial: Tutorial[] | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Query the database
+    db.query("SELECT * FROM tutorials WHERE YEAR(date_stamp) = ? OR YEAR(date_stamp) = ?", [year, year + 1], (error, results) => {
+      // If has error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create Students
+      const tutorials: Tutorial[] = [];
+
+      // Loop through the results
+      for (const data of results) {
+        // Create Student object
+        const tutorial = new Tutorial({
+          // Student ID / Student Number
+          id: data.id,
+          // Student Primary Key ID
+          student_id: data.student_id,
+          // Student Email Address
+          language: data.language,
+          // Student First Name
+          schedule: data.schedule,
+          // Student Last Name
+          status: data.status,
+          // Student Year Level
+          status_date_stamp: data.status_date_stamp,
+          // Student Birth Date
+          remarks: data.remarks,
+          // Student password
+          date_stamp: data.date_stamp
+        });
+
+        // Push the student object to the array
+        tutorials.push(tutorial);
+      }
+
+      // Return the tutorials
+      callback(null, tutorials);
+    });
+  }
+
+  /**
+   * Get all tutorials
+   * @param callback Callback function
+   */
   public static getAll(callback: (error: ErrorTypes | null, tutorial: Tutorial[] | null) => void) {
     const db = Database.getInstance();
 
@@ -92,10 +158,13 @@ class Tutorial extends DatabaseModel {
     })
   }
 
+  /**
+   * Add a new tutorial
+   * @param tutorial Tutorial information
+   * @param callback Callback function
+   */
   public static insert(tutorial: TutorialType, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
-    /**
-     * Check if the tutorial already exists
-     */
+    // Get database instance
     const db = Database.getInstance();
     // Get the current date
     const datestamp = getDatestamp();
@@ -108,7 +177,7 @@ class Tutorial extends DatabaseModel {
       tutorial.status.trim(),
       tutorial.status_date_stamp.trim(),
       tutorial.remarks.trim(),
-      tutorial.date_stamp.trim(),
+      datestamp,
     ], (error, results) => {
       // If has an error
       if (error) {
@@ -117,76 +186,72 @@ class Tutorial extends DatabaseModel {
         return;
       }
 
-
       // Return the student
       callback(null, new Tutorial(tutorial));
     });
+  }
 
-  };
+  /**
+   * Get the Primary ID
+   */
+  public getId() {
+    return this.id;
+  }
 
-  public static getByAcademicYear(year: string, callback: (error: ErrorTypes | null, tutorial: Tutorial[] | null) => void) {
-    /**
-     * Check if the tutorial already exists
-     */
-    const db = Database.getInstance();
-    // Get the current date
-    const datestamp = getDatestamp();
-    const yearDate = parseInt(year)
+  /**
+   * Get student id
+   * @returns Student ID
+   */
+  public getStudentId() {
+    return this.studentId;
+  }
 
-    if (!isNaN(yearDate)) {
-      const query = `select * from tutorials where YEAR(date_stamp)=${yearDate} or YEAR(date_stamp)=${yearDate + 1};`
+  /**
+   * Get language
+   * @returns Programming Language
+   */
+  public getLanguage() {
+    return this.language;
+  }
 
-      db.query(query, [], (error, results) => {
-        if (error) {
-          Log.e(error.message);
-          callback(ErrorTypes.DB_ERROR, null);
-          return;
-        }
+  /**
+   * Get schedule
+   * @returns Schedule
+   */
+  public getSchedule() {
+    return this.schedule;
+  }
 
-        // If no results
-        if (results.length === 0) {
-          callback(ErrorTypes.DB_EMPTY_RESULT, null);
-          return;
-        }
+  /**
+   * Get status
+   * @returns Status
+   */
+  public getStatus() {
+    return this.status;
+  }
 
-        // Create Students
-        const tutorials: Tutorial[] = [];
+  /**
+   * Get status updated datetime
+   * @returns Status updated datetime
+   */
+  public getStatusDatestamp() {
+    return this.status_date_stamp;
+  }
 
-        // Loop through the results
-        for (const data of results) {
-          // Create Student object
-          const tutorial = new Tutorial({
-            // Student ID / Student Number
-            id: data.id,
-            // Student Primary Key ID
-            student_id: data.student_id,
-            // Student Email Address
-            language: data.language,
-            // Student First Name
-            schedule: data.schedule,
-            // Student Last Name
-            status: data.status,
-            // Student Year Level
-            status_date_stamp: data.status_date_stamp,
-            // Student Birth Date
-            remarks: data.remarks,
-            // Student password
-            date_stamp: data.date_stamp
-          });
+  /**
+   * Get remarks
+   * @returns Remarks
+   */
+  public getRemarks() {
+    return this.remarks;
+  }
 
-          // Push the student object to the array
-          tutorials.push(tutorial);
-        }
-
-        // Return the tutorials
-        callback(null, tutorials);
-        return
-      })
-
-      return;
-    }
-
-    callback(ErrorTypes.DB_EMPTY_RESULT, null);
+  /**
+   * Get tutorial published datetime
+   * @returns Datestamp
+   */
+  public getDatestamp() {
+    return this.date_stamp;
   }
 }
 

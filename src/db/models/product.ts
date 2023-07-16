@@ -245,7 +245,6 @@ class Product extends DatabaseModel {
     ], (error, results) => {
       // If has an error
       if (error) {
-        console.log(error);
         callback(ErrorTypes.DB_ERROR, null);
         return;
       }
