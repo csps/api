@@ -44,6 +44,17 @@ export type EventType = {
   dateStamp?: string;
 };
 
+export type TutorialType = {
+  id: number;
+  student_id: String;
+  language: String;
+  schedule: String;
+  status: String;
+  status_date_stamp: String;
+  remarks: String;
+  date_stamp: String;
+}
+
 /**
  * Product Variation data
  */

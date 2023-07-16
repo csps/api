@@ -2,6 +2,7 @@ export enum Tables {
   STUDENTS = "students",
   EVENTS = "events",
   PRODUCTS = "products",
+  TUTORIALS = "tutorials"
 }
 
 export enum StudentColumns {
@@ -56,4 +57,15 @@ export enum PhotoColumns {
   WIDTH = "width",
   HEIGHT = "height",
   DATE_STAMP = "date_stamp",
+}
+
+export enum TutorialColumns{
+  ID = "id",
+  STUDENT_ID = "student_id",
+  LANGUAGE = "language",
+  SCHEDULE = "schedule",
+  STATUS = "status",
+  STATUS_DATE_STAMP = "status_date_stamp",
+  REMAKRS = "remarks",
+  DATE_STAMP = "date_stamp"
 }

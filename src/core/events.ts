@@ -19,7 +19,7 @@ import {
  */
 export function events(request: Request, response: Response) {
   switch (request.method) {
-    case 'GET':
+    case 'GET': 
       getEvents(request, response)
       break;
   }
