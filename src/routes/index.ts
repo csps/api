@@ -1,10 +1,10 @@
+
 import { example } from "../core/example";
 import { login } from "../core/auth/login";
 import { products } from "../core/products";
 import { events } from "../core/events";
 import { students } from "../core/students";
 import { tutorials } from "../core/tutorials";
-
 
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
@@ -25,7 +25,7 @@ export const routes: AppRoutes[] = [
 
   // Products
   { path: "/products/:id", methods: ["GET"], handler: products },
-  { path: "/products", methods: ["GET"], handler: products  },
+  { path: "/products", methods: ["GET", "POST"], handler: products  },
 
   // Students
   { path: "/students/:id", methods: ["GET"], handler: students },
@@ -38,4 +38,9 @@ export const routes: AppRoutes[] = [
   //Tutorials
   { path: "/tutorials/:year", methods: ["GET"], handler: tutorials },
   { path: "/tutorials", methods: ["GET", "POST"], handler: tutorials },
+
+  // Photos
+  { path: "/photos/:id/raw", methods: ["GET"], handler: photos },
+  { path: "/photos/:id", methods: ["GET"], handler: photos },
+  { path: "/photos", methods: ["POST"], handler: photos },
 ];

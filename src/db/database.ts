@@ -1,5 +1,19 @@
 import mysql from "mysql";
 import { sanitizeArray } from "../utils/security";
+import { ErrorTypes } from "../types/enums";
+
+/**
+ * Database Model class
+ */
+export abstract class DatabaseModel {
+  static fromId(id: number | string, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
+    throw new Error("Method not implemented.");
+  }
+
+  static getAll(callback: (error: ErrorTypes | null, product: DatabaseModel[] | null) => void) {
+    throw new Error("Method not implemented.");
+  }
+}
 
 /**
  * Singleton Database class
@@ -22,8 +36,6 @@ class Database {
    * Create a database connection pool
    */
   private constructor() {
-    this.checkCredentials();
-
     Database.pool = mysql.createPool({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
@@ -55,16 +67,6 @@ class Database {
    */
   public query(query: string, values: any[], callback: (error: mysql.MysqlError | null, results: any) => void) {
     return Database.pool.query(query, sanitizeArray(values), callback);
-  }
-
-  /**
-   * Check if the database credentials are set in the environment variables
-   */
-  private checkCredentials() {
-    if (!process.env.DB_HOST) throw new Error("DB_HOST env not set");
-    if (!process.env.DB_USER) throw new Error("DB_USER env not set");
-    if (!process.env.DB_PASS) throw new Error("DB_PASS env not set");
-    if (!process.env.DB_NAME) throw new Error("DB_NAME env not set");
   }
 }
 

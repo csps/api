@@ -1,8 +1,14 @@
 import Event from "../db/models/event";
-import { ErrorTypes } from "../types";
+import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import type { Request, Response } from "express";
 import { isNumber } from "../utils/string";
+
+
+import {
+  EVENTS_GET_ERROR, EVENTS_NOT_FOUND, EVENTS_FOUND,
+  EVENT_GET_ERROR, EVENT_NOT_FOUND, EVENT_FOUND,
+} from "../strings/strings.json";
 
 /**
  * Events API
@@ -38,18 +44,18 @@ function getEvents(request: Request, response: Response) {
   Event.getAll((error, events) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error("Error getting events from database."));
+      response.status(500).send(result.error(EVENTS_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("No events found."));
+      response.status(404).send(result.error(EVENTS_NOT_FOUND));
       return;
     }
     
     // Return the events
-    response.send(result.success("Events found!", events));
+    response.send(result.success(EVENTS_FOUND, events));
   });
 }
 
@@ -64,7 +70,7 @@ function getEvent(request: Request, response: Response) {
 
   // If id is not a number, return event not found
   if (!isNumber(id)) {
-    response.status(404).send(result.error("Event not found!"));
+    response.status(404).send(result.error(EVENT_NOT_FOUND));
     return;
   }
 
@@ -72,18 +78,18 @@ function getEvent(request: Request, response: Response) {
   Event.fromId(parseInt(id), (error, event) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error("Error getting event from database."));
+      response.status(500).send(result.error(EVENT_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("Event not found."));
+      response.status(404).send(result.error(EVENT_NOT_FOUND));
       return;
     }
 
     // Return the event
-    response.send(result.success(event))
+    response.send(result.success(EVENT_FOUND, event))
   })
 }
 

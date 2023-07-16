@@ -11,8 +11,10 @@ export class Parser {
    */
   static getMiddleware() {
     return function(request: Request, response: Response, next: Function) {
-      // If request method is GET
-      if (request.method === "GET") {
+      // If request method is GET or DELETE
+      // or if request method is POST and body is empty
+      if (request.method === "GET" || request.method === "DELETE" ||
+         (request.method === "POST" && Object.keys(request.body).length === 0)) {
         // Continue to the next middleware
         return next();
       }
@@ -37,7 +39,7 @@ export class Parser {
    * Convert a string to JSON
    * @param request 
    */
-  private static toJSON(text: string): object | null {
+  public static toJSON(text: string): object | null {
     try {
       return JSON.parse(text);
     } catch (error) {

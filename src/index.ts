@@ -2,10 +2,11 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import { getPattern } from "./utils/route";
-import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import { routes } from "./routes";
 import { Log } from "./utils/log";
 import { Parser } from "./utils/parser";
+import { checkCredentials } from "./utils/validate";
+import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import Database from "./db/database";
 
 // Load environment variables from .env file
@@ -58,12 +59,22 @@ app.use(routes.map(r => r.path), (request, response) => {
 /**
  * Handle requests that are not specified in the routes
  */
-app.use("*", handleNotFound)
+app.use("*", (request, response) => {
+  // If requesting for favicon, return image
+  if (request.originalUrl === "/favicon.ico") {
+    return response.sendFile("favicon.ico", { root: "./assets" });
+  }
+
+  // Otherwise, return 404
+  return handleNotFound(request, response);
+});
 
 /**
  * Start the server
  */
 app.listen(port, () => {
+  // Check env credentials
+  checkCredentials();
   // Initialize database
   Database.getInstance();
   // Log message

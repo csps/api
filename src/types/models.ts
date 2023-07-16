@@ -19,11 +19,14 @@ export type StudentType = {
 export type ProductType = {
   id: number;
   name: string;
-  thumbnail: string;
+  thumbnail: number;
   short_description: string;
+  description: string;
   likes: number;
   stock: number;
+  price: number;
   dateStamp?: string;
+  variations: ProductVariation[];
 }
 
 /**
@@ -52,3 +55,25 @@ export type TutorialType = {
   date_stamp: String;
 }
 
+/**
+ * Product Variation data
+ */
+export type ProductVariation = {
+  id: number;
+  productID: number;
+  variationType: number;
+  photoID: number;
+  name: string;
+};
+
+ /*
+ * Photo type data
+ */
+export type PhotoType = {
+  id: number;
+  data: Buffer;
+  type: string;
+  width: number;
+  height: number;
+  dateStamp?: string;
+}

@@ -2,6 +2,7 @@ import chalk from "chalk";
 
 import { getDatestamp } from "./date";
 import { Request, Response } from "express";
+import { Parser } from "./parser";
 
 /**
  * Custom logging event for CSPS Web App API
@@ -59,9 +60,11 @@ export class Log {
       // Override the send function
       response.send = function(body: any) {
         // Check if the body is a string
-        if (typeof body === "object") {
-          // Set the body to the response locals
-          response.locals.body = JSON.stringify({ success: body.success, message: body.message });
+        if ((body || "").length > 0) {
+          // Parse the body to JSON
+          const b: any = Parser.toJSON(body) || "";
+          // Convert and set the body to string
+          response.locals.body = b === "" ? "" : JSON.stringify({ success: b.success, message: b.message }, null, 0);
         }
 
         // Call the old send function
@@ -118,11 +121,22 @@ export class Log {
       bgLog = chalk.bgWhite;
       txLog = chalk.white;
     }
-    
+    // Get the response status
+    const { statusCode, statusMessage, locals } = response;
+    // Get the response data
+    const responseData = locals.body || "";
+    // Get the request data
+    const requestData = request.originalUrl.startsWith("/photos") ? "*photos*" : (
+      request.body.length > 0 && request.body.startsWith("{") && request.body.endsWith("}") ?
+        Parser.toJSON(request.body) === null ? "" :
+        JSON.stringify(Parser.toJSON(request.body) || "", null, 0) :
+        ""
+    );
+
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${ip}] [${method} ${url}] [${date}] [${response.statusCode} ${response.statusMessage}] [${response.locals.body}] [${JSON.stringify(request.body)}]`
+        `[${ip}] [${date}] [${method} ${url}] [${statusCode} ${statusMessage}] [${requestData}] [${responseData}]`
       )
     );
   }

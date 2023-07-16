@@ -1,8 +1,15 @@
 import type { Response, Request } from "express";
 import { result } from "../utils/response";
-import { ErrorTypes } from "../types";
+import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import Student from "../db/models/student";
+
+import {
+  STUDENTS_GET_ERROR, STUDENTS_NOT_FOUND, STUDENTS_FOUND,
+  STUDENT_GET_ERROR, STUDENT_NOT_FOUND, STUDENT_FOUND,
+  STUDENT_POST_ERROR, STUDENT_ALREADY_EXIST, STUDENT_CREATED,
+  STUDENT_EMAIL_ALREADY_EXIST
+} from "../strings/strings.json";
 
 /**
  * Students API
@@ -42,18 +49,18 @@ function getStudents(request: Request, response: Response) {
   Student.getAll((error, student) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error("Error getting student from database."));
+      response.status(500).send(result.error(STUDENTS_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("No student found."));
+      response.status(404).send(result.error(STUDENTS_NOT_FOUND));
       return;
     }
 
     // Ohterwise, return the student data
-    response.send(result.success("Students found!", student));
+    response.send(result.success(STUDENTS_FOUND, student));
   });
 }
 
@@ -69,7 +76,7 @@ function getStudent(request: Request, response: Response) {
 
   // If id is not a number, return student not found
   if (!isNumber(id)) {
-    response.status(404).send(result.error("Student not found!"));
+    response.status(404).send(result.error(STUDENT_NOT_FOUND));
     return;
   }
 
@@ -77,18 +84,18 @@ function getStudent(request: Request, response: Response) {
   Student.fromId(id, (error, student) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error("Error getting student from database."));
+      response.status(500).send(result.error(STUDENT_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("No student found."));
+      response.status(404).send(result.error(STUDENT_NOT_FOUND));
       return;
     }
 
     // Ohterwise, return the student data
-    response.send(result.success("Student found!", student));
+    response.send(result.success(STUDENT_FOUND, student));
   });
 }
 
@@ -99,11 +106,11 @@ function getStudent(request: Request, response: Response) {
  */
 function postStudents(request: Request, response: Response) {
   // Validate the student data
-  const validation = Student.validate(request.body);
+  const error = Student.validate(request.body);
 
   // If has an error
-  if (validation) {
-    response.status(400).send(result.error(validation[0], validation[1]));
+  if (error) {
+    response.status(400).send(result.error(error[0], error[1]));
     return;
   }
 
@@ -112,17 +119,17 @@ function postStudents(request: Request, response: Response) {
     // If has an error
     switch (error) {
       case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error("Error inserting student to database."));
+        response.status(500).send(result.error(STUDENT_POST_ERROR));
         return;
       case ErrorTypes.DB_STUDENT_ALREADY_EXISTS:
-        response.status(400).send(result.error("Student already exists.", "student_id"));
+        response.status(400).send(result.error(STUDENT_ALREADY_EXIST, "student_id"));
         return;
       case ErrorTypes.DB_EMAIL_ALREADY_EXISTS:
-        response.status(400).send(result.error("Email already exists.", "email"));
+        response.status(400).send(result.error(STUDENT_EMAIL_ALREADY_EXIST, "email"));
         return;
     }
 
     // Otherwise, return the student data
-    response.send(result.success("Student created!", student));
+    response.send(result.success(STUDENT_CREATED, student));
   });
 }

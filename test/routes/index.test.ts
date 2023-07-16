@@ -1,24 +1,39 @@
 import { routes } from "../../src/routes";
+import { getMainRoute } from "../../src/utils/route";
 
 /**
  * Testing Express API Routes
  */
 describe("Express API Routes", () => {
   test("routes with params should be declared first after their plural endpoints", () => {
-    // Loop through all the routes except the last one
-    for (let i = 0; i < routes.length - 1; i++) {
-      // Get the current route
-      const route = routes[i];
-      // Get the next route
-      const nextRoute = routes[i + 1];
+    // Previous route
+    let prevRoute = '';
 
-      // If the current route has a param
-      if (route.path.includes(":")) {
-        // Expect the next route to not have a param
-        expect(nextRoute.path.includes(":")).toBeFalsy();
-        // Expect the next route to start with the current route
-        expect(route.path.startsWith(nextRoute.path)).toBeTruthy();
+    // Loop through all the routes
+    for (let i = 0; i < routes.length; i++) {
+      // Get main route name
+      const route = getMainRoute(routes[i].path);
+
+      // If previous route starts with the current route
+      if (prevRoute.startsWith(route)) {
+        // If current route has not param
+        // and is not the last route
+        if (!routes[i].path.includes(":") && i < routes.length - 1) {
+          // Expect next route is different
+          expect(getMainRoute(routes[i + 1].path).startsWith(route)).toBeFalsy();
+        }
+
+        // If current route has param
+        // and is not the last route
+        if (routes[i].path.includes(":") && i < routes.length - 1) {
+          // Expect next route is same as current route
+          expect(getMainRoute(routes[i + 1].path).startsWith(route)).toBeTruthy();
+        }
       }
+
+      // Set previous route
+      prevRoute = route;
     }
   });
 });
+
