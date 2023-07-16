@@ -35,16 +35,17 @@ export function photos(request: Request, response: Response) {
  * @param response Express response
  */
 function getPhotos(request: Request, response: Response) {
-  // Get {id} from request parameters
+  // Get id from request parameters
   const { id } = request.params;
 
-  // If has an id, call `getPhoto` function instead
-  if (id) {
-    getPhoto(request, response);
+  // If {id} is not a number
+  if (!isNumber(id)) {
+    response.status(400).send(result.error(PHOTO_INVALID_ID));
     return;
   }
 
-  // TODO: Get the photo ID's from the database
+  // If has an id, get the photo
+  getPhoto(request, response);
 }
 
 /**

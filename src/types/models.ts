@@ -38,8 +38,8 @@ export type EventType = {
   description: String;
   thumbnail: Number;
   date: Date;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   venue: String;
   dateStamp?: string;
 };

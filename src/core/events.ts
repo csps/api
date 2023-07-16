@@ -1,13 +1,13 @@
 import Event from "../db/models/event";
 import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
-import type { Request, Response } from "express";
 import { isNumber } from "../utils/string";
-
+import type { Request, Response } from "express";
 
 import {
   EVENTS_GET_ERROR, EVENTS_NOT_FOUND, EVENTS_FOUND,
   EVENT_GET_ERROR, EVENT_NOT_FOUND, EVENT_FOUND,
+  EVENT_CREATED, EVENT_POST_ERROR
 } from "../strings/strings.json";
 
 /**
@@ -111,20 +111,19 @@ function postEvents(request: Request, response: Response){
     return;
   }
 
+  /**
+   * Insert the Event Data
+   */
   Event.insert(request.body, (error, event) => {
-    
-    // If has an error
+    // If has error
     switch(error){
       case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error("Error Insert Event in Database."));
+        response.status(500).send(result.error(EVENT_POST_ERROR));
         break;
-      case ErrorTypes.DB_EVENT_ALREADY_EXISTS:
-        response.status(400).send(result.error("Event already Existed"));
-        break;
-      
     }
+    
     // Otherwise, return the Event Data
-    response.send(result.success("Event Succesfully created!", event));
+    response.send(result.success(EVENT_CREATED, event));
   });
 }
 

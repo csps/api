@@ -22,23 +22,18 @@ export function isEmail(value: string):  boolean {
 }
 
 /**
- * 
+ * Check if a string is a valid url
  * @param value String to Check
  */
 export function isUrl(value: string): boolean {
-
-return /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(value);
-
+  return /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(value);
 }
 /**
- * Check if a string is a Time
+ * Check if a string is a vald 24 hour time
  * @param value 
  */
-export function isTime(value: string): boolean{
-
-  const timeRegex = /^(0?[1-9]1[0-2]):[0-5][0-9] (AM|PM)$/i;
-
-  return timeRegex.test(value);
+export function is24HourTime(value: string): boolean {
+  return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value);
 }
 
 /**
@@ -48,10 +43,6 @@ export function isTime(value: string): boolean{
 export function isDate(value: string): boolean {
   // Trim the string
   value = value.trim();
-
-  //Create the current date as reference
-  const currentDate = new Date();
-
 
   // If length is not 10, return false
   if (value.length !== 10) return false;

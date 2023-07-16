@@ -4,6 +4,11 @@ import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";
 
+import {
+  TUTORIALS_FOUND, TUTORIALS_NOT_FOUND, TUTORIALS_GET_ERROR,
+  TUTORIAL_POST_ERROR, TUTORIAL_CREATED, TUTORIALS_INVALID_YEAR
+} from "../strings/strings.json";
+
 /**
  * Tutorials API
  * @author TotalElderBerry (Brian Keith Lisondra)
@@ -32,7 +37,7 @@ export function getTutorials(request: Request, response: Response) {
 
   if (year) {
     if (!isNumber(year)) {
-      response.status(404).send(result.error("Invalid year."));
+      response.status(404).send(result.error(TUTORIALS_INVALID_YEAR));
       return;
     }
 
@@ -43,18 +48,18 @@ export function getTutorials(request: Request, response: Response) {
   Tutorial.getAll((error, tutorial) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error("Error getting tutorials from database."));
+      response.status(500).send(result.error(TUTORIALS_GET_ERROR));
       return;
     }
 
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("No tutorials found."));
+      response.status(404).send(result.error(TUTORIALS_NOT_FOUND));
       return;
     }
 
     // Return the events
-    response.send(result.success("Tutorials found!", tutorial));
+    response.send(result.success(TUTORIALS_FOUND, tutorial));
   })
 }
 
@@ -65,15 +70,16 @@ export function getTutorials(request: Request, response: Response) {
  * @param response 
  */
 export function getTutorial(year: number, request: Request, response: Response) {
+  // Get tutorials by academic year
   Tutorial.fromAcademicYear(year, (error, tutorials) => {
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error("Error getting tutorials from database."));
+      response.status(500).send(result.error(TUTORIALS_GET_ERROR));
       return;
     }
 
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error("No tutorials found."));
+      response.status(404).send(result.error(TUTORIALS_NOT_FOUND));
       return;
     }
     
@@ -98,7 +104,7 @@ export function getTutorial(year: number, request: Request, response: Response) 
     }
 
     // Return the events
-    return response.send(result.success("Tutorials found!", tutorialsResult));
+    return response.send(result.success(TUTORIALS_FOUND, tutorialsResult));
   })
 }
 
@@ -114,11 +120,11 @@ function postTutorial(request: Request, response: Response) {
     switch (error) {
       // If has an error
       case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error("Error inserting tutorial to database."));
+        response.status(500).send(result.error(TUTORIAL_POST_ERROR));
         return;
     }
 
     // Otherwise, return the student data
-    response.send(result.success("Tutorial created!", null));
+    response.send(result.success(TUTORIAL_CREATED, null));
   });
 }

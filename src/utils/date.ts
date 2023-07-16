@@ -21,6 +21,28 @@ export function getDatestamp(date?: Date) {
 }
 
 /**
+ * Check if {time1} is before {time2}
+ * @param time1 hh:mm format
+ * @param time2 hh:mm format
+ */
+export function isTimeBefore(time1: string, time2: string) {
+  // Get time1 hours and minutes
+  const [h1, m1] = time1.split(':').map(x => parseInt(x));
+
+  // Get time2 hours and minutes
+  const [h2, m2] = time2.split(':').map(x => parseInt(x));
+
+  // If time1 hours is lesser than time2 hours, return true
+  if (h1 < h2) return true;
+
+  // If time1 hours is equal to time2 hours, check minutes
+  if (h1 === h2) return m1 < m2;
+
+  // Otherwise, return false
+  return false;
+}
+
+/**
  * Normalize number
  * @param value Number to normalize
  */
