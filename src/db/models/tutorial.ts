@@ -32,8 +32,12 @@ class Tutorial extends DatabaseModel{
         this.schedule = data.schedule.trim();
         this.status = data.status.trim();
         this.status_date_stamp = data.status_date_stamp.trim();
-        this.remarks = data.remarks.trim();
+        this.remarks = (data.remarks == null)?"":data.remarks.trim();
         this.date_stamp = data.date_stamp.trim();
+    }
+
+    public get getDateStamp(){
+        return this.date_stamp;
     }
 
     public static fromId(id: number, callback:  (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
@@ -123,6 +127,71 @@ class Tutorial extends DatabaseModel{
         });
         
     };
+
+    public static getByYear(year: string, callback: (error: ErrorTypes | null, tutorial: Tutorial[] | null) => void) {
+        /**
+         * Check if the tutorial already exists
+         */
+    
+        const db = Database.getInstance();
+        // Get the current date
+        const datestamp = getDatestamp();
+        const yearDate = parseInt(year)
+        
+        if(!isNaN(yearDate)){
+            const query = `select * from tutorials where YEAR(date_stamp)=${yearDate} or YEAR(date_stamp)=${yearDate + 1};`
+            
+            db.query(query,[],(error,results) => {
+                if (error) {
+                    Log.e(error.message);
+                    callback(ErrorTypes.DB_ERROR, null);
+                    return;
+                }
+                
+                // If no results
+                if (results.length === 0) {
+                    callback(ErrorTypes.DB_EMPTY_RESULT, null);
+                    return;
+                }
+        
+                // Create Students
+                const tutorials: Tutorial[] = [];
+        
+                // Loop through the results
+                for (const data of results) {
+                    // Create Student object
+                    const tutorial = new Tutorial({
+                    // Student ID / Student Number
+                    id: data.id,
+                    // Student Primary Key ID
+                    student_id: data.student_id,
+                    // Student Email Address
+                    language: data.language,
+                    // Student First Name
+                    schedule: data.schedule,
+                    // Student Last Name
+                    status: data.status,
+                    // Student Year Level
+                    status_date_stamp: data.status_date_stamp,
+                    // Student Birth Date
+                    remarks: data.remarks,
+                    // Student password
+                    date_stamp: data.date_stamp
+                    });
+                    
+                    // Push the student object to the array
+                    tutorials.push(tutorial);
+                }
+        
+                // Return the tutorials
+                callback(null, tutorials);
+                return
+            })
+        }else{
+            callback(ErrorTypes.DB_EMPTY_RESULT, null);
+            return;
+        }
+    }
       
 }
 
