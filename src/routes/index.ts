@@ -1,10 +1,6 @@
-
-import { example } from "../core/example";
-import { login } from "../core/auth/login";
-import { products } from "../core/products";
-import { events } from "../core/events";
-import { students } from "../core/students";
-import { tutorials } from "../core/tutorials";
+import {
+  example, login, products, students, events, tutorials, photos
+} from "../core"
 
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
