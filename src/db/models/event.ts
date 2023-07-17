@@ -2,9 +2,9 @@ import Database, { DatabaseModel } from "../database";
 import { ErrorTypes } from "../../types/enums";
 import { EventType } from "../../types/models";
 import { Log } from "../../utils/log";
-import { isDate } from "util/types";
+import { isDate } from "../../utils/string";
 import { is24HourTime } from "../../utils/string";
-import { isTimeBefore } from "../../utils/date";
+import { getDatestamp, isTimeBefore } from "../../utils/date";
 
 import {
   EVENT_EMPTY_TITLE, EVENT_EMPTY_THUMBNAIL, EVENT_EMPTY_DESCRIPTION,
@@ -17,17 +17,18 @@ import {
  * Event model
  * @author TotalElderBerry (Brian Keith Lisondra)
  * @author ampats04 (Jeremy Andy F. Ampatin)
+ * @author mavyfaby (Maverick Fabroa)
  */
 class Event extends DatabaseModel {
   private id: number;
+  private thumbnail: Number;
   private title: String;
   private description: String;
-  private thumbnail: Number;
-  private date: Date;
-  private startTime: string;
-  private endTime: string;
+  private date: string;
+  private start_time: string;
+  private end_time: string;
   private venue: String;
-  private dateStamp?: string;
+  private date_stamp?: string;
 
   /**
    * Event Model
@@ -40,10 +41,10 @@ class Event extends DatabaseModel {
     this.description = data.description;
     this.thumbnail = data.thumbnail;
     this.date = data.date;
-    this.startTime = data.startTime;
-    this.endTime = data.endTime;
+    this.start_time = data.start_time;
+    this.end_time = data.end_time;
     this.venue = data.venue;
-    this.dateStamp = data.dateStamp;
+    this.date_stamp = data.date_stamp;
   }
 
   /**
@@ -56,7 +57,7 @@ class Event extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query("SELECT * from events WHERE id = ?", [id], (error, results) => {
+    db.query("SELECT * FROM events WHERE id = ?", [id], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
@@ -70,23 +71,8 @@ class Event extends DatabaseModel {
         return
       }
 
-      // Get the first result
-      const data = results[0]
-      // Create a new event
-      const event = new Event({
-        id: data.id,
-        title: data.title,
-        description: data.description,
-        thumbnail: data.thumbnail,
-        date: data.date,
-        startTime: data.start_time,
-        endTime: data.end_time,
-        venue: data.venue,
-        dateStamp: data.date_stamp
-      });
-
-      // Return the event
-      callback(null, event)
+      // Get the first reuslt and return the event
+      callback(null, new Event(results[0]));
     })
   }
 
@@ -112,30 +98,8 @@ class Event extends DatabaseModel {
         return
       }
 
-      // Create an array of empty events
-      const allEvents: Event[] = []
-
-      // Loop through the results
-      result.forEach((data: any) => {
-        // Create a new event
-        const event = new Event({
-          id: data.id,
-          title: data.title,
-          description: data.description,
-          thumbnail: data.thumbnail,
-          date: data.date,
-          startTime: data.start_time,
-          endTime: data.end_time,
-          venue: data.venue,
-          dateStamp: data.date_stamp
-        });
-
-        // Push the event to the array
-        allEvents.push(event)
-      });
-
-      // Return the events
-      callback(null, allEvents)
+      // Create and return the events
+      callback(null, result.map((data: EventType) => new Event(data)));
     })
   }
   /**
@@ -144,18 +108,21 @@ class Event extends DatabaseModel {
    * @param callback 
    */
   public static insert(event: EventType, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
-    // Get Database Instance
+    // Get database instance
     const db = Database.getInstance();
+    // Get date stamp
+    const stamp = getDatestamp();
 
     // Query the Database
-    db.query("INSERT INTO events (title, thumbnail, description, date, start_time, end_time, venue) VALUES (?,?,?,?,?,?,?)",[
+    db.query("INSERT INTO events (thumbnail, title, description, date, start_time, end_time, venue, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",[
       event.thumbnail,
       event.title,
       event.description,
       event.date,
-      event.startTime,
-      event.endTime,
+      event.start_time,
+      event.end_time,
       event.venue,
+      stamp
     ], (error, results) => {
       //If has an error
       if (error){
@@ -163,9 +130,10 @@ class Event extends DatabaseModel {
         return;
       }
 
-      //Set the primary key ID
+      // Set the primary key ID 
       event.id = results.insertId;
-      
+      // Set date stamp
+      event.date_stamp = stamp;
       // Return the Event
       callback(null, new Event(event));
     });
@@ -175,7 +143,7 @@ class Event extends DatabaseModel {
    * Validate Event Data
    * @param data Raw Event Data
    */
-  public static validate(data: any) {
+  public static validate(data: EventType) {
     // Check if Title is Empty
     if (!data.title) return [EVENT_EMPTY_TITLE, "title"];
     // Check if Thumbnail is Empty
@@ -193,11 +161,11 @@ class Event extends DatabaseModel {
     // Check if Date is invalid
     if (!isDate(data.date)) return [EVENT_INVALID_DATE, "date"];
     // Check if Start Time is invalid
-    if (!is24HourTime(data.startTime)) return [EVENT_INVALID_TIME_FORMAT, "start_time"];
+    if (!is24HourTime(data.start_time)) return [EVENT_INVALID_TIME_FORMAT, "start_time"];
     // Check if End Time is invalid
-    if (!is24HourTime(data.endTime)) return [EVENT_INVALID_TIME_FORMAT, "end_time"];
+    if (!is24HourTime(data.end_time)) return [EVENT_INVALID_TIME_FORMAT, "end_time"];
     // // Check if End Time is earlier than Start Time
-    if (!isTimeBefore(data.startTime, data.endTime)) return [EVENT_INVALID_TIME_ORDER, "start_time"];
+    if (!isTimeBefore(data.start_time, data.end_time)) return [EVENT_INVALID_TIME_ORDER, "start_time"];
   }
 
   /**
@@ -246,21 +214,21 @@ class Event extends DatabaseModel {
    * Get Start Time
    */
   public getStartTime() {
-    return this.startTime;
+    return this.start_time;
   }
 
   /**
    * Get End Time
    */
   public getEndTime() {
-    return this.endTime;
+    return this.end_time;
   }
 
   /**
    * Get published date stamp
    */
-  public getDateStamp() {
-    return this.dateStamp;
+  public getDatestamp() {
+    return this.date_stamp;
   }
 }
 

@@ -34,14 +34,14 @@ export type ProductType = {
  */
 export type EventType = {
   id: number;
+  thumbnail: Number;
   title: String;
   description: String;
-  thumbnail: Number;
-  date: Date;
-  startTime: string;
-  endTime: string;
+  date: string;
+  start_time: string;
+  end_time: string;
   venue: String;
-  dateStamp?: string;
+  date_stamp?: string;
 };
 
 export type TutorialType = {
