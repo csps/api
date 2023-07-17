@@ -75,5 +75,5 @@ export type PhotoType = {
   type: string;
   width: number;
   height: number;
-  dateStamp?: string;
+  date_stamp?: string;
 }

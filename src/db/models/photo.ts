@@ -20,7 +20,7 @@ export class Photo extends DatabaseModel {
   private type: string;
   private width: number;
   private height: number;
-  private dateStamp?: string;
+  private date_stamp?: string;
 
   /**
    * Photo Private Constructor
@@ -33,7 +33,7 @@ export class Photo extends DatabaseModel {
     this.type = data.type;
     this.width = data.width;
     this.height = data.height;
-    this.dateStamp = data.dateStamp;
+    this.date_stamp = data.date_stamp;
   }
 
   /**
@@ -60,20 +60,8 @@ export class Photo extends DatabaseModel {
         return;
       }
 
-      // Get the first result
-      const result = results[0];
-      // Create a new photo
-      const photo = new Photo({
-        id: result.id,
-        data: result.data,
-        type: result.type,
-        width: result.width,
-        height: result.height,
-        dateStamp: result.date_stamp
-      });
-
-      // Return the photo
-      callback(null, photo);
+      // Get the first result and return the photo
+      callback(null, new Photo(results[0]));
     });
   }
 
@@ -91,7 +79,7 @@ export class Photo extends DatabaseModel {
     // Query the database
     db.query("INSERT INTO photos (data, type, width, height, date_stamp) VALUES (?, ?, ?, ?, ?)", [
       photo.data,
-      photo.type.trim(),
+      photo.type,
       photo.width,
       photo.height,
       datestamp
@@ -104,7 +92,7 @@ export class Photo extends DatabaseModel {
       }
 
       // Set the date stamp
-      photo.dateStamp = datestamp;
+      photo.date_stamp = datestamp;
       // Return the student
       callback(null, new Photo(photo));
     });
@@ -164,6 +152,6 @@ export class Photo extends DatabaseModel {
    * Get date stamp
    */
   public getDatestamp() {
-    return this.dateStamp;
+    return this.date_stamp;
   }
 }
