@@ -8,13 +8,10 @@ import Database, { DatabaseModel } from "../database";
 import type { StudentType } from "../../types/models";
 
 import {
-  STUDENT_GET_ERROR, STUDENT_POST_ERROR, STUDENT_NOT_FOUND,
-  STUDENT_ALREADY_EXIST, STUDENT_EMAIL_ALREADY_EXIST, STUDENT_CREATED,
-  STUDENT_FOUND, STUDENT_EMPTY_ID, STUDENT_EMPTY_YEAR_LEVEL,
-  STUDENT_EMPTY_FIRST_NAME, STUDENT_EMPTY_LAST_NAME, STUDENT_EMPTY_BIRTHDATE,
-  STUDENT_EMPTY_EMAIL, STUDENT_EMPTY_PASSWORD, STUDENT_LIMIT_ID,
-  STUDENT_LIMIT_YEAR_LEVEL, STUDENT_INVALID_BIRTHDATE, STUDENT_INVALID_EMAIL,
-  STUDENT_INVALID_PASSWORD
+  STUDENT_EMPTY_ID, STUDENT_EMPTY_YEAR_LEVEL, STUDENT_EMPTY_FIRST_NAME,
+  STUDENT_EMPTY_LAST_NAME, STUDENT_EMPTY_BIRTHDATE, STUDENT_EMPTY_EMAIL,
+  STUDENT_EMPTY_PASSWORD, STUDENT_LIMIT_ID, STUDENT_LIMIT_YEAR_LEVEL,
+  STUDENT_INVALID_BIRTHDATE, STUDENT_INVALID_EMAIL, STUDENT_INVALID_PASSWORD
 } from "../../strings/strings.json";
 
 /**
@@ -23,15 +20,15 @@ import {
  * @author mavyfaby (Maverick Fabroa)
  */
 class Student extends DatabaseModel {
-  private id: string;
-  private rid?: number;
-  private email: string;
-  private firstName: string;
-  private lastName: string;
-  private yearLevel: string;
-  private birthdate: string;
+  private id: number;
+  private student_id: string;
+  private last_name: string;
+  private first_name: string;
+  private year_level: string;
+  private email_address: string;
+  private birth_date: string;
   private password?: string;
-  private dateStamp?: string;
+  private date_stamp?: string;
 
   /**
    * Student Private Constructor
@@ -40,14 +37,14 @@ class Student extends DatabaseModel {
   public constructor(data: StudentType) {
     super();
     this.id = data.id;
-    this.rid = data.rid;
-    this.email = data.email.trim();
-    this.firstName = data.firstName.trim();
-    this.lastName = data.lastName.trim();
-    this.yearLevel = data.yearLevel;
-    this.birthdate = data.birthdate.trim();
+    this.student_id = data.student_id;
+    this.last_name = data.last_name;
+    this.first_name = data.first_name;
+    this.year_level = data.year_level;
+    this.email_address = data.email_address;
+    this.birth_date = data.birth_date;
     this.password = data.password;
-    this.dateStamp = data.dateStamp;
+    this.date_stamp = data.date_stamp;
   }
   
   /**
@@ -74,32 +71,8 @@ class Student extends DatabaseModel {
         return;
       }
 
-      // Get result
-      const data = results[0];
-      // Create Student object
-      const student = new Student({
-        // Student ID / Student Number
-        id: data.student_id,
-        // Student Primary Key ID
-        rid: data.id,
-        // Student Email Address
-        email: data.email_address,
-        // Student First Name
-        firstName: data.first_name,
-        // Student Last Name
-        lastName: data.last_name,
-        // Student Year Level
-        yearLevel: data.year_level,
-        // Student Birth Date
-        birthdate: data.birth_date,
-        // Student password
-        password: data.password,
-        // Student Date Stamp
-        dateStamp: data.date_stamp
-      });
-
-      // Return student object
-      callback(null, student);
+      // Create and return the student object
+      callback(null, new Student(results[0]));
     });
   }
 
@@ -126,39 +99,8 @@ class Student extends DatabaseModel {
         return;
       }
 
-      // Create Students
-      const students: Student[] = [];
-
-      // Loop through the results
-      for (const data of results) {
-        // Create Student object
-        const student = new Student({
-          // Student ID / Student Number
-          id: data.student_id,
-          // Student Primary Key ID
-          rid: data.id,
-          // Student Email Address
-          email: data.email_address,
-          // Student First Name
-          firstName: data.first_name,
-          // Student Last Name
-          lastName: data.last_name,
-          // Student Year Level
-          yearLevel: data.year_level,
-          // Student Birth Date
-          birthdate: data.birth_date,
-          // Student password
-          password: data.password,
-          // Student Date Stamp
-          dateStamp: data.date_stamp
-        });
-        
-        // Push the student object to the array
-        students.push(student);
-      }
-
-      // Return the students
-      callback(null, students);
+      // Create and return the students
+      callback(null, results.map((student: StudentType) => new Student(student)));
     });
   }
 
@@ -202,7 +144,7 @@ class Student extends DatabaseModel {
     /**
      * Check if the student already exists
      */
-    DatabaseHelper.isDataExist(Tables.STUDENTS, StudentColumns.STUDENT_ID, student.id, (error, isFound) => {
+    DatabaseHelper.isDataExist(Tables.STUDENTS, StudentColumns.STUDENT_ID, student.student_id, (error, isFound) => {
       // If has an error
       if (error) {
         callback(error, null);
@@ -216,7 +158,7 @@ class Student extends DatabaseModel {
       }
 
       // Check if email already exists
-      DatabaseHelper.isDataExist(Tables.STUDENTS, StudentColumns.EMAIL_ADDRESS, student.email.trim(), (error, isFound) => {
+      DatabaseHelper.isDataExist(Tables.STUDENTS, StudentColumns.EMAIL_ADDRESS, student.email_address.trim(), (error, isFound) => {
         // If has an error
         if (error) {
           callback(error, null);
@@ -235,14 +177,14 @@ class Student extends DatabaseModel {
         const datestamp = getDatestamp();
 
         // Query the database
-        db.query("INSERT INTO students (student_id, email_address, first_name, last_name, year_level, birth_date, password, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
-          student.id,
-          student.email.trim(),
-          student.firstName.trim(),
-          student.lastName.trim(),
-          student.yearLevel,
-          student.birthdate.trim(),
-          student.password!.trim(),
+        db.query("INSERT INTO students (student_id, last_name, first_name, year_level, email_address, birth_date, password, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
+          student.student_id,
+          student.last_name.trim(),
+          student.first_name.trim(),
+          student.year_level,
+          student.email_address.trim(),
+          student.birth_date.trim(),
+          student.password?.trim(),
           datestamp
         ], (error, results) => {
           // If has an error
@@ -253,9 +195,9 @@ class Student extends DatabaseModel {
           }
     
           // Set the primary key ID
-          student.rid = results.insertId;
+          student.id = results.insertId;
           // Set the date stamp
-          student.dateStamp = datestamp;
+          student.date_stamp = datestamp;
     
           // Return the student
           callback(null, new Student(student));
@@ -265,7 +207,7 @@ class Student extends DatabaseModel {
   }
 
   /**
-   * Get student ID
+   * Get unique ID
    */
   public getId() {
     return this.id;
@@ -274,43 +216,50 @@ class Student extends DatabaseModel {
   /**
    * Get primary key ID
    */
-  public getRid() {
-    return this.rid || -1;
+  public getStudentId() {
+    return this.student_id;
   }
 
   /**
    * Get email address
    */
-  public getEmail() {
-    return this.email;
+  public getEmailAddress() {
+    return this.email_address;
   }
 
   /**
    * Get first name
    */
   public getFirstName() {
-    return this.firstName;
+    return this.first_name;
   }
 
   /**
    * Get last name
    */
   public getLastName() {
-    return this.lastName;
+    return this.last_name;
   }
 
   /**
    * Get year level
    */
   public getYearLevel() {
-    return this.yearLevel;
+    return this.year_level;
   }
 
   /**
    * Get birthdate
    */
   public getBirthdate() {
-    return this.birthdate;
+    return this.birth_date;
+  }
+
+  /**
+   * Get date stamp
+   */
+  public getDatestamp() {
+    return this.date_stamp;
   }
 
   /**

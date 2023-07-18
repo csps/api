@@ -2,15 +2,15 @@
  * Student type data
  */
 export type StudentType = {
-  id: string;
-  rid?: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  yearLevel: string;
-  birthdate: string;
+  id: number;
+  student_id: string;
+  last_name: string;
+  first_name: string;
+  year_level: string;
+  email_address: string;
+  birth_date: string;
   password?: string;
-  dateStamp?: string;
+  date_stamp?: string;
 }
 
 /**
