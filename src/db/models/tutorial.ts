@@ -1,4 +1,4 @@
-import { ErrorTypes } from "../../types/enums";
+import { ErrorTypes, TutorialStatus } from "../../types/enums";
 import { TutorialType } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import { Log } from "../../utils/log";
@@ -13,13 +13,13 @@ import { getDatestamp } from "../../utils/date";
  */
 class Tutorial extends DatabaseModel {
   private id: number;
-  private studentId: String;
-  private language: String;
-  private schedule: String;
-  private status: String;
-  private status_date_stamp: String;
-  private remarks: String;
-  private date_stamp: String;
+  private student_id: string;
+  private language: string;
+  private schedule: string;
+  private status: TutorialStatus;
+  private status_date_stamp: string;
+  private remarks: string;
+  private date_stamp: string;
 
   /**
    * Tutorial Public Constructor
@@ -28,13 +28,13 @@ class Tutorial extends DatabaseModel {
   public constructor(data: TutorialType) {
     super();
     this.id = data.id;
-    this.studentId = data.student_id.trim();
-    this.language = data.language.trim();
-    this.schedule = data.schedule.trim();
-    this.status = data.status.trim();
-    this.status_date_stamp = data.status_date_stamp.trim();
-    this.remarks = data.remarks?.trim();
-    this.date_stamp = data.date_stamp.trim();
+    this.student_id = data.student_id;
+    this.language = data.language;
+    this.schedule = data.schedule;
+    this.status = data.status;
+    this.status_date_stamp = data.status_date_stamp;
+    this.remarks = data.remarks;
+    this.date_stamp = data.date_stamp;
   }
   
   /**
@@ -55,12 +55,12 @@ class Tutorial extends DatabaseModel {
     // Get database instance
     const db = Database.getInstance();
     // Get start date
-    const startDate = `${year}-08-01`; // TODO: Change this to a dynamic date
+    const startDate = `${year}-08-01`;
     // Get end date
-    const endDate = `${year + 1}-07-01`; // TODO: Change this to a dynamic date
+    const endDate = `${year + 1}-07-01`;
 
     // Query the database
-    db.query("SELECT * FROM tutorials WHERE date_stamp > ? AND date_stamp < ?", [startDate, endDate], (error, results) => {
+    db.query("SELECT * FROM tutorials WHERE date_stamp >= ? AND date_stamp < ?", [startDate, endDate], (error, results) => {
       // If has error
       if (error) {
         Log.e(error.message);
@@ -74,37 +74,8 @@ class Tutorial extends DatabaseModel {
         return;
       }
 
-      // Create Students
-      const tutorials: Tutorial[] = [];
-
-      // Loop through the results
-      for (const data of results) {
-        // Create Student object
-        const tutorial = new Tutorial({
-          // Student ID / Student Number
-          id: data.id,
-          // Student Primary Key ID
-          student_id: data.student_id,
-          // Student Email Address
-          language: data.language,
-          // Student First Name
-          schedule: data.schedule,
-          // Student Last Name
-          status: data.status,
-          // Student Year Level
-          status_date_stamp: data.status_date_stamp,
-          // Student Birth Date
-          remarks: data.remarks,
-          // Student password
-          date_stamp: data.date_stamp
-        });
-
-        // Push the student object to the array
-        tutorials.push(tutorial);
-      }
-
-      // Return the tutorials
-      callback(null, tutorials);
+      // Create and return tutorials
+      callback(null, results.map((tutorial: TutorialType) => new Tutorial(tutorial)));
     });
   }
 
@@ -115,7 +86,8 @@ class Tutorial extends DatabaseModel {
   public static getAll(callback: (error: ErrorTypes | null, tutorial: Tutorial[] | null) => void) {
     const db = Database.getInstance();
 
-    db.query("SELECT * from tutorials", [], (error, results) => {
+    // Query for getting all tutorials
+    db.query("SELECT * FROM tutorials", [], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
@@ -129,37 +101,8 @@ class Tutorial extends DatabaseModel {
         return;
       }
 
-      // Create Students
-      const tutorials: Tutorial[] = [];
-
-      // Loop through the results
-      for (const data of results) {
-        // Create Student object
-        const tutorial = new Tutorial({
-          // Student ID / Student Number
-          id: data.id,
-          // Student Primary Key ID
-          student_id: data.student_id,
-          // Student Email Address
-          language: data.language,
-          // Student First Name
-          schedule: data.schedule,
-          // Student Last Name
-          status: data.status,
-          // Student Year Level
-          status_date_stamp: data.status_date_stamp,
-          // Student Birth Date
-          remarks: data.remarks,
-          // Student password
-          date_stamp: data.date_stamp
-        });
-
-        // Push the student object to the array
-        tutorials.push(tutorial);
-      }
-
-      // Return the students
-      callback(null, tutorials);
+      // Create and return tutorials
+      callback(null, results.map((tutorial: TutorialType) => new Tutorial(tutorial)));
     })
   }
 
@@ -179,10 +122,10 @@ class Tutorial extends DatabaseModel {
       tutorial.student_id,
       tutorial.language.trim(),
       tutorial.schedule.trim(),
-      tutorial.status.trim(),
+      tutorial.status,
       tutorial.status_date_stamp.trim(),
       tutorial.remarks.trim(),
-      datestamp,
+      datestamp
     ], (error, results) => {
       // If has an error
       if (error) {
@@ -208,7 +151,7 @@ class Tutorial extends DatabaseModel {
    * @returns Student ID
    */
   public getStudentId() {
-    return this.studentId;
+    return this.student_id;
   }
 
   /**

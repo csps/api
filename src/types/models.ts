@@ -1,3 +1,5 @@
+import { TutorialStatus } from "./enums";
+
 /**
  * Student type data
  */
@@ -46,14 +48,14 @@ export type EventType = {
 
 export type TutorialType = {
   id: number;
-  student_id: String;
-  language: String;
-  schedule: String;
-  status: String;
-  status_date_stamp: String;
-  remarks: String;
-  date_stamp: String;
-}
+  student_id: string;
+  language: string;
+  schedule: string;
+  status: TutorialStatus;
+  status_date_stamp: string;
+  remarks: string;
+  date_stamp: string;
+};
 
 /**
  * Product Variation data
