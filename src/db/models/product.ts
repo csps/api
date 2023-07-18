@@ -26,7 +26,7 @@ class Product extends DatabaseModel {
   private likes: number;
   private stock: number;
   private price: number;
-  private dateStamp?: string;
+  private date_stamp?: string;
   private variations: ProductVariation[];
 
   /**
@@ -43,7 +43,7 @@ class Product extends DatabaseModel {
     this.likes = data.likes;
     this.stock = data.stock;
     this.price = data.price;
-    this.dateStamp = data.dateStamp;
+    this.date_stamp = data.date_stamp;
     this.variations = data.variations || [];
   }
 
@@ -54,6 +54,7 @@ class Product extends DatabaseModel {
   public static getAll(callback: (error: ErrorTypes | null, product: Product[] | null) => void) {
     // Get database instance
     const db = Database.getInstance();
+
     // Query the database
     db.query('SELECT * FROM products', [], (error, results) => {
       // If has an error
@@ -69,68 +70,52 @@ class Product extends DatabaseModel {
         return;
       }
 
-      // Create Product Object
-      const products: Product[] = [];
+      // Create list of products w/ variations yet
+      const products: ProductType[] = results;
 
-      // Loop through the results
-      for (const data of results) {
-        // Create Product Object
-        const product = new Product({
-          id: data.id,
-          name: data.name,
-          thumbnail: data.thumbnail,
-          short_description: data.short_description,
-          description: data.description,
-          likes: data.likes,
-          stock: data.stock,
-          price: data.price,
-          dateStamp: data.date_stamp,
-          variations: data.variations || [],
-        });
+      // Get all product variations
+      db.query('SELECT * FROM product_variations', [], (error, results) => {
+        // If has error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, null);
+          return;
+        }
 
-        // Push the product object to the array
-        products.push(product);
+        // Loop through the results
+        for (const variation of results) {
+          // Get product id
+          const productId = variation.products_id;
+          // Get the product index
+          const productIndex = products.findIndex((product) => product.id === productId);
 
-        db.query('SELECT * FROM product_variations WHERE id = ?', [product.getId()], (error, results) => {
-          if (error) {
-            Log.e(error.message);
-            callback(ErrorTypes.DB_ERROR, null);
-            return;
+          // If variations array is not yet initialized
+          if (!products[productIndex].variations) {
+            // Initialize the variations array
+            products[productIndex].variations = [];
           }
 
-          const variations: ProductVariation[] = [];
-
-          for (const data of results) {
-            const variation: ProductVariation = {
-              id: data.id,
-              productID: data.products_id, 
-              variationType: data.product_variation_types_id,
-              photoID: data.photo_id,
-              name: data.name,
-            };
-
-            variations.push(variation);
+          // If product is found
+          if (productIndex !== -1) {
+            // Push the variation to the product
+            products[productIndex].variations.push(variation);
           }
+        }
 
-          product.setVariations(variations);
-          products.push(product);
-        });
-      }
-
-      // Return the products
-      callback(null, products);
+        // Return the products
+        callback(null, products.map((product) => new Product(product)));
+      });
     });
   }
 
-
-
-/**
- * Get Product list from the database using the Product ID generated
- * @param id Product ID
- */
+  /**
+   * Get Product list from the database using the Product ID generated
+   * @param id Product ID
+   */
   public static fromId(id: number, callback: (error: ErrorTypes | null, product: Product | null) => void) {
     // Get database instance
     const db = Database.getInstance();
+  
     //Query the database
     db.query("SELECT * FROM products WHERE id = ?", [id], (error, results) => {
       // If has an error
@@ -146,45 +131,23 @@ class Product extends DatabaseModel {
         return;
       }
 
-      db.query('SELECT * FROM product_variations WHERE id = ?', [id], (error, results) => {
+      // Get product data
+      const product: ProductType = results[0];
+
+      // Get product variations
+      db.query('SELECT * FROM product_variations WHERE products_id = ?', [id], (error, results) => {
+        // If has error
         if (error) {
           Log.e(error.message);
           callback(ErrorTypes.DB_ERROR, null);
           return;
         }
+
+        // Set product variations
+        product.variations = results || [];
+        // Return the product
+        callback(null, new Product(product));
       });
-
-      const variations: ProductVariation[] = [];
-
-      for (const data of results) {
-        const variation: ProductVariation = {
-          id: data.id,
-          productID: data.products_id, 
-          variationType: data.product_variation_types_id,
-          photoID: data.photo_id,
-          name: data.name,
-        };
-
-        variations.push(variation);
-      }
-
-      // Get result
-      const data = results[0];
-      // Create Product Object
-      const product = new Product({
-        id: data.id,
-        name: data.name,
-        thumbnail: data.thumbnail,
-        short_description: data.short_description,
-        description: data.description,
-        likes: data.likes,
-        price: data.price,
-        stock: data.stock,
-        variations: data.variations,
-      });
-
-      // Return the product
-      callback(null, product); // (no errors, product object)
     });
   }
 
@@ -193,7 +156,7 @@ class Product extends DatabaseModel {
    * Validate Product Data
    * @param data Raw product Data
    */
-  public static validate(data: any) {
+  public static validate(data: ProductType) {
     // If name is empty
     if (!data.name) return [PRODUCT_EMPTY_NAME, "name"];
     // If Short Description is empty
@@ -218,7 +181,6 @@ class Product extends DatabaseModel {
     if (!data.thumbnail) return [PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
     // If Thumbnail is not in correct format
     if (!isNumber(data.thumbnail)) return [PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
-    
   }
 
   /**
@@ -233,7 +195,7 @@ class Product extends DatabaseModel {
     const datestamp = getDatestamp();
 
     //Query the Database
-    db.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, date_stamp) VALUES (?,?,?,?,?,?,?,?)", [
+    db.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
       product.name,
       product.thumbnail,
       product.short_description,
@@ -249,45 +211,42 @@ class Product extends DatabaseModel {
         return;
       }
 
-      // Set the primary key ID
-      const productID = results.insertId;
       // Set product ID
-      product.id = productID;
+      product.id = results.insertId;
       // Set likes
       product.likes = 0;
       // Set the date stamp
-      product.dateStamp = datestamp;
+      product.date_stamp = datestamp;
       // List of variations
-      const productVariations = product.variations || []
+      product.variations = product.variations || []
 
       // If has variations
-      if (productVariations.length > 0) {
-        const variationValues = productVariations.map((variation) => [
-          productID,
-          variation.variationType,
+      if (product.variations.length > 0) {
+        // Add product id to the variations
+        const variationValues = product.variations.map((variation) => [
+          product.id,
+          variation.product_variation_types_id,
+          variation.photos_id,
           variation.name,
-          variation.photoID,
         ]);
 
         //Query the database to insert the variations
-        db.query("INSERT INTO product_variations (id, products_id, product_variation_types_id, photos_id, name) VALUES ?",
-          [variationValues],
-          (error) => {
-            if (error) {
-              Log.e(error.message);
-              callback(ErrorTypes.DB_ERROR, null);
-              return;
-            }
-            product.id = productID;
-
-            callback(null, new Product(product));
+        db.query("INSERT INTO product_variations (products_id, product_variation_types_id, photos_id, name) VALUES ?", [variationValues], (error) => {
+          // If has an error
+          if (error) {
+            Log.e(error.message);
+            callback(ErrorTypes.DB_ERROR, null);
+            return;
           }
-        );
+
+          // Return the product
+          callback(null, new Product(product));
+        });
         
         return;
       }
 
-      // Return the student
+      // Return the product w/ no variations
       callback(null, new Product(product));
     });
   }
@@ -355,17 +314,17 @@ class Product extends DatabaseModel {
   }
 
   /**
+   * Get Date stamp
+   */
+  public getDatestamp() {
+    return this.date_stamp;
+  }
+
+  /**
    * Get Variations
    */
   public getVariations(): ProductVariation[] {
     return this.variations;
-  }
-
-  /**
-   * Set Variations
-   */
-  public setVariations(variations: ProductVariation[]) {
-    this.variations = variations;
   }
 }
 

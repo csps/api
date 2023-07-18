@@ -7,9 +7,9 @@ const months28 = [2];
 
 /**
  * Check if a string is a number
- * @param value String to check
+ * @param value value to check
  */
-export function isNumber(value: string): boolean {
+export function isNumber(value: any): boolean {
   return /^\d*\.?\d+$/.test(value)
 }
 

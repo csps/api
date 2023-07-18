@@ -25,7 +25,7 @@ export type ProductType = {
   likes: number;
   stock: number;
   price: number;
-  dateStamp?: string;
+  date_stamp?: string;
   variations: ProductVariation[];
 }
 
@@ -60,9 +60,9 @@ export type TutorialType = {
  */
 export type ProductVariation = {
   id: number;
-  productID: number;
-  variationType: number;
-  photoID: number;
+  product_id: number;
+  product_variation_types_id: number;
+  photos_id: number;
   name: string;
 };
 
