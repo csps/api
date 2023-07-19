@@ -28,13 +28,25 @@ export function getPattern(requestPath: string) {
       if (patterns.length !== requestPatterns.length) {
         continue;
       }
-      
-      // If the first pattern is not equal to the request pattern
-      if (patterns[0] !== requestPatterns[0]) {
-        // Continue
-        continue;
+
+      // Is same flag
+      let isSame = true;
+
+      // For each pattern
+      for (let i = 0; i < patterns.length; i++) {
+        // If the pattern is not equal to the request pattern and the request pattern does not start with a colon (:)
+        if (!requestPatterns[i].startsWith(':') && patterns[i] !== requestPatterns[i]) {
+          // Set isSame to false
+          isSame = false;
+          break;
+        }
       }
 
+      // If not same, continue
+      if (!isSame) {
+        continue;
+      }
+      
       // For each pattern except the first one
       for (let i = 1; i < patterns.length; i++) {
         // If the pattern is not equal to the request pattern

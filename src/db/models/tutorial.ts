@@ -7,6 +7,7 @@ import { getDatestamp } from "../../utils/date";
 /**
  * Tutorials API
  * @author TotalElderBerry (Brian Keith Lisondra)
+ * @author mavyfaby (Maverick Fabroa)
  * 
  * @param request Express request object
  * @param response Express response object
@@ -43,7 +44,27 @@ class Tutorial extends DatabaseModel {
    * @param callback 
    */
   public static fromId(id: number, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
 
+    // Query the database
+    db.query("SELECT * FROM tutorials WHERE id = ?", [id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create and return tutorial
+      callback(null, new Tutorial(results[0]));
+    });
   }
 
   /**

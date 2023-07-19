@@ -81,6 +81,9 @@
   "TUTORIALS_NOT_FOUND": "No tutorials found!",
   "TUTORIALS_FOUND": "Tutorials found!",
   "TUTORIALS_INVALID_YEAR": "Invalid year!",
+  "TUTORIAL_GET_ERROR": "Something went wrong while fetching tutorial.",
+  "TUTORIAL_NOT_FOUND": "Tutorial not found!",
+  "TUTORIAL_FOUND": "Tutorial found!",
   "TUTORIAL_POST_ERROR": "Something went wrong while submitting tutorial request.",
   "TUTORIAL_CREATED": "Tutorial succesfully submitted!"
 }

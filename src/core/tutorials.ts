@@ -6,8 +6,10 @@ import { isNumber } from "../utils/string";
 
 import {
   TUTORIALS_FOUND, TUTORIALS_NOT_FOUND, TUTORIALS_GET_ERROR,
-  TUTORIAL_POST_ERROR, TUTORIAL_CREATED, TUTORIALS_INVALID_YEAR
+  TUTORIAL_POST_ERROR, TUTORIAL_CREATED, TUTORIALS_INVALID_YEAR,
+  TUTORIAL_GET_ERROR, TUTORIAL_NOT_FOUND, TUTORIAL_FOUND
 } from "../strings/strings.json";
+import { getPattern } from "../utils/route";
 
 /**
  * Tutorials API
@@ -33,19 +35,43 @@ export function tutorials(request: Request, response: Response) {
  * @param response 
  */
 export function getTutorials(request: Request, response: Response) {
-  const { year } = request.params;
+  // Get pattern
+  const pattern = getPattern(request.originalUrl);
 
-  if (year) {
+  // If using year
+  if (pattern?.endsWith("/year")) {
+    // Get year
+    const { year } = request.params;
+
+    // If year is not a number
     if (!isNumber(year)) {
       response.status(404).send(result.error(TUTORIALS_INVALID_YEAR));
       return;
     }
 
-    getTutorial(parseInt(year), request, response)
+    // Get tutorials by year
+    getTutorialsByAcademicYear(parseInt(year), request, response)
     return
   }
 
-  Tutorial.getAll((error, tutorial) => {
+  // If using id
+  if (pattern?.endsWith("/id")) {
+    // Get id
+    const { id } = request.params;
+
+    // If id is not a number
+    if (!isNumber(id)) {
+      response.status(404).send(result.error(TUTORIALS_NOT_FOUND));
+      return;
+    }
+
+    // Get tutrial by id
+    getTutorialById(parseInt(id), request, response);
+    return;
+  }
+
+  // Otherwise, get all tutorials
+  Tutorial.getAll((error, tutorials) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(TUTORIALS_GET_ERROR));
@@ -59,17 +85,17 @@ export function getTutorials(request: Request, response: Response) {
     }
 
     // Return the events
-    response.send(result.success(TUTORIALS_FOUND, tutorial));
+    response.send(result.success(TUTORIALS_FOUND, tutorials));
   })
 }
 
 /**
- * GET /tutorials/:year
+ * GET /tutorials/year/:year
  * @param year 
  * @param request 
  * @param response 
  */
-export function getTutorial(year: number, request: Request, response: Response) {
+export function getTutorialsByAcademicYear(year: number, request: Request, response: Response) {
   // Get tutorials by academic year
   Tutorial.fromAcademicYear(year, (error, tutorials) => {
     if (error === ErrorTypes.DB_ERROR) {
@@ -85,6 +111,32 @@ export function getTutorial(year: number, request: Request, response: Response) 
     
     // Return the events
     return response.send(result.success(TUTORIALS_FOUND, tutorials));
+  })
+}
+
+/**
+ * GET /tutorials/id/:id
+ * @param id
+ * @param request 
+ * @param response 
+ */
+export function getTutorialById(id: number, request: Request, response: Response) {
+  // Get tutorial by id
+  Tutorial.fromId(id, (error, tutorial) => {
+    // If has an error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(TUTORIAL_GET_ERROR));
+      return;
+    }
+
+    // If no results
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(TUTORIAL_NOT_FOUND));
+      return;
+    }
+
+    // Return the tutorial
+    response.send(result.success(TUTORIAL_FOUND, tutorial));
   })
 }
 

@@ -32,7 +32,6 @@ app.use(Parser.getMiddleware());
 app.use(routes.map(r => r.path), (request, response) => {
   // Set default response content type
   response.setHeader("Content-Type", "application/json");
-
   // Get route pattern
   const pattern = getPattern(request.originalUrl);
 
