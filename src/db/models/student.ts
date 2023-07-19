@@ -77,6 +77,35 @@ class Student extends DatabaseModel {
   }
 
   /**
+   * Get student from the database using the unique ID
+   * @param uid Unique ID
+   * @param callback Callback function
+   */
+  public static fromUniqueId(uid: string, callback: (error: ErrorTypes | null, student: Student | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("SELECT * FROM students WHERE id = ?", [uid], (error, results) => {
+      // If has error
+      if (error) {
+        console.error(error);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create and return the student object
+      callback(null, new Student(results[0]));
+    });
+  }
+
+  /**
    * Get Product list from the database 
    * @param callback 
    */

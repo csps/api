@@ -10,6 +10,7 @@ import {
   STUDENT_POST_ERROR, STUDENT_ALREADY_EXIST, STUDENT_CREATED,
   STUDENT_EMAIL_ALREADY_EXIST
 } from "../strings/strings.json";
+import { getPattern } from "../utils/route";
 
 /**
  * Students API
@@ -36,16 +37,46 @@ export function students(request: Request, response: Response) {
  * @param response Express response
  */
 function getStudents(request: Request, response: Response) {
-  // Get {id} from request parameters
-  const { id } = request.params;
+  // Get pattern
+  const pattern = getPattern(request.originalUrl);
+  // If using uid
+  const isUid = pattern?.indexOf("/uid") !== -1;
+  // If using student id
+  const isStudentId = pattern?.indexOf("/id") !== -1;
 
-  // If has an id, call `getStudent` function instead
-  if (id) {
-    getStudent(request, response);
+  // If using uid
+  if (isUid) {
+    // Get unique id
+    const { uid } = request.params;
+
+    // If uid is not a number
+    if (!isNumber(uid)) {
+      response.status(404).send(result.error(STUDENT_NOT_FOUND));
+      return;
+    }
+
+    // Get tutorials by year
+    getStudentByUID(request, response)
+    return
+  }
+
+  // If using student id
+  if (isStudentId) {
+    // Get student
+    const { id } = request.params;
+
+    // If id is not a number
+    if (!isNumber(id)) {
+      response.status(404).send(result.error(STUDENT_NOT_FOUND));
+      return;
+    }
+
+    // Get tutrial by id
+    getStudentByID(request, response);
     return;
   }
 
-  // Get the student from the database
+  // Otherwisem get all students from the database
   Student.getAll((error, student) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
@@ -65,13 +96,13 @@ function getStudents(request: Request, response: Response) {
 }
 
 /**
- * GET /students/:id
+ * GET /students/id/:id
  * 
  * @param request Express request
  * @param response Express response
  */
-function getStudent(request: Request, response: Response) {
-  // Get {id} from request parameters
+function getStudentByID(request: Request, response: Response) {
+  // Get student id from request parameters
   const { id } = request.params;
 
   // If id is not a number, return student not found
@@ -82,6 +113,41 @@ function getStudent(request: Request, response: Response) {
 
   // Get the student from the database
   Student.fromId(id, (error, student) => {
+    // If has an error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(STUDENT_GET_ERROR));
+      return;
+    }
+    
+    // If no results
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(STUDENT_NOT_FOUND));
+      return;
+    }
+
+    // Ohterwise, return the student data
+    response.send(result.success(STUDENT_FOUND, student));
+  });
+}
+
+/**
+ * GET /students/uid/:id
+ * 
+ * @param request Express request
+ * @param response Express response
+ */
+function getStudentByUID(request: Request, response: Response) {
+  // Get student id from request parameters
+  const { uid } = request.params;
+
+  // If uid is not a number, return student not found
+  if (!isNumber(uid)) {
+    response.status(404).send(result.error(STUDENT_NOT_FOUND));
+    return;
+  }
+
+  // Get the student from the database
+  Student.fromUniqueId(uid, (error, student) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(STUDENT_GET_ERROR));
