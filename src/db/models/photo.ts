@@ -1,13 +1,8 @@
 import { Log } from "../../utils/log";
-import { ErrorTypes } from "../../types/enums";
+import { ErrorTypes, Strings } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
 import type { PhotoType } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
-
-import {
-  PHOTO_EMPTY_DATA, PHOTO_EMPTY_TYPE,
-  PHOTO_EMPTY_WIDTH, PHOTO_EMPTY_HEIGHT
-} from "../../strings/strings.json";
 
 /**
  * Photos model
@@ -104,13 +99,13 @@ export class Photo extends DatabaseModel {
    */
   public static validate(data: any) {
     // If data is empty
-    if (!data.data) return [PHOTO_EMPTY_DATA, "data"];
+    if (!data.data) return [Strings.PHOTO_EMPTY_DATA, "data"];
     // If type is empty
-    if (!data.type) return [PHOTO_EMPTY_TYPE, "type"];
+    if (!data.type) return [Strings.PHOTO_EMPTY_TYPE, "type"];
     // If width is empty
-    if (!data.width) return [PHOTO_EMPTY_WIDTH, "width"];
+    if (!data.width) return [Strings.PHOTO_EMPTY_WIDTH, "width"];
     // If height is empty
-    if (!data.height) return [PHOTO_EMPTY_HEIGHT, "height"];
+    if (!data.height) return [Strings.PHOTO_EMPTY_HEIGHT, "height"];
   }
 
   /**

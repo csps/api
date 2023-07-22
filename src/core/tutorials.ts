@@ -1,14 +1,8 @@
 import type { Request, Response } from "express";
 import Tutorial from "../db/models/tutorial";
-import { ErrorTypes } from "../types/enums";
+import { ErrorTypes, Strings } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";
-
-import {
-  TUTORIALS_FOUND, TUTORIALS_NOT_FOUND, TUTORIALS_GET_ERROR,
-  TUTORIAL_POST_ERROR, TUTORIAL_CREATED, TUTORIALS_INVALID_YEAR,
-  TUTORIAL_GET_ERROR, TUTORIAL_NOT_FOUND, TUTORIAL_FOUND
-} from "../strings/strings.json";
 import { getPattern } from "../utils/route";
 
 /**
@@ -45,7 +39,7 @@ export function getTutorials(request: Request, response: Response) {
 
     // If year is not a number
     if (!isNumber(year)) {
-      response.status(404).send(result.error(TUTORIALS_INVALID_YEAR));
+      response.status(404).send(result.error(Strings.TUTORIALS_INVALID_YEAR));
       return;
     }
 
@@ -61,7 +55,7 @@ export function getTutorials(request: Request, response: Response) {
 
     // If id is not a number
     if (!isNumber(id)) {
-      response.status(404).send(result.error(TUTORIALS_NOT_FOUND));
+      response.status(404).send(result.error(Strings.TUTORIALS_NOT_FOUND));
       return;
     }
 
@@ -74,18 +68,18 @@ export function getTutorials(request: Request, response: Response) {
   Tutorial.getAll((error, tutorials) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(TUTORIALS_GET_ERROR));
+      response.status(500).send(result.error(Strings.TUTORIALS_GET_ERROR));
       return;
     }
 
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(TUTORIALS_NOT_FOUND));
+      response.status(404).send(result.error(Strings.TUTORIALS_NOT_FOUND));
       return;
     }
 
     // Return the events
-    response.send(result.success(TUTORIALS_FOUND, tutorials));
+    response.send(result.success(Strings.TUTORIALS_FOUND, tutorials));
   })
 }
 
@@ -99,18 +93,18 @@ export function getTutorialsByAcademicYear(year: number, request: Request, respo
   // Get tutorials by academic year
   Tutorial.fromAcademicYear(year, (error, tutorials) => {
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(TUTORIALS_GET_ERROR));
+      response.status(500).send(result.error(Strings.TUTORIALS_GET_ERROR));
       return;
     }
 
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(TUTORIALS_NOT_FOUND));
+      response.status(404).send(result.error(Strings.TUTORIALS_NOT_FOUND));
       return;
     }
     
     // Return the events
-    return response.send(result.success(TUTORIALS_FOUND, tutorials));
+    return response.send(result.success(Strings.TUTORIALS_FOUND, tutorials));
   })
 }
 
@@ -125,18 +119,18 @@ export function getTutorialById(id: number, request: Request, response: Response
   Tutorial.fromId(id, (error, tutorial) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(TUTORIAL_GET_ERROR));
+      response.status(500).send(result.error(Strings.TUTORIAL_GET_ERROR));
       return;
     }
 
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(TUTORIAL_NOT_FOUND));
+      response.status(404).send(result.error(Strings.TUTORIAL_NOT_FOUND));
       return;
     }
 
     // Return the tutorial
-    response.send(result.success(TUTORIAL_FOUND, tutorial));
+    response.send(result.success(Strings.TUTORIAL_FOUND, tutorial));
   })
 }
 
@@ -152,11 +146,11 @@ function postTutorial(request: Request, response: Response) {
     switch (error) {
       // If has an error
       case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error(TUTORIAL_POST_ERROR));
+        response.status(500).send(result.error(Strings.TUTORIAL_POST_ERROR));
         return;
     }
 
     // Otherwise, return the student data
-    response.send(result.success(TUTORIAL_CREATED, null));
+    response.send(result.success(Strings.TUTORIAL_CREATED, null));
   });
 }

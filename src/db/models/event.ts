@@ -1,17 +1,10 @@
 import Database, { DatabaseModel } from "../database";
-import { ErrorTypes } from "../../types/enums";
+import { ErrorTypes, Strings } from "../../types/enums";
 import { EventType } from "../../types/models";
 import { Log } from "../../utils/log";
 import { isDate } from "../../utils/string";
 import { is24HourTime } from "../../utils/string";
 import { getDatestamp, isTimeBefore } from "../../utils/date";
-
-import {
-  EVENT_EMPTY_TITLE, EVENT_EMPTY_THUMBNAIL, EVENT_EMPTY_DESCRIPTION,
-  EVENT_EMPTY_DATE, EVENT_EMPTY_START_TIME, EVENT_EMPTY_END_TIME,
-  EVENT_EMPTY_VENUE, EVENT_INVALID_DATE, EVENT_INVALID_TIME_FORMAT,
-  EVENT_INVALID_TIME_ORDER
-} from "../../strings/strings.json";
 
 /**
  * Event model
@@ -145,27 +138,27 @@ class Event extends DatabaseModel {
    */
   public static validate(data: EventType) {
     // Check if Title is Empty
-    if (!data.title) return [EVENT_EMPTY_TITLE, "title"];
+    if (!data.title) return [Strings.EVENT_EMPTY_TITLE, "title"];
     // Check if Thumbnail is Empty
-    if (!data.thumbnail) return [EVENT_EMPTY_THUMBNAIL, "thumbnail"];
+    if (!data.thumbnail) return [Strings.EVENT_EMPTY_THUMBNAIL, "thumbnail"];
     // Check if Description is Empty
-    if (!data.description) return [EVENT_EMPTY_DESCRIPTION, "description"];
+    if (!data.description) return [Strings.EVENT_EMPTY_DESCRIPTION, "description"];
     // Check if date is Empty
-    if (!data.date) return [EVENT_EMPTY_DATE, "date"];
+    if (!data.date) return [Strings.EVENT_EMPTY_DATE, "date"];
     // Check if Start Time is Empty
-    if (!data.start_time) return [EVENT_EMPTY_START_TIME, "start_time"];
+    if (!data.start_time) return [Strings.EVENT_EMPTY_START_TIME, "start_time"];
     // Check if End Time is Empty
-    if (!data.end_time) return [EVENT_EMPTY_END_TIME, "end_time"];
+    if (!data.end_time) return [Strings.EVENT_EMPTY_END_TIME, "end_time"];
     // Check if Venue is Empty
-    if (!data.venue) return [EVENT_EMPTY_VENUE, "venue"];
+    if (!data.venue) return [Strings.EVENT_EMPTY_VENUE, "venue"];
     // Check if Date is invalid
-    if (!isDate(data.date)) return [EVENT_INVALID_DATE, "date"];
+    if (!isDate(data.date)) return [Strings.EVENT_INVALID_DATE, "date"];
     // Check if Start Time is invalid
-    if (!is24HourTime(data.start_time)) return [EVENT_INVALID_TIME_FORMAT, "start_time"];
+    if (!is24HourTime(data.start_time)) return [Strings.EVENT_INVALID_TIME_FORMAT, "start_time"];
     // Check if End Time is invalid
-    if (!is24HourTime(data.end_time)) return [EVENT_INVALID_TIME_FORMAT, "end_time"];
+    if (!is24HourTime(data.end_time)) return [Strings.EVENT_INVALID_TIME_FORMAT, "end_time"];
     // // Check if End Time is earlier than Start Time
-    if (!isTimeBefore(data.start_time, data.end_time)) return [EVENT_INVALID_TIME_ORDER, "start_time"];
+    if (!isTimeBefore(data.start_time, data.end_time)) return [Strings.EVENT_INVALID_TIME_ORDER, "start_time"];
   }
 
   /**

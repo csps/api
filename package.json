@@ -1,13 +1,19 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.41",
+  "version": "1.0.0-pre.42",
   "main": "dist/index.js",
   "scripts": {
     "dev": "npm test && npm run dev-no-test",
     "dev-no-test": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
     "start": "NODE_ENV=production node dist/index.js",
-    "test": "jest --verbose",
-    "build": "npm test && tsc"
+    "build": "npm test && tsc",
+    
+    "bun-dev": "bun test && bun run bun-dev-no-test",
+    "bun-dev-no-test": "bun run --watch src/index.ts",
+    "bun-start": "NODE_ENV=production bun run dist/index.js",
+    "bun-build": "bun test && tsc",
+    
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -16,7 +22,9 @@
   "keywords": [
     "nodejs",
     "typescript",
-    "org"
+    "org",
+    "bun",
+    "bunjs"
   ],
   "author": "csps",
   "license": "other",

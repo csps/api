@@ -1,16 +1,9 @@
 import { Log } from "../../utils/log";
-import { ErrorTypes } from "../../types/enums";
+import { ErrorTypes, Strings } from "../../types/enums";
 import Database, { DatabaseModel } from "../database";
 import { isNumber } from "../../utils/string";
 import { getDatestamp } from "../../utils/date";
 import type { ProductType, ProductVariation } from "../../types/models";
-
-import {
-  PRODUCT_EMPTY_NAME, PRODUCT_EMPTY_SHORT_DESCRIPTION, PRODUCT_EMPTY_DESCRIPTION,
-  PRODUCT_EMPTY_PRICE, PRODUCT_EMPTY_STOCK, PRODUCT_EMPTY_THUMBNAIL,
-  PRODUCT_LIMIT_SHORT_DESCRIPTION, PRODUCT_LIMIT_PRICE, PRODUCT_LIMIT_STOCK,
-  PRODUCT_INVALID_PRICE, PRODUCT_INVALID_STOCK, PRODUCT_INVALID_THUMBNAIL,
-} from "../../strings/strings.json";
 
 /**
  * Product Model
@@ -158,29 +151,29 @@ class Product extends DatabaseModel {
    */
   public static validate(data: ProductType) {
     // If name is empty
-    if (!data.name) return [PRODUCT_EMPTY_NAME, "name"];
+    if (!data.name) return [Strings.PRODUCT_EMPTY_NAME, "name"];
     // If Short Description is empty
-    if (!data.short_description) return [PRODUCT_EMPTY_SHORT_DESCRIPTION, "short_description"];
+    if (!data.short_description) return [Strings.PRODUCT_EMPTY_SHORT_DESCRIPTION, "short_description"];
     // If Short Description exceeds 128 characters
-    if (data.short_description.length > 128) return [PRODUCT_LIMIT_SHORT_DESCRIPTION, "short_description"];
+    if (data.short_description.length > 128) return [Strings.PRODUCT_LIMIT_SHORT_DESCRIPTION, "short_description"];
     // If Description is empty
-    if (!data.description) return [PRODUCT_EMPTY_DESCRIPTION, 'description'];
+    if (!data.description) return [Strings.PRODUCT_EMPTY_DESCRIPTION, 'description'];
     // If Price is empty
-    if (!data.price) return [PRODUCT_EMPTY_PRICE, 'price'];
+    if (!data.price) return [Strings.PRODUCT_EMPTY_PRICE, 'price'];
     // If Price is not in correct format
-    if (!isNumber(data.price)) return [PRODUCT_INVALID_PRICE, "price"];
+    if (!isNumber(data.price)) return [Strings.PRODUCT_INVALID_PRICE, "price"];
     // If Price is less than 0
-    if (data.price < 0) return [PRODUCT_LIMIT_PRICE, "price"];
+    if (data.price < 0) return [Strings.PRODUCT_LIMIT_PRICE, "price"];
     // If Stock is empty
-    if (!data.stock) return [PRODUCT_EMPTY_STOCK, "stock"];
+    if (!data.stock) return [Strings.PRODUCT_EMPTY_STOCK, "stock"];
     // If Stock is not in correct format
-    if (!isNumber(data.stock)) return [PRODUCT_INVALID_STOCK, "stock"];
+    if (!isNumber(data.stock)) return [Strings.PRODUCT_INVALID_STOCK, "stock"];
     // If Stock is less than 0
-    if (data.stock < 0) return [PRODUCT_LIMIT_STOCK, "stock"];
+    if (data.stock < 0) return [Strings.PRODUCT_LIMIT_STOCK, "stock"];
     // If Thumbnail is empty
-    if (!data.thumbnail) return [PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
+    if (!data.thumbnail) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
     // If Thumbnail is not in correct format
-    if (!isNumber(data.thumbnail)) return [PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
+    if (!isNumber(data.thumbnail)) return [Strings.PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
   }
 
   /**

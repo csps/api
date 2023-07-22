@@ -1,14 +1,8 @@
 import Event from "../db/models/event";
-import { ErrorTypes } from "../types/enums";
+import { ErrorTypes, Strings } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";
 import type { Request, Response } from "express";
-
-import {
-  EVENTS_GET_ERROR, EVENTS_NOT_FOUND, EVENTS_FOUND,
-  EVENT_GET_ERROR, EVENT_NOT_FOUND, EVENT_FOUND,
-  EVENT_CREATED, EVENT_POST_ERROR
-} from "../strings/strings.json";
 
 /**
  * Events API
@@ -47,18 +41,18 @@ function getEvents(request: Request, response: Response) {
   Event.getAll((error, events) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(EVENTS_GET_ERROR));
+      response.status(500).send(result.error(Strings.EVENTS_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(EVENTS_NOT_FOUND));
+      response.status(404).send(result.error(Strings.EVENTS_NOT_FOUND));
       return;
     }
     
     // Return the events
-    response.send(result.success(EVENTS_FOUND, events));
+    response.send(result.success(Strings.EVENTS_FOUND, events));
   });
 }
 
@@ -73,7 +67,7 @@ function getEvent(request: Request, response: Response) {
 
   // If id is not a number, return event not found
   if (!isNumber(id)) {
-    response.status(404).send(result.error(EVENT_NOT_FOUND));
+    response.status(404).send(result.error(Strings.EVENT_NOT_FOUND));
     return;
   }
 
@@ -81,18 +75,18 @@ function getEvent(request: Request, response: Response) {
   Event.fromId(parseInt(id), (error, event) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(EVENT_GET_ERROR));
+      response.status(500).send(result.error(Strings.EVENT_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(EVENT_NOT_FOUND));
+      response.status(404).send(result.error(Strings.EVENT_NOT_FOUND));
       return;
     }
 
     // Return the event
-    response.send(result.success(EVENT_FOUND, event))
+    response.send(result.success(Strings.EVENT_FOUND, event))
   })
 }
 
@@ -118,12 +112,12 @@ function postEvents(request: Request, response: Response){
     // If has error
     switch(error){
       case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error(EVENT_POST_ERROR));
+        response.status(500).send(result.error(Strings.EVENT_POST_ERROR));
         break;
     }
     
     // Otherwise, return the Event Data
-    response.send(result.success(EVENT_CREATED, event));
+    response.send(result.success(Strings.EVENT_CREATED, event));
   });
 }
 

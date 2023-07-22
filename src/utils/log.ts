@@ -122,7 +122,7 @@ export class Log {
       txLog = chalk.white;
     }
     // Get the response status
-    const { statusCode, statusMessage, locals } = response;
+    const { statusCode, locals } = response;
     // Get the response data
     const responseData = locals.body || "";
     // Get the request data
@@ -136,7 +136,7 @@ export class Log {
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${ip}] [${date}] [${method} ${url}] [${statusCode} ${statusMessage}] [${requestData}] [${responseData}]`
+        `[${ip}] [${date}] [${method} ${url}] [${statusCode}] [${requestData}] [${responseData}]`
       )
     );
   }

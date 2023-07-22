@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
-import { ErrorTypes } from '../types/enums';
+import { ErrorTypes, Strings } from '../types/enums';
 import { result } from '../utils/response';
 import { isNumber } from '../utils/string';
 import Product from '../db/models/product';
-
-import {
-  PRODUCTS_GET_ERROR, PRODUCTS_NOT_FOUND, PRODUCTS_FOUND,
-  PRODUCT_GET_ERROR, PRODUCT_NOT_FOUND, PRODUCT_FOUND,
-  PRODUCT_POST_ERROR, PRODUCT_ALREADY_EXIST, PRODUCT_CREATED
-} from "../strings/strings.json";
 
 /**
  * Products API
@@ -48,18 +42,18 @@ function getProducts(request: Request, response: Response) {
   Product.getAll((error, products) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(PRODUCTS_GET_ERROR));
+      response.status(500).send(result.error(Strings.PRODUCTS_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(PRODUCTS_NOT_FOUND));
+      response.status(404).send(result.error(Strings.PRODUCTS_NOT_FOUND));
       return;
     }
     
     // Return the products
-    response.send(result.success(PRODUCTS_FOUND, products));
+    response.send(result.success(Strings.PRODUCTS_FOUND, products));
   });
 }
 
@@ -75,7 +69,7 @@ function getProduct(request: Request, response: Response) {
 
   // If id is not a number, return student not found
   if (!isNumber(id)) {
-    response.status(404).send(result.error(PRODUCT_NOT_FOUND));
+    response.status(404).send(result.error(Strings.PRODUCT_NOT_FOUND));
     return;
   }
 
@@ -83,18 +77,18 @@ function getProduct(request: Request, response: Response) {
   Product.fromId(parseInt(id), (error, product) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(PRODUCT_GET_ERROR));
+      response.status(500).send(result.error(Strings.PRODUCT_GET_ERROR));
       return;
     }
     
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(PRODUCT_NOT_FOUND));
+      response.status(404).send(result.error(Strings.PRODUCT_NOT_FOUND));
       return;
     }
 
     // Return the product
-    response.send(result.success(PRODUCT_FOUND, product));
+    response.send(result.success(Strings.PRODUCT_FOUND, product));
   });
 }
 
@@ -119,15 +113,15 @@ function postProducts(request: Request, response: Response){
     // If has an error
     switch(error){
       case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error(PRODUCT_POST_ERROR));
+        response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
         break;
       case ErrorTypes.DB_PRODUCT_ALREADY_EXISTS:
-        response.status(400).send(result.error(PRODUCT_ALREADY_EXIST));
+        response.status(400).send(result.error(Strings.PRODUCT_ALREADY_EXIST));
       break;
     }
 
     // Otherwise, return the product data
-    response.send(result.success(PRODUCT_CREATED, product));
+    response.send(result.success(Strings.PRODUCT_CREATED, product));
   });
 
 }
