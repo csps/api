@@ -16,9 +16,25 @@ export enum TutorialStatus {
   DONE = "Done"
 }
 
+// Order status
+export enum OrderStatus {
+  PENDING_PAYMENT = 1,
+  COMPLETED = 2,
+  CANCELLED = 3,
+  REMOVED = 4,
+  REJECTED = 5
+}
+
+// Mode of payments
+export enum ModeOfPayment {
+  WALK_IN = 1,
+  GCASH = 2
+}
+
 // String constants
 export enum Strings {
   GENERAL_SYSTEM_ERROR = "Oops! A system error occured. Please contact the CSPS server admin.",
+  GENERAL_SESSION_ERROR = "Session Error! Please logout and login again.",
 
   LOGIN_EMPTY_ID = "ID is required!",
   LOGIN_EMPTY_PASSWORD = "Password is required!",
@@ -109,5 +125,9 @@ export enum Strings {
   TUTORIAL_NOT_FOUND = "Tutorial not found!",
   TUTORIAL_FOUND = "Tutorial found!",
   TUTORIAL_POST_ERROR = "Something went wrong while submitting tutorial request.",
-  TUTORIAL_CREATED = "Tutorial succesfully submitted!"
+  TUTORIAL_CREATED = "Tutorial succesfully submitted!",
+
+  ORDERS_EMPTY = "No orders found!",
+  ORDERS_FOUND = "Orders found!",
+  ORDER_INVALID_ID = "Invalid Order ID!",
 }

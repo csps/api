@@ -102,7 +102,7 @@ class Student extends DatabaseModel {
    * Get Product list from the database 
    * @param callback 
    */
-  public static getAll(callback: (error: ErrorTypes | null, product: Student[] | null) => void) {
+  public static getAll(callback: (error: ErrorTypes | null, student: Student[] | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 

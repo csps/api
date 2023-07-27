@@ -76,3 +76,14 @@ export function isDate(value: string): boolean {
  // Otherwise, return true
   return true; 
 }
+
+/**
+ * Parse text to json object
+ */
+export function parseText(text: string): object | null {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return null;
+  }
+}

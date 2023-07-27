@@ -1,5 +1,6 @@
 import {
-  example, login, products, students, events, tutorials, photos
+  example, login, products, students,
+  events, tutorials, photos, orders
 } from "../core"
 
 /**
@@ -32,7 +33,7 @@ export const routes: AppRoutes[] = [
   { path: "/events/:id", methods: ["GET"], handler: events },
   { path: "/events", methods: ["GET", "POST"], handler: events },
 
-  //Tutorials
+  // Tutorials
   { path: "/tutorials/:year/year", methods: ["GET"], handler: tutorials },
   { path: "/tutorials/:id/id", methods: ["GET"], handler: tutorials },
   { path: "/tutorials", methods: ["GET", "POST"], handler: tutorials },
@@ -41,4 +42,10 @@ export const routes: AppRoutes[] = [
   { path: "/photos/:id/raw", methods: ["GET"], handler: photos },
   { path: "/photos/:id", methods: ["GET"], handler: photos },
   { path: "/photos", methods: ["POST"], handler: photos },
+
+  // Orders
+  { path: "/orders/all", methods: ["GET"], handler: orders },
+  { path: "/orders/:id/:key", methods: ["PUT"], handler: orders },
+  { path: "/orders/:id", methods: ["GET"], handler: orders },
+  { path: "/orders", methods: ["GET", "POST"], handler: orders }
 ];

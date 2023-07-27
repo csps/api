@@ -1,4 +1,4 @@
-import { TutorialStatus } from "./enums";
+import { ModeOfPayment, OrderStatus, TutorialStatus } from "./enums";
 
 /**
  * Student type data
@@ -32,6 +32,17 @@ export type ProductType = {
 }
 
 /**
+ * Product Variation data
+ */
+export type ProductVariation = {
+  id: number;
+  product_id: number;
+  product_variation_types_id: number;
+  photos_id: number;
+  name: string;
+};
+
+/**
  * Event type data
  */
 export type EventType = {
@@ -57,17 +68,6 @@ export type TutorialType = {
   date_stamp: string;
 };
 
-/**
- * Product Variation data
- */
-export type ProductVariation = {
-  id: number;
-  product_id: number;
-  product_variation_types_id: number;
-  photos_id: number;
-  name: string;
-};
-
  /*
  * Photo type data
  */
@@ -78,4 +78,21 @@ export type PhotoType = {
   width: number;
   height: number;
   date_stamp?: string;
+}
+
+/**
+ * Order type data
+ */
+export type OrderType = {
+  id: number;
+  student_id: string;
+  product_variations_id: number;
+  quantity: number;
+  mode_of_payment_id: ModeOfPayment;
+  status_id: OrderStatus;
+  user_remarks: string;
+  admin_remarks: string;
+  status_updated: string;
+  edit_date: string;
+  date_stamp: string;
 }

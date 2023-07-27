@@ -2,7 +2,7 @@ import chalk from "chalk";
 
 import { getDatestamp } from "./date";
 import { Request, Response } from "express";
-import { Parser } from "./parser";
+import { parseText } from "./string";
 
 /**
  * Custom logging event for CSPS Web App API
@@ -62,7 +62,7 @@ export class Log {
         // Check if the body is a string
         if ((body || "").length > 0) {
           // Parse the body to JSON
-          const b: any = Parser.toJSON(body) || "";
+          const b: any = parseText(body) || "";
           // Convert and set the body to string
           response.locals.body = b === "" ? "" : JSON.stringify({ success: b.success, message: b.message }, null, 0);
         }
@@ -128,9 +128,8 @@ export class Log {
     // Get the request data
     const requestData = request.originalUrl.startsWith("/photos") ? "*photos*" : (
       request.body.length > 0 && request.body.startsWith("{") && request.body.endsWith("}") ?
-        Parser.toJSON(request.body) === null ? "" :
-        JSON.stringify(Parser.toJSON(request.body) || "", null, 0) :
-        ""
+        parseText(request.body) === null ? "" :
+        JSON.stringify(parseText(request.body) || "", null, 0) : ""
     );
 
     // Log the response
