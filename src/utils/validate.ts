@@ -11,4 +11,5 @@ export function checkCredentials() {
   if (!process.env.SMTP_PORT) throw new Error("SMTP_PORT env not set");
   if (!process.env.SMTP_USER) throw new Error("SMTP_USER env not set");
   if (!process.env.SMTP_PASS) throw new Error("SMTP_PASS env not set");
+  if (!process.env.SECRET_KEY) throw new Error("SECRET_KEY env not set");
 }

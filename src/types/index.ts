@@ -42,7 +42,8 @@ declare global {
       SMTP_HOST: string,
       SMTP_PORT: number,
       SMTP_USER: string,
-      SMTP_PASS: string
+      SMTP_PASS: string,
+      SECRET_KEY: string
     }
   }
 }

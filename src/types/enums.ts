@@ -18,7 +18,12 @@ export enum TutorialStatus {
 
 // String constants
 export enum Strings {
-  LOGIN_FAILED = "Login failed",
+  GENERAL_SYSTEM_ERROR = "Oops! A system error occured. Please contact the CSPS server admin.",
+
+  LOGIN_EMPTY_ID = "ID is required!",
+  LOGIN_EMPTY_PASSWORD = "Password is required!",
+  LOGIN_FAILED = "Oops! Incorrect ID or Password.",
+  LOGIN_ERROR_VALIDATING_PASSWORD = "Oops! Error validating password. Please contact the CSPS server admin.",
   LOGIN_SUCCESS = "Login successful",
 
   EVENTS_GET_ERROR = "Something went wrong while fetching events.",

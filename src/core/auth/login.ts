@@ -1,55 +1,102 @@
 import type { Response, Request } from "express"
 import { result } from "../../utils/response";
-import { Strings } from "../../types/enums";
+import { ErrorTypes, Strings } from "../../types/enums";
+import { SignJWT } from 'jose';
 import Student from "../../db/models/student"
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { Log } from "../../utils/log";
 
 /**
  * Login API
  * @author TotalElderBerry (Brian Keith Lisondra)
+ * @author mavyfaby (Maverick Fabroa)
+ * 
+ * @param request Express Request Object
+ * @param response Express Response Object
  */
 export function login(request: Request, response: Response) {
   switch (request.method) {
-    case 'POST':      
+    case 'POST':
       postLogin(request, response)
       break;
   }
 }
 
+/**
+ * POST /login
+ * 
+ * @param request Express Request Object
+ * @param response Express Response Object
+ */
 function postLogin(request: Request, response: Response) {
-  Student.fromId(request.body.id, (error, student) => {
-    if (error !== null || student === null) {
-      response.send(result.error(Strings.LOGIN_FAILED))
-    } else {
-      const pw = student.getPassword() || "";      
-      validatePassword(request.body.password, pw, (isSuccess) => {
-        if (isSuccess === true) {
-          const token = jwt.sign({ data: student }, process.env.SECRET_KEY || "", { expiresIn: '1d' });
-          response.send(result.success(Strings.LOGIN_SUCCESS, { token: token }))
-        } else {
-          response.send(result.error(Strings.LOGIN_FAILED))
-        }
-      })
-    }
-  })
+  // Get id and password
+  const { id, password } = request.body;
 
+  // Check if id is present
+  if (!id) {
+    // If not, return error
+    return response.status(400).send(result.error(Strings.LOGIN_EMPTY_ID))
+  }
+
+  // Check if password is present
+  if (!password) {
+    // If not, return error
+    return response.status(400).send(result.error(Strings.LOGIN_EMPTY_PASSWORD))
+  }
+
+  // Get student from ID
+  Student.fromId(id, (error, student) => {
+    // If has error
+    if (error !== null || student === null) {
+      // Map error
+      switch (error) {
+        // If database error
+        case ErrorTypes.DB_ERROR:
+          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+          return;
+        // If no result
+        case ErrorTypes.DB_EMPTY_RESULT:
+          response.status(401).send(result.error(Strings.LOGIN_FAILED));
+          return;
+      }
+    }
+
+    // Validate password
+    validatePassword(password, student!.getPassword(), async (success) => {
+      // If success
+      if (success) {
+        // Encode secret key
+        const secret = new TextEncoder().encode(process.env.SECRET_KEY);
+        // Generate token
+        const token = await new SignJWT({ id: student!.getStudentId() })
+          .setProtectedHeader({ alg: 'HS256' })
+          .setIssuer('CSPS')
+          .setExpirationTime('1d')
+          .sign(secret);
+        
+        // Send response
+        response.send(result.success(Strings.LOGIN_SUCCESS, { token: token }))
+        return;
+      }
+
+      // Otherwise, return validation error
+      response.status(401).send(result.error(Strings.LOGIN_FAILED));
+    })
+  });
 }
 
-function validatePassword(passwordInput: string, password: string, callback: (isSuccess: Boolean) => void) {
-  const flag = bcrypt.compare(passwordInput, password, (error, result) => {
+/**
+ * Validate password
+ */
+function validatePassword(input: string, password: string, callback: (success: boolean) => void) {
+  // Compare password
+  bcrypt.compare(input, password, (error, result) => {
+    // If has error
     if (error) {
       console.error(error);
       callback(false)
     }
 
-    if (result) {
-      Log.e('Password matches!');
-      callback(true)
-    } else {
-      Log.e('Password does not match!');
-      callback(false)
-    }
+    // Return result
+    callback(result);
   });
 }
