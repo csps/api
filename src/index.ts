@@ -4,7 +4,6 @@ import helmet from "helmet";
 import { getPattern } from "./utils/route";
 import { routes } from "./routes";
 import { Log } from "./utils/log";
-import { Parser } from "./utils/parser";
 import { checkCredentials } from "./utils/validate";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import Database from "./db/database";
@@ -17,14 +16,12 @@ const app = express();
 // Set the port
 const port = process.env.PORT || 4000;
 
-// Use plain text request body
-app.use(express.text());
 // Use helmet for security
 app.use(helmet());
+// Use text/plain request body
+app.use(express.urlencoded({ extended: true }));
 // Use custom logger
 app.use(Log.getMiddleware());
-// Use custom parser
-app.use(Parser.getMiddleware());
 
 /**
  * Handle requests specified in routes
