@@ -110,14 +110,16 @@ function postProducts(request: Request, response: Response){
 
   // Insert the student to the database
   Product.insert(request.body, (error, product) => {
-    // If has an error
-    switch(error){
-      case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
-        break;
-      case ErrorTypes.DB_PRODUCT_ALREADY_EXISTS:
-        response.status(400).send(result.error(Strings.PRODUCT_ALREADY_EXIST));
-      break;
+    // If has error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
+      return;
+    }
+
+    // If product already exists
+    if (error === ErrorTypes.DB_PRODUCT_ALREADY_EXISTS) {
+      response.status(400).send(result.error(Strings.PRODUCT_ALREADY_EXIST));
+      return;
     }
 
     // Otherwise, return the product data
