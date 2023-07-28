@@ -3,14 +3,14 @@
  * @param value Value to sanitize
  */
 export function sanitize(value: any): any {
+  // If null, just return null
+  if (value === null) return null;
+  // if undefined, return empty string
+  if (value === undefined) return '';
+
   // If buffer, return as is
   if (Buffer.isBuffer(value)) {
     return value;
-  }
-
-  // if undefined or null, return empty string
-  if (value === undefined || value === null) {
-    return '';
   }
 
   // If number or boolean, convert to string

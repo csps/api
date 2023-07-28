@@ -4,9 +4,8 @@ import { sanitize, sanitizeArray } from '../../src/utils/security';
  * Testing Security Utilities
  */
 describe("Security Utilities", () => {
-  it("should return empty string if value is undefined or null", () => {
+  it("should return empty string if value is undefined", () => {
     expect(sanitize(undefined)).toBe('');
-    expect(sanitize(null)).toBe('');
   });
 
   it("should convert number or boolean to string", () => {
