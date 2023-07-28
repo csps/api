@@ -48,7 +48,27 @@ export class Order extends DatabaseModel {
    * @param callback Callback function
    */
   public static fromId(id: string, callback: (error: ErrorTypes | null, order: Order | null) => void) {
-    // TODO: Implement this
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query('SELECT * FROM orders WHERE id = ?', [id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create and return the order
+      callback(null, new Order(results[0]));
+    });
   }
 
   /**

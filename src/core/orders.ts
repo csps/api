@@ -89,6 +89,22 @@ export function getOrder(request: Request, response: Response) {
   }
 
   // Otherwise, get order
+  Order.fromId(id, (error, order) => {
+    // If has an error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+      return;
+    }
+
+    // If no results
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
+      return;
+    }
+
+    // Otherwise, send order
+    response.status(200).send(result.success(Strings.ORDER_FOUND, order));
+  });
 }
 
 /**

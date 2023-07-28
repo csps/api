@@ -139,5 +139,7 @@ export enum Strings {
   ORDER_EMPTY_QUANTITY = "Quantity is required!",
   ORDER_POST_ERROR = "Something went wrong while creating order.",
   ORDER_CREATED = "Order succesfully placed!",
+  ORDER_NOT_FOUND = "Order not found!",
+  ORDER_FOUND = "Order found!",
   ORDER_ALREADY_EXISTS = "Order already exist! Please check your orders in the orders page."
 }
