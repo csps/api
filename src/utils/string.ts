@@ -37,6 +37,14 @@ export function is24HourTime(value: string): boolean {
 }
 
 /**
+ * Check if a value is an empty object
+ * @param value 
+ */
+export function isObjectEmpty(value: any): boolean {
+  return value && value.constructor === Object && Object.keys(value).length === 0;
+}
+
+/**
  * Check if a string is in YYYY-MM-DD format
  * @param value Date string to check
  */

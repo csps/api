@@ -6,6 +6,7 @@ export enum ErrorTypes {
   DB_EMAIL_ALREADY_EXISTS,
   DB_PRODUCT_ALREADY_EXISTS,
   DB_EVENT_ALREADY_EXISTS,
+  DB_ORDER_ALREADY_EXISTS
 }
 
 // Tutorial Status
@@ -33,6 +34,7 @@ export enum ModeOfPayment {
 
 // String constants
 export enum Strings {
+  GENERAL_INVALID_REQUEST = "Invalid request!",
   GENERAL_SYSTEM_ERROR = "Oops! A system error occured. Please contact the CSPS server admin.",
   GENERAL_SESSION_ERROR = "Session Error! Please logout and login again.",
 
@@ -132,4 +134,10 @@ export enum Strings {
   ORDERS_EMPTY = "No orders found!",
   ORDERS_FOUND = "Orders found!",
   ORDER_INVALID_ID = "Invalid Order ID!",
+  ORDER_EMPTY_PRODUCT_VARIATION_ID = "Product Variation is required!",
+  ORDER_EMPTY_MODE_OF_PAYMENT = "Mode of Payment is required!",
+  ORDER_EMPTY_QUANTITY = "Quantity is required!",
+  ORDER_POST_ERROR = "Something went wrong while creating order.",
+  ORDER_CREATED = "Order succesfully placed!",
+  ORDER_ALREADY_EXISTS = "Order already exist! Please check your orders in the orders page."
 }
