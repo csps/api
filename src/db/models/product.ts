@@ -19,6 +19,7 @@ class Product extends DatabaseModel {
   private likes: number;
   private stock: number;
   private price: number;
+  private max_quantity: number;
   private date_stamp?: string;
   private variations: ProductVariation[];
 
@@ -35,6 +36,7 @@ class Product extends DatabaseModel {
     this.description = data.description;
     this.likes = data.likes;
     this.stock = data.stock;
+    this.max_quantity = data.max_quantity;
     this.price = data.price;
     this.date_stamp = data.date_stamp;
     this.variations = data.variations || [];
@@ -170,6 +172,10 @@ class Product extends DatabaseModel {
     if (!isNumber(data.stock)) return [Strings.PRODUCT_INVALID_STOCK, "stock"];
     // If Stock is less than 0
     if (data.stock < 0) return [Strings.PRODUCT_LIMIT_STOCK, "stock"];
+    // If max quantity is not in correct format
+    if (!isNumber(data.max_quantity)) return [Strings.PRODUCT_INVALID_MAX_QUANTITY, "max_quantity"];
+    // If max_quantity is less than 0
+    if (data.max_quantity < 0) return [Strings.PRODUCT_LIMIT_MAX_QUANTITY, "max_quantity"];
     // If Thumbnail is empty
     if (!data.thumbnail) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
     // If Thumbnail is not in correct format
@@ -188,7 +194,7 @@ class Product extends DatabaseModel {
     const datestamp = getDatestamp();
 
     //Query the Database
-    db.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
+    db.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
       product.name,
       product.thumbnail,
       product.short_description,
@@ -196,6 +202,7 @@ class Product extends DatabaseModel {
       0, // Default likes to 0
       product.stock,
       product.price,
+      product.max_quantity,
       datestamp
     ], (error, results) => {
       // If has an error
@@ -254,7 +261,6 @@ class Product extends DatabaseModel {
   /**
    * Get name
    */
-
   public getName() {
     return this.name;
   }
@@ -262,7 +268,6 @@ class Product extends DatabaseModel {
   /**
    * Get Thumbnail 
    */
-
   public getThumbnail() {
     return this.thumbnail;
   }
@@ -270,7 +275,6 @@ class Product extends DatabaseModel {
   /**
    * Get Short Description
    */
-
   public getShortDescription() {
     return this.short_description;
   }
@@ -278,7 +282,6 @@ class Product extends DatabaseModel {
   /**
    * Get Description
    */
-
   public getDescription() {
     return this.description;
   }
@@ -286,7 +289,6 @@ class Product extends DatabaseModel {
   /**
    * Get Likes
    */
-
   public getLikes() {
     return this.likes;
   }
@@ -294,9 +296,15 @@ class Product extends DatabaseModel {
   /**
    * Get Stock
    */
-
   public getStock() {
     return this.stock;
+  }
+
+  /**
+   * Get max quantity
+   */
+  public getMaxQuantity() {
+    return this.max_quantity;
   }
 
   /**

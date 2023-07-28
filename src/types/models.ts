@@ -27,6 +27,7 @@ export type ProductType = {
   likes: number;
   stock: number;
   price: number;
+  max_quantity: number;
   date_stamp?: string;
   variations: ProductVariation[];
 }

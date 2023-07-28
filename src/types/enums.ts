@@ -92,6 +92,8 @@ export enum Strings {
   PRODUCT_LIMIT_STOCK = "Stock must not be below 0!",
   PRODUCT_INVALID_PRICE = "Price must be numeric!",
   PRODUCT_INVALID_STOCK = "Stock must be numeric!",
+  PRODUCT_INVALID_MAX_QUANTITY = "Max quantity must be numeric!",
+  PRODUCT_LIMIT_MAX_QUANTITY = "Max quantity must not be below 0!",
   PRODUCT_INVALID_THUMBNAIL = "Thumbnail must be numeric!",
 
   STUDENTS_GET_ERROR = "Something went wrong while fetching students.",
