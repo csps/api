@@ -122,20 +122,16 @@ export class Log {
       txLog = chalk.white;
     }
     // Get the response status
-    const { statusCode, locals } = response;
+    const { statusCode, statusMessage, locals } = response;
     // Get the response data
     const responseData = locals.body || "";
-    // Get the request data
-    const requestData = request.originalUrl.startsWith("/photos") ? "*photos*" : (
-      request.body.length > 0 && request.body.startsWith("{") && request.body.endsWith("}") ?
-        parseText(request.body) === null ? "" :
-        JSON.stringify(parseText(request.body) || "", null, 0) : ""
-    );
+    // Get session data
+    const data = locals.studentID ? locals.studentID + " " : "";
 
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${ip}] [${date}] [${method} ${url}] [${statusCode}] [${requestData}] [${responseData}]`
+        `[${data}${ip}] [${date}] [${method} ${url}] [${statusCode} ${statusMessage}] [${responseData}]`
       )
     );
   }
