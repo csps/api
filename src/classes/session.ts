@@ -24,7 +24,12 @@ export class Session {
     // Decode secret key
     const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
-    // Verify token
-    callback((await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload.id as string);
+    try {
+      // Verify token
+      callback((await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload.id as string);
+    } catch (e) {
+      // If session expired
+      callback(null);
+    }
   }
 }
