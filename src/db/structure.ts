@@ -60,7 +60,7 @@ export enum PhotoColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum TutorialColumns{
+export enum TutorialColumns {
   ID = "id",
   STUDENT_ID = "student_id",
   LANGUAGE = "language",
@@ -68,5 +68,19 @@ export enum TutorialColumns{
   STATUS = "status",
   STATUS_DATE_STAMP = "status_date_stamp",
   REMAKRS = "remarks",
+  DATE_STAMP = "date_stamp"
+}
+
+export enum OrderColumns {
+  ID = "id",
+  STUDENTS_ID = "students_id",
+  PRODUCT_VARIATIONS_ID = "product_variations_id",
+  QUANTITY = "quantity",
+  MODE_OF_PAYMENT_ID = "mode_of_payment_id",
+  STATUS_ID = "status_id",
+  USER_REMARKS = "user_remarks",
+  ADMIN_REMARKS = "admin_remarks",
+  STATUS_UPDATED = "status_updated",
+  EDIT_DATE = "edit_date",
   DATE_STAMP = "date_stamp"
 }

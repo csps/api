@@ -5,6 +5,7 @@ import type { OrderType } from "../../types/models";
 
 import { getDatestamp } from "../../utils/date";
 import { sanitize } from "../../utils/security";
+import { OrderColumns } from "../structure";
 
 /**
  * Order model
@@ -221,12 +222,12 @@ export class Order extends DatabaseModel {
     let data = `${sanitize(key)} = ?`
 
     // If key is status_id
-    if (key === "status_id") {
-      data = "status_id = ?, status_updated = NOW()";
+    if (key === OrderColumns.STATUS_ID) {
+      data = `${OrderColumns.STATUS_ID} = ?, ${OrderColumns.STATUS_UPDATED} = NOW()`;
     }
 
     // Query the database
-    db.query(`UPDATE orders SET ${data}, edit_date = NOW() WHERE id = ?`, [value, id], (error, results) => {
+    db.query(`UPDATE orders SET ${data}, ${OrderColumns.EDIT_DATE} = NOW() WHERE id = ?`, [value, id], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
