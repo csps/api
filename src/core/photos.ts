@@ -53,7 +53,7 @@ function getPhoto(request: Request, response: Response) {
   // Get {id} from request parameters
   const { id } = request.params;
   // Is raw?
-  const isRaw = getPattern(request.originalUrl)?.endsWith("raw");
+  const isRaw = request.originalUrl.endsWith("raw");
 
   // If {id} is not a number
   if (!isNumber(id)) {
