@@ -6,7 +6,10 @@ export enum ErrorTypes {
   DB_EMAIL_ALREADY_EXISTS,
   DB_PRODUCT_ALREADY_EXISTS,
   DB_EVENT_ALREADY_EXISTS,
-  DB_ORDER_ALREADY_EXISTS
+  DB_ORDER_ALREADY_EXISTS,
+  REQUEST_ID,
+  REQUEST_KEY,
+  REQUEST_KEY_NOT_ALLOWED,
 }
 
 // Tutorial Status
@@ -141,5 +144,9 @@ export enum Strings {
   ORDER_CREATED = "Order succesfully placed!",
   ORDER_NOT_FOUND = "Order not found!",
   ORDER_FOUND = "Order found!",
-  ORDER_ALREADY_EXISTS = "Order already exist! Please check your orders in the orders page."
+  ORDER_UPDATED = "Order updated!",
+  ORDER_INVALID_KEY = "Invalid Order Key!",
+  ORDER_KEY_NOT_ALLOWED = "Order key not allowed!",
+  ORDER_ALREADY_EXISTS = "Order already exist! Please check your orders in the orders page.",
+  ORDER_UPDATE_ERROR = "Something went wrong while updating order.",
 }

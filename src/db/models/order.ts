@@ -4,6 +4,7 @@ import Database, { DatabaseModel } from "../database";
 import type { OrderType } from "../../types/models";
 
 import { getDatestamp } from "../../utils/date";
+import { sanitize } from "../../utils/security";
 
 /**
  * Order model
@@ -186,6 +187,61 @@ export class Order extends DatabaseModel {
         // Create and return the order
         callback(null, new Order(order));
       });
+    });
+  }
+
+  /**
+   * Update order data
+   * @param id Order ID
+   * @param key Order Key
+   * @param value Order Value
+   */
+  public static update(id: string | number, key: string, value: string, callback: (error: ErrorTypes | null, success: boolean) => void) { 
+    // If order ID is not present
+    if (!id) {
+      callback(ErrorTypes.REQUEST_ID, false);
+      return;
+    }
+
+    // If key is not present
+    if (!key) {
+      callback(ErrorTypes.REQUEST_KEY, false);
+      return;
+    }
+
+    // if key doesn't exists in order allowed keys
+    if (!process.env.ORDERS_ALLOWED_KEYS?.includes(key)) {
+      callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED, false);
+      return;
+    }
+
+    // Get database instance
+    const db = Database.getInstance();
+    // Default data to set
+    let data = `${sanitize(key)} = ?`
+
+    // If key is status_id
+    if (key === "status_id") {
+      data = "status_id = ?, status_updated = NOW()";
+    }
+
+    // Query the database
+    db.query(`UPDATE orders SET ${data}, edit_date = NOW() WHERE id = ?`, [value, id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, false);
+        return;
+      }
+
+      // If no results
+      if (results.affectedRows === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, false);
+        return;
+      }
+
+      // Otherwise, return success
+      callback(null, true);
     });
   }
 
