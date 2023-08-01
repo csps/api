@@ -41,8 +41,8 @@ export enum Strings {
   GENERAL_SYSTEM_ERROR = "Oops! A system error occured. Please contact the CSPS server admin.",
   GENERAL_SESSION_ERROR = "Session Error! Please logout and login again.",
 
-  LOGIN_EMPTY_ID = "ID is required!",
-  LOGIN_EMPTY_PASSWORD = "Password is required!",
+  LOGIN_EMPTY_ID = "Empty Student ID.",
+  LOGIN_EMPTY_PASSWORD = "Empty Password.",
   LOGIN_FAILED = "Oops! Incorrect ID or Password.",
   LOGIN_ERROR_VALIDATING_PASSWORD = "Oops! Error validating password. Please contact the CSPS server admin.",
   LOGIN_SUCCESS = "Login successful",

@@ -28,7 +28,7 @@ declare global {
     title?: string,
     cc?: string[],
     bcc?: string[],
-    buttons?: EmailButton[],
+    button?: EmailButton,
     attachments?: File[]
   }
 
