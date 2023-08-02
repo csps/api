@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 /**
  * Sanitize a value
  * @param value Value to sanitize
@@ -52,4 +54,11 @@ export function sanitize(value: any): any {
 export function sanitizeArray(values: any[]): string[] {
   // Sanitize each value
   return values.map(value => sanitize(value));
+}
+
+/**
+ * Generate secure token
+ */
+export function generateToken(length = 16) {
+  return randomBytes(Math.floor(length / 2)).toString('hex');
 }

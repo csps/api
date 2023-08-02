@@ -37,9 +37,12 @@ export enum ModeOfPayment {
 
 // String constants
 export enum Strings {
+  DOMAIN = "https://csps.vercel.app",
+
   GENERAL_INVALID_REQUEST = "Invalid request!",
   GENERAL_SYSTEM_ERROR = "Oops! A system error occured. Please contact the CSPS server admin.",
   GENERAL_SESSION_ERROR = "Session Error! Please logout and login again.",
+  GENERAL_SESSION_EXPIRED = "Session Expired! Please logout and login again.",
 
   LOGIN_EMPTY_ID = "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD = "Empty Password.",
@@ -149,4 +152,11 @@ export enum Strings {
   ORDER_KEY_NOT_ALLOWED = "Order key not allowed!",
   ORDER_ALREADY_EXISTS = "Order already exist! Please check your orders in the orders page.",
   ORDER_UPDATE_ERROR = "Something went wrong while updating order.",
+
+  FORGOT_PASSWORD_EMPTY_ID = "Empty Student ID.",
+  FORGOT_PASSWORD_SUCCESS_TITLE = "Your password reset email is on its way!",
+  FORGOT_PASSWORD_SUCCESS_MESSAGE = "We've sent a password reset email to your email address. It should arrive in a few minutes. If you don't see it, check your spam folder.",
+
+  FORGOT_PASSWORD_EMAIL_SUBJECT = "Your password reset request",
+  FORGOT_PASSWORD_EMAIL_BODY = "Hi {name},\n\nWe received a request to reset your password. If you made this request, please click the link or button below to reset your password. If you didn't make this request, you can ignore this email.\n\nThis link will expire in 10 minutes.",
 }

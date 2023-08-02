@@ -229,6 +229,31 @@ class Student extends DatabaseModel {
   }
 
   /**
+   * Add reset token to the database
+   * @param token Reset Token
+   * @param callback Callback function
+   */
+  public addResetToken(token: string, callback: (error: ErrorTypes | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("INSERT INTO reset_password_tokens (students_id, token, is_used, date_stamp) VALUES (?, ?, 0, NOW())", [this.id, token], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR);
+        return;
+      }
+
+      // Log message
+      Log.i(`Reset password token added to database for ${this.getFullname()} (${this.student_id})`);
+      // Return success
+      callback(null);
+    });
+  }
+
+  /**
    * Get unique ID
    */
   public getId() {
@@ -261,6 +286,20 @@ class Student extends DatabaseModel {
    */
   public getLastName() {
     return this.last_name;
+  }
+
+  /**
+   * Get full name
+   */
+  public getFullname() {
+    return `${this.first_name} ${this.last_name}`;
+  }
+
+  /**
+   * Get email credential
+   */
+  public getEmailCredential() {
+    return `${this.first_name} ${this.last_name} <${this.email_address}>`;
   }
 
   /**

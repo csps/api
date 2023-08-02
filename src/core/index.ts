@@ -6,3 +6,4 @@ export * from "./photos";
 export * from "./example";
 export * from "./tutorials";
 export * from "./orders";
+export * from "./forgot";

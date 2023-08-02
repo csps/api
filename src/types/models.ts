@@ -97,3 +97,14 @@ export type OrderType = {
   edit_date: string;
   date_stamp: string;
 }
+
+/**
+ * Reset Password Tokens type data
+ */
+export type ResetPasswordTokensType = {
+  id: number;
+  students_id: number;
+  token: string;
+  is_used: boolean;
+  date_stamp: string;
+}

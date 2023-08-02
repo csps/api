@@ -35,18 +35,21 @@ export function sendEmail(metadata: EmailMetaData, callback: (error: Error | nul
       callback(error, null);
       return;
     }
-
-    // Replace placeholders
-    template = template.replace("{title}", metadata.title || "");
-    template = template.replace("{message}", metadata.message || "");
-    template = template.replace("{year}", new Date().getFullYear().toString());
-
+    
     // If button is present, replace placeholders
     if (metadata.button) {
       template = template.replace("display: none;", "display: block;");
       template = template.replace("{url}", metadata.button?.url || "");
       template = template.replace("{button_name}", metadata.button?.label || "");
+
+      // Append link to message
+      metadata.message += `\n\n${metadata.button.url}`;
     }
+
+    // Replace placeholders
+    template = template.replace("{title}", metadata.title || "");
+    template = template.replace("{message}", metadata.message.replace(/\n/g, "<br>") || "");
+    template = template.replace("{year}", new Date().getFullYear().toString());
 
     // Create data
     const data: SendMailOptions = {
