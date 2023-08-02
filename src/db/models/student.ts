@@ -1,11 +1,14 @@
-import { Log } from "../../utils/log";
+import type { StudentType } from "../../types/models";
+import Database, { DatabaseModel } from "../database";
+import { StudentColumns, Tables } from "../structure";
+
 import { getDatestamp } from "../../utils/date";
 import { isDate, isEmail, isNumber } from "../../utils/string";
 import { ErrorTypes, Strings } from "../../types/enums";
 import { DatabaseHelper } from "../helper";
-import { StudentColumns, Tables } from "../structure";
-import Database, { DatabaseModel } from "../database";
-import type { StudentType } from "../../types/models";
+import { Log } from "../../utils/log";
+
+import bcrypt from "bcrypt";
 
 /**
  * Student model
@@ -90,6 +93,47 @@ class Student extends DatabaseModel {
       // If no results
       if (results.length === 0) {
         callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create and return the student object
+      callback(null, new Student(results[0]));
+    });
+  }
+
+  /**
+   * Get student from reset token
+   * @param token Reset token
+   * @param callback Callback function
+   */
+  public static fromResetToken(token: string, callback: (error:  ErrorTypes | null, student: Student | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("SELECT *, r.date_stamp AS token_date_stamp FROM students s INNER JOIN reset_password_tokens r ON s.id = r.students_id WHERE r.token = ? LIMIT 1", [token], (error, results) => {
+      // If has error
+      if (error) {
+        console.error(error);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // If token is used
+      if (results[0].is_used === 1) {
+        callback(ErrorTypes.DB_USED, null);
+        return;
+      }
+
+      // Check if token is expired
+      if ((new Date().getTime() - new Date(results[0].token_date_stamp).getTime()) >= parseInt(Strings.TOKEN_EXPIRY) * 60 * 1000) {
+        callback(ErrorTypes.DB_EXPIRED, null);
         return;
       }
 
@@ -250,6 +294,78 @@ class Student extends DatabaseModel {
       Log.i(`Reset password token added to database for ${this.getFullname()} (${this.student_id})`);
       // Return success
       callback(null);
+    });
+  }
+
+  /**
+   * Reset password
+   * @param token Reset token
+   * @param new_password New password
+   * @param callback callback
+   */
+  public resetPassword(token: string, new_password: string, callback: (error: ErrorTypes | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Hash the new password
+    bcrypt.hash(new_password, 10, (error, hash) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.HASH_ERROR);
+        return;
+      }
+
+      // Check if reset password token is used
+      db.query(`SELECT date_stamp, is_used FROM reset_password_tokens WHERE token = ?`, [token], (error, results) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR);
+          return;
+        }
+
+        // If token not found
+        if (results.length === 0) {
+          callback(ErrorTypes.DB_EMPTY_RESULT);
+          return;
+        }
+
+        // If token is used
+        if (results[0].is_used === 1) {
+          callback(ErrorTypes.DB_USED);
+          return;
+        }
+
+        // Check if token is expired
+        if ((new Date().getTime() - new Date(results[0].date_stamp).getTime()) >= parseInt(Strings.TOKEN_EXPIRY) * 60 * 1000) {
+          callback(ErrorTypes.DB_EXPIRED);
+          return;
+        }
+
+        // Query the database
+        db.query("UPDATE students SET password = ? WHERE id = ?", [hash, this.id], (error, results) => {
+          // If has an error
+          if (error) {
+            Log.e(error.message);
+            callback(ErrorTypes.DB_ERROR);
+            return;
+          }
+  
+          // Query the database
+          db.query("UPDATE reset_password_tokens SET is_used = 1, reset_date_stamp = NOW() WHERE token = ?", [token], (error, results) => {
+            // If has an error
+            if (error) {
+              Log.e(error.message);
+              callback(ErrorTypes.DB_ERROR);
+              return;
+            }
+  
+            // Return success
+            callback(null);
+          });
+        });
+      });
     });
   }
 

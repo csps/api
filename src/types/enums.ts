@@ -7,6 +7,9 @@ export enum ErrorTypes {
   DB_PRODUCT_ALREADY_EXISTS,
   DB_EVENT_ALREADY_EXISTS,
   DB_ORDER_ALREADY_EXISTS,
+  DB_USED,
+  DB_EXPIRED,
+  HASH_ERROR,
   REQUEST_ID,
   REQUEST_KEY,
   REQUEST_KEY_NOT_ALLOWED,
@@ -38,6 +41,7 @@ export enum ModeOfPayment {
 // String constants
 export enum Strings {
   DOMAIN = "https://csps.vercel.app",
+  TOKEN_EXPIRY = "10",
 
   GENERAL_INVALID_REQUEST = "Invalid request!",
   GENERAL_SYSTEM_ERROR = "Oops! A system error occured. Please contact the CSPS server admin.",
@@ -156,7 +160,14 @@ export enum Strings {
   FORGOT_PASSWORD_EMPTY_ID = "Empty Student ID.",
   FORGOT_PASSWORD_SUCCESS_TITLE = "Your password reset email is on its way!",
   FORGOT_PASSWORD_SUCCESS_MESSAGE = "We've sent a password reset email to your email address. It should arrive in a few minutes. If you don't see it, check your spam folder.",
-
   FORGOT_PASSWORD_EMAIL_SUBJECT = "Your password reset request",
-  FORGOT_PASSWORD_EMAIL_BODY = "Hi {name},\n\nWe received a request to reset your password. If you made this request, please click the link or button below to reset your password. If you didn't make this request, you can ignore this email.\n\nThis link will expire in 10 minutes.",
+  FORGOT_PASSWORD_EMAIL_BODY = "Hi {name},\n\nWe received a request to reset your password. If you made this request, please click the link or button below to reset your password. If you didn't make this request, you can ignore this email.\n\nThis link will expire in " + Strings.TOKEN_EXPIRY + " minutes.",
+
+  RESET_PASSWORD_EMPTY_TOKEN = "Empty token.",
+  RESET_PASSWORD_EMPTY_PASSWORD = "Empty password.",
+  RESET_PASSWORD_LIMIT_PASSWORD = "Password must be at least 8 characters.",
+  RESET_PASSWORD_TOKEN_USED = "Token already used.",
+  RESET_PASSWORD_EXPIRED = "Token expired.",
+  RESET_PASSWORD_INVALID_TOKEN = "Invalid token.",
+  RESET_PASSWORD_SUCCESS = "Your password has been reset successfully!",
 }

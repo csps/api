@@ -30,7 +30,6 @@ export function sanitize(value: any): any {
     '>', // greater than
     '&', // ampersand
     ';', // semicolon
-    '$', // dollar sign
     '{', // opening curly brace
     '}', // closing curly brace
     '(', // opening parenthesis

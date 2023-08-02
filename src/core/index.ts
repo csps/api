@@ -7,3 +7,4 @@ export * from "./example";
 export * from "./tutorials";
 export * from "./orders";
 export * from "./forgot";
+export * from "./reset";

@@ -1,7 +1,7 @@
 import {
   example, login, products, students,
   events, tutorials, photos, orders,
-  forgotPassword
+  forgotPassword, resetPassword
 } from "../core"
 
 /**
@@ -23,6 +23,9 @@ export const routes: AppRoutes[] = [
 
   // Forgot password
   { path: "/forgot-password/:student_id", methods: ["POST"], handler: forgotPassword },
+
+  // Reset password
+  { path: "/reset-password/:token", methods: ["GET", "POST"], handler: resetPassword },
 
   // Products
   { path: "/products/:id", methods: ["GET"], handler: products },

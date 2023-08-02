@@ -3,7 +3,7 @@ import { result } from "../../utils/response";
 import { ErrorTypes, Strings } from "../../types/enums";
 import { SignJWT } from 'jose';
 import Student from "../../db/models/student"
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 /**
  * Login API

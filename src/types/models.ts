@@ -106,5 +106,6 @@ export type ResetPasswordTokensType = {
   students_id: number;
   token: string;
   is_used: boolean;
+  reset_date_stamp: string;
   date_stamp: string;
 }
