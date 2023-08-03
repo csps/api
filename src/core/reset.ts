@@ -121,6 +121,18 @@ export function postResetPassword(request: Request, response: Response) {
       response.status(400).send(result.error(Strings.RESET_PASSWORD_INVALID_TOKEN));
       return;
     }
+
+    // If token already used
+    if (error === ErrorTypes.DB_USED) {
+      response.status(400).send(result.error(Strings.RESET_PASSWORD_TOKEN_USED));
+      return;
+    }
+
+    // If expired
+    if (error === ErrorTypes.DB_EXPIRED) {
+      response.status(400).send(result.error(Strings.RESET_PASSWORD_EXPIRED));
+      return;
+    }
     
     // Reset password
     student!.resetPassword(token, new_password, error => {
@@ -148,11 +160,14 @@ export function postResetPassword(request: Request, response: Response) {
         return;
       }
 
-      // If epired
+      // If expired
       if (error === ErrorTypes.DB_EXPIRED) {
         response.status(400).send(result.error(Strings.RESET_PASSWORD_EXPIRED));
         return;
       }
+
+      // Send email
+      // sendEmail();
 
       // Log message
       Log.i(`Student ${student!.getFullname()} (${student!.getStudentId()}) resets password.`);

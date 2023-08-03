@@ -129,8 +129,8 @@ const Strings = {
   RESET_PASSWORD_EMPTY_TOKEN: "Empty token.",
   RESET_PASSWORD_EMPTY_PASSWORD: "Empty password.",
   RESET_PASSWORD_LIMIT_PASSWORD: "Password must be at least 8 characters.",
-  RESET_PASSWORD_TOKEN_USED: "Token already used.",
-  RESET_PASSWORD_EXPIRED: "Token expired.",
+  RESET_PASSWORD_TOKEN_USED: "Token already used. Please request a new one.",
+  RESET_PASSWORD_EXPIRED: "Token expired. Please request a new one.",
   RESET_PASSWORD_INVALID_TOKEN: "Invalid token.",
   RESET_PASSWORD_SUCCESS: "Your password has been reset successfully!",
 };

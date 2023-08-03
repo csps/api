@@ -19,7 +19,7 @@ export function orders(request: Request, response: Response) {
   Session.getStudentID(request, (studentID) => {
     // If student ID is null
     if (studentID === null) {
-      response.status(401).send(result.error(Strings.GENERAL_SESSION_ERROR));
+      response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
       return;
     }
 
