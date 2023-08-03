@@ -22,10 +22,11 @@ export const routes: AppRoutes[] = [
   { path: "/login", methods: ["POST"], handler: login },
 
   // Forgot password
-  { path: "/forgot-password/:student_id", methods: ["POST"], handler: forgotPassword },
+  { path: "/forgot-password", methods: ["POST"], handler: forgotPassword },
 
   // Reset password
-  { path: "/reset-password/:token", methods: ["GET", "POST"], handler: resetPassword },
+  { path: "/reset-password/:token", methods: ["GET"], handler: resetPassword },
+  { path: "/reset-password", methods: ["POST"], handler: resetPassword },
 
   // Products
   { path: "/products/:id", methods: ["GET"], handler: products },

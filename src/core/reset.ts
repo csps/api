@@ -81,10 +81,8 @@ export function getResetPassword(request: Request, response: Response) {
  * POST /reset-password/:token
  */
 export function postResetPassword(request: Request, response: Response) {
-  // Get token from request params
-  const { token } = request.params;
-  // Get new password from request body
-  const { new_password } = request.body;
+  // Get token and new password from request body
+  const { token, new_password } = request.body;
 
   // If token is empty
   if (!token) {

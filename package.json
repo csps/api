@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.52",
+  "version": "1.0.0-pre.53",
   "main": "dist/index.js",
   "scripts": {
     "dev": "npm test && npm run dev-no-test",
@@ -10,7 +10,7 @@
     "bun-dev": "bun test && bun run bun-dev-no-test",
     "bun-dev-no-test": "bun run --watch src/index.ts",
     "bun-start": "NODE_ENV=production bun run dist/index.js",
-    "bun-build": "bun test && tsc",
+    "bun-build": "bun test && bun run ./node_modules/typescript/lib/tsc.js",
     "test": "jest --verbose"
   },
   "repository": {
