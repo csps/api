@@ -1,12 +1,14 @@
 import type { Request, Response } from "express";
 
 import { result } from "../utils/response";
-import { ErrorTypes, Strings } from "../types/enums";
+import { ErrorTypes } from "../types/enums";
 import { Log } from "../utils/log";
 import { sendEmail } from "../utils/smtp";
 import { generateToken } from "../utils/security";
 
 import Student from "../db/models/student";
+import Strings from "../config/strings";
+import Config from "../config/app";
 
 /**
  * Forgot Password API
@@ -55,7 +57,7 @@ export function postForgotPassword(request: Request, response: Response) {
     }
     
     // Generate password token
-    const token = generateToken(24);
+    const token = generateToken(Config.TOKEN_LENGTH);
     // Send success message response immediately (even though the email is not yet sent) to prevent enumeration
     response.status(200).send(result.success(Strings.FORGOT_PASSWORD_SUCCESS_TITLE, Strings.FORGOT_PASSWORD_SUCCESS_MESSAGE));
 

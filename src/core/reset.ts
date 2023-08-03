@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
 
 import { result } from "../utils/response";
-import { ErrorTypes, Strings } from "../types/enums";
-
-import Student from "../db/models/student";
+import { ErrorTypes } from "../types/enums";
 import { Log } from "../utils/log";
+
+import Config from "../config/app";
+import Strings from "../config/strings";
+import Student from "../db/models/student";
 
 /**
  * Reset Password API
@@ -35,6 +37,12 @@ export function getResetPassword(request: Request, response: Response) {
   // If token is empty
   if (!token) {
     response.status(400).send(result.error(Strings.RESET_PASSWORD_EMPTY_TOKEN));
+    return;
+  }
+
+  // If token length is incorrect
+  if (token.trim().length !== Config.TOKEN_LENGTH) {
+    response.status(400).send(result.error(Strings.RESET_PASSWORD_INVALID_TOKEN));
     return;
   }
 
@@ -81,6 +89,12 @@ export function postResetPassword(request: Request, response: Response) {
   // If token is empty
   if (!token) {
     response.status(400).send(result.error(Strings.RESET_PASSWORD_EMPTY_TOKEN));
+    return;
+  }
+
+  // If token length is incorrect
+  if (token.trim().length !== Config.TOKEN_LENGTH) {
+    response.status(400).send(result.error(Strings.RESET_PASSWORD_INVALID_TOKEN));
     return;
   }
 
