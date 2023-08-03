@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { ErrorTypes, Strings } from '../types/enums';
+import { ErrorTypes } from '../types/enums';
 import { result } from '../utils/response';
 import { isNumber } from '../utils/string';
 import Product from '../db/models/product';
+import Strings from "../config/strings";
 
 /**
  * Products API

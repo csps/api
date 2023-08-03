@@ -2,9 +2,10 @@ import type { Request, Response } from "express";
 
 import { Session } from "../classes/session";
 import { result } from "../utils/response";
-import { ErrorTypes, Strings } from "../types/enums";
+import { ErrorTypes } from "../types/enums";
 import { Order } from "../db/models/order";
 import { isObjectEmpty } from "../utils/string";
+import Strings from "../config/strings";
 
 /**
  * Orders API

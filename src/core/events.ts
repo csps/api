@@ -1,8 +1,9 @@
-import Event from "../db/models/event";
-import { ErrorTypes, Strings } from "../types/enums";
+import type { Request, Response } from "express";
+import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";
-import type { Request, Response } from "express";
+import Event from "../db/models/event";
+import Strings from "../config/strings";
 
 /**
  * Events API

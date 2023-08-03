@@ -1,10 +1,11 @@
 import Database, { DatabaseModel } from "../database";
-import { ErrorTypes, Strings } from "../../types/enums";
+import { ErrorTypes } from "../../types/enums";
 import { EventType } from "../../types/models";
 import { Log } from "../../utils/log";
 import { isDate } from "../../utils/string";
 import { is24HourTime } from "../../utils/string";
 import { getDatestamp, isTimeBefore } from "../../utils/date";
+import Strings from "../../config/strings";
 
 /**
  * Event model

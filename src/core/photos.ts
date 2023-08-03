@@ -1,10 +1,10 @@
 import type { Response, Request } from "express";
 import { result } from "../utils/response";
-import { ErrorTypes, Strings } from "../types/enums";
+import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import { Photo } from "../db/models/photo";
 import { PhotoType } from "../types/models";
-import { getPattern } from "../utils/route";
+import Strings from "../config/strings";
 
 /**
  * Photos API

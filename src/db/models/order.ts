@@ -1,11 +1,12 @@
-import { Log } from "../../utils/log";
-import { ErrorTypes, ModeOfPayment, OrderStatus, Strings } from "../../types/enums";
-import Database, { DatabaseModel } from "../database";
 import type { OrderType } from "../../types/models";
-
+import { ErrorTypes, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
 import { sanitize } from "../../utils/security";
 import { OrderColumns } from "../structure";
+import { Log } from "../../utils/log";
+
+import Database, { DatabaseModel } from "../database";
+import Strings from "../../config/strings";
 
 /**
  * Order model

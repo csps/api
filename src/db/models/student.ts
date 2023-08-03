@@ -4,11 +4,13 @@ import { StudentColumns, Tables } from "../structure";
 
 import { getDatestamp } from "../../utils/date";
 import { isDate, isEmail, isNumber } from "../../utils/string";
-import { ErrorTypes, Strings } from "../../types/enums";
+import { ErrorTypes } from "../../types/enums";
 import { DatabaseHelper } from "../helper";
 import { Log } from "../../utils/log";
 
 import bcrypt from "bcrypt";
+import Strings from "../../config/strings";
+import Config from "../../config/app";
 
 /**
  * Student model
@@ -132,7 +134,7 @@ class Student extends DatabaseModel {
       }
 
       // Check if token is expired
-      if ((new Date().getTime() - new Date(results[0].token_date_stamp).getTime()) >= parseInt(Strings.TOKEN_EXPIRY) * 60 * 1000) {
+      if ((new Date().getTime() - new Date(results[0].token_date_stamp).getTime()) >= Config.TOKEN_VALIDITY * 60 * 1000) {
         callback(ErrorTypes.DB_EXPIRED, null);
         return;
       }
@@ -338,7 +340,7 @@ class Student extends DatabaseModel {
         }
 
         // Check if token is expired
-        if ((new Date().getTime() - new Date(results[0].date_stamp).getTime()) >= parseInt(Strings.TOKEN_EXPIRY) * 60 * 1000) {
+        if ((new Date().getTime() - new Date(results[0].date_stamp).getTime()) >= Config.TOKEN_VALIDITY * 60 * 1000) {
           callback(ErrorTypes.DB_EXPIRED);
           return;
         }

@@ -1,9 +1,10 @@
 import type { Response, Request } from "express";
 import { result } from "../utils/response";
-import { ErrorTypes, Strings } from "../types/enums";
+import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import { getPattern } from "../utils/route";
 import Student from "../db/models/student";
+import Strings from "../config/strings";
 
 /**
  * Students API

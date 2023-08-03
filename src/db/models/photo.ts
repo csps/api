@@ -1,8 +1,9 @@
 import { Log } from "../../utils/log";
-import { ErrorTypes, Strings } from "../../types/enums";
+import { ErrorTypes } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
 import type { PhotoType } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
+import Strings from "../../config/strings";
 
 /**
  * Photos model

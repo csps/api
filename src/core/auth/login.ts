@@ -1,8 +1,9 @@
 import type { Response, Request } from "express"
 import { result } from "../../utils/response";
-import { ErrorTypes, Strings } from "../../types/enums";
+import { ErrorTypes } from "../../types/enums";
 import { SignJWT } from 'jose';
 import Student from "../../db/models/student"
+import Strings from "../../config/strings";
 import bcrypt from 'bcrypt';
 
 /**

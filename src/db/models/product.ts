@@ -1,9 +1,11 @@
+import type { ProductType, ProductVariation } from "../../types/models";
 import { Log } from "../../utils/log";
-import { ErrorTypes, Strings } from "../../types/enums";
-import Database, { DatabaseModel } from "../database";
+import { ErrorTypes } from "../../types/enums";
 import { isNumber } from "../../utils/string";
 import { getDatestamp } from "../../utils/date";
-import type { ProductType, ProductVariation } from "../../types/models";
+
+import Database, { DatabaseModel } from "../database";
+import Strings from "../../config/strings";
 
 /**
  * Product Model
