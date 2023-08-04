@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { Log } from "../utils/log";
+import { sendEmail } from "../utils/smtp";
 
 import Config from "../config/app";
 import Strings from "../config/strings";
@@ -166,11 +167,27 @@ export function postResetPassword(request: Request, response: Response) {
         return;
       }
 
-      // Send email
-      // sendEmail();
+      // Log email sending
+      Log.i(`Sending email to ${student!.getEmailCredential()}...`);
 
-      // Log message
-      Log.i(`Student ${student!.getFullname()} (${student!.getStudentId()}) resets password.`);
+      // Send email
+      sendEmail({
+        to: student!.getEmailAddress(),
+        title: Strings.RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT,
+        subject: Strings.RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT,
+        message: Strings.RESET_PASSWORD_EMAIL_SUCCESS_BODY.replace("{name}", student!.getFullname())
+      }, (error, info) => {
+        // If has error
+        if (error !== null) {
+          console.log(error);
+          Log.e(`Error sending success reset password email to ${student!.getEmailCredential()}: ${error.message}`);
+          return;
+        }
+
+        // Log success
+        Log.i(`Success reset password email sent to ${student!.getEmailCredential()}.`);
+      });
+
       // If no error, send success response
       response.status(200).send(result.success(Strings.RESET_PASSWORD_SUCCESS));
     });

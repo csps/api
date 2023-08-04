@@ -133,6 +133,8 @@ const Strings = {
   RESET_PASSWORD_EXPIRED: "Token expired. Please request a new one.",
   RESET_PASSWORD_INVALID_TOKEN: "Invalid token.",
   RESET_PASSWORD_SUCCESS: "Your password has been reset successfully!",
+  RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT: "Password Changed!",
+  RESET_PASSWORD_EMAIL_SUCCESS_BODY: `Hi {name},\n\nYour password has been reset successfully. If you didn't make this request, please contact the CSPS server admin.\n\nSincerely,\nUC Main CSPS`,
 };
 
 export default Strings;
