@@ -141,6 +141,13 @@ export function getTutorialById(id: number, request: Request, response: Response
  * @param response
  */
 function postTutorial(request: Request, response: Response) {
+  const validation = Tutorial.validate(request.body);
+
+  // If has an error
+  if (validation){
+    response.status(400).send(result.error(validation[0], validation[1]));
+    return;
+  }
   // Insert the student to the database
   Tutorial.insert(request.body, (error, tutorial) => {
     // If has an error

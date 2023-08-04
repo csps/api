@@ -3,6 +3,7 @@ import { TutorialType } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import { Log } from "../../utils/log";
 import { getDatestamp } from "../../utils/date";
+import Strings from "../../config/strings";
 
 /**
  * Tutorials API
@@ -221,6 +222,29 @@ class Tutorial extends DatabaseModel {
    */
   public getDatestamp() {
     return this.date_stamp;
+  }
+
+  public static validate(data: TutorialType) {
+    // If name is empty
+    if (!data.date_stamp) return [Strings.TUTORIAL_EMPTY_DATE_STAMP, "date_stamp"];
+    // If Short Description is empty
+    if (!data.language) return [Strings.TUTORIAL_EMPTY_LANGUAGE, "language"];
+    // If Short Description exceeds 128 characters
+    if (!data.remarks) return [Strings.TUTORIAL_EMPTY_REMARKS, "remarks"];
+    // If Description is empty
+    if (!data.schedule) return [Strings.TUTORIAL_EMPTY_SCHEDULE, 'schedule'];
+    // If Price is empty
+    if (!data.status) return [Strings.TUTORIAL_EMPTY_STATUS, 'status'];
+    // If Price is not in correct format
+    // If Price is less than 0
+    // If Stock is empty
+    if (!data.status_date_stamp) return [Strings.TUTORIAL_EMPTY_STATUS_DATE_STAMP, "status_date_stamp"];
+    // If Stock is not in correct format
+    // If Stock is less than 0
+    // If max quantity is not in correct format
+    // If max_quantity is less than 0
+    // If Thumbnail is empty
+    if (!data.student_id) return [Strings.TUTORIAL_EMPTY_STUDENT_ID, "student_id"];
   }
 }
 
