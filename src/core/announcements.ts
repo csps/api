@@ -24,6 +24,7 @@ export function announcements(request: Request, response: Response) {
       case 'PUT':
         break;
       case 'DELETE':
+        deleteAnnouncement(request,response);
         break;
     }
   }
