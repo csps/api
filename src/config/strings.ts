@@ -111,6 +111,11 @@ const Strings = {
   TUTORIAL_EMPTY_STATUS_DATE_STAMP: "Status date stamp is required!",
   TUTORIAL_EMPTY_STUDENT_ID: "Student id is required",
 
+  ANNOUNCEMENTS_GET_ERROR: "Something went wrong!",
+  ANNOUNCEMENTS_NOT_FOUND: "No announcements found",
+  ANNOUNCEMENTS_FOUND: "Announcements found",
+  ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR: "Invalid academic year!",
+
   ORDERS_EMPTY: "No orders found!",
   ORDERS_FOUND: "Orders found!",
   ORDER_INVALID_ID: "Invalid Order ID!",

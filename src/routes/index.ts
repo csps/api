@@ -3,6 +3,7 @@ import {
   events, tutorials, photos, orders,
   forgotPassword, resetPassword
 } from "../core"
+import { announcements } from "../core/announcements";
 
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
@@ -55,4 +56,8 @@ export const routes: AppRoutes[] = [
   { path: "/orders/:id/:key", methods: ["PUT"], handler: orders },
   { path: "/orders/:id", methods: ["GET"], handler: orders },
   { path: "/orders", methods: ["GET", "POST"], handler: orders },
+
+  // Announcements
+  { path: "/announcements/:academic_year/academic_year", methods: ["GET", "DELETE"], handler: announcements },
+  { path: "/announcements", methods: ["GET"], handler: announcements },
 ];
