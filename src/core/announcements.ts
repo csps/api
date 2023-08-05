@@ -31,19 +31,18 @@ export function announcements(request: Request, response: Response) {
 
 export function getAnnouncements(request: Request, response: Response){
 
-  const pattern = getPattern(request.originalUrl);
+  const { academic_year } = request.params;
   // If using year
-  if (pattern?.endsWith("/academic_year")) {
+  if (academic_year) {
     // Get academic_year
-    const { academic_year } = request.params;
-
+    
     // If academic_year is not a number
     if (!isNumber(academic_year)) {
       response.status(404).send(result.error(Strings.ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR));
       return;
     }
 
-    // Get tutorials by academic_year
+    // Get announcements by academic_year
     getAnnouncementsByAcademicYear(parseInt(academic_year),request,response);
     return
   }

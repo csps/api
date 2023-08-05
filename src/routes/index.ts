@@ -58,6 +58,6 @@ export const routes: AppRoutes[] = [
   { path: "/orders", methods: ["GET", "POST"], handler: orders },
 
   // Announcements
-  { path: "/announcements/:academic_year/academic_year", methods: ["GET", "DELETE"], handler: announcements },
+  { path: "/announcements/:academic_year", methods: ["GET", "DELETE"], handler: announcements },
   { path: "/announcements", methods: ["GET"], handler: announcements },
 ];
