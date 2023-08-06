@@ -20,9 +20,18 @@ export function qrcode(request: any , response: Response){
 
 }
 
-export async function getQRCode(request: Request ,response: Response){
+/**
+ * GET qrcode/:q
+ * 
+ * @param request Express Request Object
+ * @param response Express Response Object
+ * @returns 
+ */
 
-    try{
+async function getQRCode(request: Request ,response: Response){
+
+    try {
+
         const { q } = request.params;
 
         if (!q){
@@ -32,7 +41,9 @@ export async function getQRCode(request: Request ,response: Response){
         const logoPath = 'assets\favicon.ico';
         const qrCodeBuffer = await generateQRCode(q, logoPath);
         response.type('image/png').send(qrCodeBuffer);
+
     } catch (error){
+        
         console.error('Error generating QR Code:', error);
         response.status(500).json({ error: 'Internal server error. '});
     }

@@ -5,6 +5,7 @@ import {
 } from "../core"
 import { qrcode } from "../core/qrcode";
 
+
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
  * 
