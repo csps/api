@@ -1,8 +1,9 @@
 import {
   example, login, products, students,
   events, tutorials, photos, orders,
-  forgotPassword, resetPassword
+  forgotPassword, resetPassword, 
 } from "../core"
+import { qrcode } from "../core/qrcode";
 
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
@@ -54,4 +55,8 @@ export const routes: AppRoutes[] = [
   { path: "/orders/:id/:key", methods: ["PUT"], handler: orders },
   { path: "/orders/:id", methods: ["GET"], handler: orders },
   { path: "/orders", methods: ["GET", "POST"], handler: orders },
+
+  //QR Code
+  { path: "/qrcode/:q" , methods: ['GET'], handler: qrcode},
+ 
 ];

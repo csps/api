@@ -9,7 +9,7 @@ import Strings from "../../config/strings";
 
 /**
  * Product Model
- * This model contains all the Product Information and Quantity :D
+ * This model contains all the Product Information and Quantity 
  * @author ampats04 (Jeremy Andy F. Ampatin)
 */
 class Product extends DatabaseModel {

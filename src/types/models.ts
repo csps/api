@@ -69,9 +69,9 @@ export type TutorialType = {
   date_stamp: string;
 };
 
- /*
- * Photo type data
- */
+/*
+* Photo type data
+*/
 export type PhotoType = {
   id: number;
   data: Buffer;
