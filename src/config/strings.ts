@@ -13,6 +13,7 @@ const Strings = {
 
   LOGIN_EMPTY_ID: "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
+  LOGIN_EMPTY_TOKEN: "Empty Token.",
   LOGIN_FAILED: "Oops! Incorrect ID or Password.",
   LOGIN_ERROR_VALIDATING_PASSWORD: "Oops! Error validating password. Please contact the CSPS server admin.",
   LOGIN_SUCCESS: "Login successful",

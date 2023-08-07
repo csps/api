@@ -1,7 +1,7 @@
 import type { Response, Request } from "express"
 import { result } from "../../utils/response";
 import { ErrorTypes } from "../../types/enums";
-import { SignJWT } from 'jose';
+import { SignJWT, jwtVerify } from 'jose';
 import Student from "../../db/models/student"
 import Strings from "../../config/strings";
 import bcrypt from 'bcrypt';
@@ -19,6 +19,58 @@ export function login(request: Request, response: Response) {
     case 'POST':
       postLogin(request, response)
       break;
+    case 'GET':
+      getLogin(request, response)
+      break;
+  }
+}
+
+// Secret key
+let secret: Uint8Array;
+
+/**
+ * GET /login/:token 
+ */
+async function getLogin(request: Request, response: Response) {
+  // Get token
+  const { token } = request.params;
+
+  // If token is empty
+  if (!token) {
+    // Return error
+    return response.status(400).send(result.error(Strings.LOGIN_EMPTY_TOKEN));
+  }
+
+  // If secret is empty
+  if (!secret) {
+    // Set secret
+    secret = new TextEncoder().encode(process.env.SECRET_KEY);
+  }
+
+  // Verify token
+  try {
+    const { payload } = await jwtVerify(token, secret);
+  
+    // Get student from ID
+    Student.fromId(payload.id as string, (error, student) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
+      }
+
+      // If not found
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(401).send(result.error(Strings.STUDENTS_NOT_FOUND));
+        return;
+      }
+
+      response.send(result.success(Strings.LOGIN_SUCCESS, {
+        id: student!.getStudentId(),
+        name: student!.getFullname()
+      }));
+    });
+  } catch (error) {
+    response.send(result.error());
   }
 }
 

@@ -19,6 +19,7 @@ export const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET"], handler: example },
 
   // Login
+  { path: "/login/:token", methods: ["GET"], handler: login },
   { path: "/login", methods: ["POST"], handler: login },
 
   // Forgot password
