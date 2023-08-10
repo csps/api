@@ -53,6 +53,7 @@ async function getLogin(request: Request, response: Response) {
   
     // Get student from ID
     Student.fromId(payload.id as string, (error, student) => {
+      // If has error
       if (error === ErrorTypes.DB_ERROR) {
         response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
         return;
@@ -64,9 +65,10 @@ async function getLogin(request: Request, response: Response) {
         return;
       }
 
+      // Send response
       response.send(result.success(Strings.LOGIN_SUCCESS, {
-        id: student!.getStudentId(),
-        name: student!.getFullname()
+        ...student,
+        password: ""
       }));
     });
   } catch (error) {
@@ -127,7 +129,14 @@ function postLogin(request: Request, response: Response) {
           .sign(secret);
         
         // Send response
-        response.send(result.success(Strings.LOGIN_SUCCESS, { token: token }))
+        response.send(result.success(Strings.LOGIN_SUCCESS, {
+          token: token,
+          student: {
+            ...student,
+            password: ""
+          }
+        }));
+
         return;
       }
 
