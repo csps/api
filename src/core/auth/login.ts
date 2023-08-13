@@ -124,7 +124,6 @@ function postLogin(request: Request, response: Response) {
         // Generate token
         const token = await new SignJWT({ id: student!.getStudentId() })
           .setProtectedHeader({ alg: 'HS256' })
-          .setIssuer('CSPS')
           .setExpirationTime('1d')
           .sign(secret);
         

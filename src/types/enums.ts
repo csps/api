@@ -14,6 +14,7 @@ export enum ErrorTypes {
   HASH_ERROR,
   REQUEST_ID,
   REQUEST_KEY,
+  REQUEST_VALUE,
   REQUEST_KEY_NOT_ALLOWED,
 }
 

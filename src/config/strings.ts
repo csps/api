@@ -81,6 +81,7 @@ const Strings = {
   STUDENT_ALREADY_EXIST: "Student already exist!",
   STUDENT_EMAIL_ALREADY_EXIST: "Student email already exist!",
   STUDENT_CREATED: "Student succesfully added!",
+  STUDENT_UPDATED: "Student succesfully updated!",
   STUDENT_FOUND: "Student found!",
   STUDENT_EMPTY_ID: "Student ID is required!",
   STUDENT_EMPTY_YEAR_LEVEL: "Year level is required!",

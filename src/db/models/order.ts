@@ -212,7 +212,7 @@ export class Order extends DatabaseModel {
     }
 
     // if key doesn't exists in order allowed keys
-    if (!process.env.ORDERS_ALLOWED_KEYS?.includes(key)) {
+    if (!process.env.ORDERS_UPDATE_ALLOWED_KEYS?.includes(key)) {
       callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED, false);
       return;
     }

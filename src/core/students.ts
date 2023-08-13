@@ -5,6 +5,7 @@ import { isNumber } from "../utils/string";
 import { getPattern } from "../utils/route";
 import Student from "../db/models/student";
 import Strings from "../config/strings";
+import { Session } from "../classes/session";
 
 /**
  * Students API
@@ -21,6 +22,9 @@ export function students(request: Request, response: Response) {
     case 'POST':
       postStudents(request, response);
       break;
+    case 'PUT':
+      putStudents(request, response);
+      break;
   }
 }
 
@@ -31,20 +35,17 @@ export function students(request: Request, response: Response) {
  * @param response Express response
  */
 function getStudents(request: Request, response: Response) {
-  // Get pattern
-  const pattern = getPattern(request.originalUrl);
   // If using uid
-  const isUid = pattern?.indexOf("/uid") !== -1;
+  const isUid = request.originalUrl.indexOf("/uid/") !== -1;
   // If using student id
-  const isStudentId = pattern?.indexOf("/id") !== -1;
+  const isStudentId = request.originalUrl.indexOf("/id/") !== -1;
+  // Get id (either uid or student id)
+  const { id } = request.params;
 
   // If using uid
   if (isUid) {
-    // Get unique id
-    const { uid } = request.params;
-
     // If uid is not a number
-    if (!isNumber(uid)) {
+    if (!isNumber(id)) {
       response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
       return;
     }
@@ -56,9 +57,6 @@ function getStudents(request: Request, response: Response) {
 
   // If using student id
   if (isStudentId) {
-    // Get student
-    const { id } = request.params;
-
     // If id is not a number
     if (!isNumber(id)) {
       response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
@@ -191,5 +189,103 @@ function postStudents(request: Request, response: Response) {
 
     // Otherwise, return the student data
     response.send(result.success(Strings.STUDENT_CREATED, student));
+  });
+}
+
+/**
+ * PUT /students
+ * @param request 
+ * @param response 
+ */
+function putStudents(request: Request, response: Response) {
+  // Get id and key from request parameters
+  const { id, key } = request.params;
+  // Get value from request body
+  const { value } = request.body;
+
+  // If value is not present, return invalid request
+  if (!value) {
+    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+    return;
+  }
+
+  // If key is present and id is empty, get student by token
+  if (key && !id) {
+    // Get student from token
+    Session.getStudentID(request, studentID => {
+      // If student id is not present, return session expired
+      if (!studentID) {
+        response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
+        return;
+      }
+
+      // Update student by id
+      Student.updateFromID(studentID, key, value, error => {
+        // if has error, map it
+        if (error === ErrorTypes.DB_ERROR) {
+          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+          return;
+        }
+
+        // If id or key is empty
+        if (error === ErrorTypes.REQUEST_ID || error === ErrorTypes.REQUEST_KEY) {
+          response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+          return;
+        }
+
+        // If key is not allowed or value is invalid
+        if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED || error === ErrorTypes.REQUEST_VALUE) {
+          response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+          return;
+        }
+
+        // If update has no affected rows
+        if (error === ErrorTypes.DB_EMPTY_RESULT) {
+          response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
+          return;
+        }
+
+        // Otherwise, return success
+        response.send(result.success(Strings.STUDENT_UPDATED));
+      });
+    });
+
+    return;
+  }
+
+  // If id or key is not present, return invalid request
+  if (!id || !key || !isNumber(id)) {
+    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+    return;
+  }
+
+  // Update student by unique id or student id
+  Student.update(id, request.originalUrl.indexOf("/uid/") !== -1, key, value, error => {
+    // if has error, map it
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+      return;
+    }
+
+    // If id or key is empty
+    if (error === ErrorTypes.REQUEST_ID || error === ErrorTypes.REQUEST_KEY) {
+      response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+      return;
+    }
+
+    // If key is not allowed or value is invalid
+    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED || error === ErrorTypes.REQUEST_VALUE) {
+      response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+      return;
+    }
+
+    // If update has no affected rows
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
+      return;
+    }
+
+    // Otherwise, return success
+    response.send(result.success(Strings.STUDENT_UPDATED));
   });
 }

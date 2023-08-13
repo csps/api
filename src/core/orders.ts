@@ -156,15 +156,8 @@ export function putOrders(request: Request, response: Response) {
   // Get value from request body
   const { value } = request.body;
 
-  // If request body is empty
-  if (isObjectEmpty(request.body)) {
-    // Return error
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-    return;
-  }
-
-  // If value is empty
-  if (!request.body.value) {
+  // If request body and value is empty
+  if (isObjectEmpty(request.body) || !request.body.value) {
     // Return error
     response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
     return;

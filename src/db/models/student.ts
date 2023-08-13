@@ -6,6 +6,7 @@ import { getDatestamp } from "../../utils/date";
 import { isDate, isEmail, isNumber } from "../../utils/string";
 import { ErrorTypes } from "../../types/enums";
 import { DatabaseHelper } from "../helper";
+import { sanitize } from "../../utils/security";
 import { Log } from "../../utils/log";
 
 import bcrypt from "bcrypt";
@@ -368,6 +369,82 @@ class Student extends DatabaseModel {
           });
         });
       });
+    });
+  }
+
+  /**
+   * Update student data from ID
+   */
+  public static updateFromID(studentID: string, key: string, value: string, callback: (error: ErrorTypes | null) => void) {
+    Student.update(studentID, false, key, value, callback);
+  }
+
+  /**
+   * Update student data from unique ID
+   */
+  public static updateFromUniqueID(uniqueID: string, key: string, value: string, callback: (error: ErrorTypes | null) => void) {
+    Student.update(uniqueID, true, key, value, callback);
+  }
+
+  /**
+   * Update student data
+   * @param id Unique ID or Student ID
+   * @param isUsingUniqueID Is using unique ID
+   * @param key Column name
+   * @param value Column value
+   * @param callback Callback function
+   */
+  public static update(id: string, isUsingUniqueID: boolean, key: string, value: string, callback: (error: ErrorTypes | null) => void) {
+    // If id is not present
+    if (!id) {
+      callback(ErrorTypes.REQUEST_ID);
+      return;
+    }
+
+    // If key is not present
+    if (!key) {
+      callback(ErrorTypes.REQUEST_KEY);
+      return;
+    }
+
+    // if key doesn't exists in order allowed keys
+    if (!process.env.STUDENTS_UPDATE_ALLOWED_KEYS.includes(key)) {
+      callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED);
+      return;
+    }
+
+    // Check if value is valid
+    if (key === StudentColumns.YEAR_LEVEL && (!isNumber(value) || parseInt(value) < 1 || parseInt(value) > 4)) {
+      callback(ErrorTypes.REQUEST_VALUE);
+      return;
+    }
+
+    // Check if value is valid
+    if (key === StudentColumns.PASSWORD && value.trim().length < 8) {
+      callback(ErrorTypes.REQUEST_VALUE);
+      return;
+    }
+
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query(`UPDATE students SET ${sanitize(key)} = ? WHERE ${isUsingUniqueID ? "id" : "student_id"} = ?`, [value, id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR);
+        return;
+      }
+
+      // If no results
+      if (results.affectedRows === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT);
+        return;
+      }
+
+      // Return success
+      callback(null);
     });
   }
 
