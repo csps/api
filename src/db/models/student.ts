@@ -114,7 +114,7 @@ class Student extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query("SELECT *, r.date_stamp AS token_date_stamp FROM students s INNER JOIN reset_password_tokens r ON s.id = r.students_id WHERE r.token = ? LIMIT 1", [token], (error, results) => {
+    db.query("SELECT *, s.id AS id, r.date_stamp AS token_date_stamp FROM students s INNER JOIN reset_password_tokens r ON s.id = r.students_id WHERE r.token = ? LIMIT 1", [token], (error, results) => {
       // If has error
       if (error) {
         console.error(error);
