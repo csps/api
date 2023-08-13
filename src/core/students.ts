@@ -212,15 +212,21 @@ function putStudents(request: Request, response: Response) {
   // If key is present and id is empty, get student by token
   if (key && !id) {
     // Get student from token
-    Session.getStudentID(request, studentID => {
-      // If student id is not present, return session expired
-      if (!studentID) {
+    Session.getStudentID(request, (error, studentID) => {
+      // If session expired
+      if (error === ErrorTypes.DB_EXPIRED) {
         response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
         return;
       }
 
+      // If unauthorized
+      if (error === ErrorTypes.UNAUTHORIZED) {
+        response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
+        return;
+      }
+
       // Update student by id
-      Student.updateFromID(studentID, key, value, error => {
+      Student.updateFromID(studentID!, key, value, error => {
         // if has error, map it
         if (error === ErrorTypes.DB_ERROR) {
           response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));

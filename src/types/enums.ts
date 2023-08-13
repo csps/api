@@ -1,5 +1,3 @@
-import Config from "../config/app";
-
 // Error types
 export enum ErrorTypes {
   DB_ERROR,
@@ -16,6 +14,7 @@ export enum ErrorTypes {
   REQUEST_KEY,
   REQUEST_VALUE,
   REQUEST_KEY_NOT_ALLOWED,
+  UNAUTHORIZED
 }
 
 // Tutorial Status

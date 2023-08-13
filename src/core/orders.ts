@@ -16,15 +16,21 @@ import Strings from "../config/strings";
  */
 export function orders(request: Request, response: Response) {
   // Get student ID from JWT session
-  Session.getStudentID(request, (studentID) => {
-    // If student ID is null
-    if (studentID === null) {
+  Session.getStudentID(request, (error, studentID) => {
+    // If session expired
+    if (error === ErrorTypes.DB_EXPIRED) {
       response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
       return;
     }
 
+    // If unauthorized
+    if (error === ErrorTypes.UNAUTHORIZED) {
+      response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
+      return;
+    }
+
     // Set student ID to response locals
-    response.locals.studentID = studentID;
+    response.locals.studentID = studentID!;
 
     // Otherwise, map request method
     switch (request.method) {

@@ -10,6 +10,7 @@ const Strings = {
   GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSPS server admin.",
   GENERAL_SESSION_ERROR: "Session Error! Please logout and login again.",
   GENERAL_SESSION_EXPIRED: "Session Expired! Please logout and login again.",
+  GENERAL_UNAUTHORIZED: "Unauthorized request!",
 
   LOGIN_EMPTY_ID: "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
@@ -81,7 +82,7 @@ const Strings = {
   STUDENT_ALREADY_EXIST: "Student already exist!",
   STUDENT_EMAIL_ALREADY_EXIST: "Student email already exist!",
   STUDENT_CREATED: "Student succesfully added!",
-  STUDENT_UPDATED: "Student succesfully updated!",
+  STUDENT_UPDATED: "Information updated!",
   STUDENT_FOUND: "Student found!",
   STUDENT_EMPTY_ID: "Student ID is required!",
   STUDENT_EMPTY_YEAR_LEVEL: "Year level is required!",

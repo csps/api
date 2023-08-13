@@ -1,5 +1,6 @@
-import { jwtVerify } from "jose";;
 import type { Request } from "express";
+import { jwtVerify } from "jose";;
+import { ErrorTypes } from "../types/enums";
 
 /**
  * Session class
@@ -9,7 +10,7 @@ export class Session {
   /**
    * Get student ID from jwt session
    */
-  static async getStudentID(request: Request | string, callback: (studentID: string | null) => void) {
+  static async getStudentID(request: Request | string, callback: (error: ErrorTypes | null, studentID: string | null) => void) {
     // Default token
     let token = typeof request === 'string' ? request : '';
 
@@ -20,7 +21,7 @@ export class Session {
   
       // If authorization header is not present
       if (!authorization) {
-        callback(null);
+        callback(ErrorTypes.UNAUTHORIZED, null);
         return;
       }
   
@@ -33,10 +34,10 @@ export class Session {
 
     try {
       // Verify token
-      callback((await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload.id as string);
+      callback(null, (await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload.id as string);
     } catch (e) {
       // If session expired
-      callback(null);
+      callback(ErrorTypes.DB_EXPIRED, null);
     }
   }
 }
