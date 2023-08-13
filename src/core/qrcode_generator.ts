@@ -47,7 +47,7 @@ export async function generateQRCode(data: string, logoPath: string): Promise<Bu
         return resultBuffer;
         
     } catch (error){
-        console.error(Strings.QRCODE_GENERATING_ERROR, error);
+        console.error(Strings.QRCODE_GENERATED_ERROR, error);
         throw error;
     }
 };
