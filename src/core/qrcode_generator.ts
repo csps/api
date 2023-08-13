@@ -1,5 +1,6 @@
 import qrcode from 'qrcode';
 import jimp from 'jimp';
+import Strings from '../config/strings';
 
 
 
@@ -46,7 +47,7 @@ export async function generateQRCode(data: string, logoPath: string): Promise<Bu
         return resultBuffer;
         
     } catch (error){
-        console.error('Error generatir QR Code:', error);
+        console.error(Strings.QRCODE_GENERATING_ERROR, error);
         throw error;
     }
 };
