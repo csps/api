@@ -9,18 +9,25 @@ export class Session {
   /**
    * Get student ID from jwt session
    */
-  static async getStudentID(request: Request, callback: (studentID: string | null) => void) {
-    // Get authorization header
-    const authorization = request.headers.authorization;
+  static async getStudentID(request: Request | string, callback: (studentID: string | null) => void) {
+    // Default token
+    let token = typeof request === 'string' ? request : '';
 
-    // If authorization header is not present
-    if (!authorization) {
-      callback(null);
-      return;
+    // If request is a Request object
+    if (typeof request !== 'string') {
+      // Get authorization header
+      const authorization = request.headers.authorization;
+  
+      // If authorization header is not present
+      if (!authorization) {
+        callback(null);
+        return;
+      }
+  
+      // Get token
+      token = authorization.split(' ')[1];
     }
 
-    // Get token
-    const token = authorization.split(' ')[1];
     // Decode secret key
     const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
