@@ -134,7 +134,7 @@ export function postResetPassword(request: Request, response: Response) {
       response.status(400).send(result.error(Strings.RESET_PASSWORD_EXPIRED));
       return;
     }
-    
+
     // Reset password
     student!.resetPassword(token, new_password, error => {
       // If db error
@@ -164,6 +164,12 @@ export function postResetPassword(request: Request, response: Response) {
       // If expired
       if (error === ErrorTypes.DB_EXPIRED) {
         response.status(400).send(result.error(Strings.RESET_PASSWORD_EXPIRED));
+        return;
+      }
+
+      // If update no results
+      if (error === ErrorTypes.DB_UPDATE_EMPTY) {
+        response.status(400).send(result.error(Strings.STUDENT_RESET_PASSWORD_UPDATE_EMPTY));
         return;
       }
 

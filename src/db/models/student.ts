@@ -354,6 +354,11 @@ class Student extends DatabaseModel {
             callback(ErrorTypes.DB_ERROR);
             return;
           }
+
+          if (results.affectedRows === 0) {
+            callback(ErrorTypes.DB_UPDATE_EMPTY);
+            return;
+          }
   
           // Query the database
           db.query("UPDATE reset_password_tokens SET is_used = 1, reset_date_stamp = NOW() WHERE token = ?", [token], (error, results) => {
@@ -419,12 +424,6 @@ class Student extends DatabaseModel {
       return;
     }
 
-    // Check if value is valid
-    if (key === StudentColumns.PASSWORD && value.trim().length < 8) {
-      callback(ErrorTypes.REQUEST_VALUE);
-      return;
-    }
-
     // Get database instance
     const db = Database.getInstance();
 
@@ -445,6 +444,42 @@ class Student extends DatabaseModel {
 
       // Return success
       callback(null);
+    });
+  }
+
+  /**
+   * Is password match
+   */
+  public static isPasswordMatch(studentID: string, password: string, callback: (error: ErrorTypes | null, isMatch: boolean) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("SELECT password FROM students WHERE student_id = ?", [studentID], (error, results) => {
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, false);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, false);
+        return;
+      }
+
+      // Compare password
+      bcrypt.compare(password, results[0].password, (error, isMatch) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, false);
+          return;
+        }
+
+        // Return result
+        callback(null, isMatch);
+      });
     });
   }
 

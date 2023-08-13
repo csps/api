@@ -11,6 +11,8 @@ const Strings = {
   GENERAL_SESSION_ERROR: "Session Error! Please logout and login again.",
   GENERAL_SESSION_EXPIRED: "Session Expired! Please logout and login again.",
   GENERAL_UNAUTHORIZED: "Unauthorized request!",
+  GENERAL_INCORRECT_VALUE: "Incorrect value!",
+  GENERAL_KEY_NOT_ALLOWED: "Editing this information is not allowed!",
 
   LOGIN_EMPTY_ID: "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
@@ -96,6 +98,11 @@ const Strings = {
   STUDENT_INVALID_BIRTHDATE: "Invalid birthdate!",
   STUDENT_INVALID_EMAIL: "Invalid email address!",
   STUDENT_INVALID_PASSWORD: "Password must be at least 8 characters!",
+  STUDENT_EMPTY_OLD_PASS: "Empty old password!",
+  STUDENT_INCORRECT_OLD_PASS: "Incorrect old password!",
+  STUDENT_PASSWORDS_DOESNT_MATCH: "Passwords doesn't match!",
+  STUDENT_RESET_PASSWORD_UPDATE_EMPTY: "Failed to update password.",
+  STUDENT_UPDATE_ERROR: "Something went wrong while updating information :(",
 
   TUTORIALS_GET_ERROR: "Something went wrong while fetching tutorials.",
   TUTORIALS_NOT_FOUND: "No tutorials found!",
@@ -119,7 +126,6 @@ const Strings = {
   ORDER_FOUND: "Order found!",
   ORDER_UPDATED: "Order updated!",
   ORDER_INVALID_KEY: "Invalid Order Key!",
-  ORDER_KEY_NOT_ALLOWED: "Order key not allowed!",
   ORDER_ALREADY_EXISTS: "Order already exist! Please check your orders in the orders page.",
   ORDER_UPDATE_ERROR: "Something went wrong while updating order.",
 

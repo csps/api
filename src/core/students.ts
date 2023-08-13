@@ -2,10 +2,12 @@ import type { Response, Request } from "express";
 import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
-import { getPattern } from "../utils/route";
+import { Session } from "../classes/session";
+import { StudentColumns } from "../db/structure";
+import { Log } from "../utils/log";
 import Student from "../db/models/student";
 import Strings from "../config/strings";
-import { Session } from "../classes/session";
+import bcrypt from "bcrypt";
 
 /**
  * Students API
@@ -202,18 +204,112 @@ function putStudents(request: Request, response: Response) {
   const { id, key } = request.params;
   // Get value from request body
   const { value } = request.body;
+  // Is using unique id
+  const isUid = request.originalUrl.indexOf("/uid/") !== -1;
 
-  // If value is not present, return invalid request
+  // If changing password
+  if (key === StudentColumns.PASSWORD) {
+    // Get inputs
+    const { oldpass, newpass, cnfpass } = request.body;
+
+    // If old password is empty
+    if (!oldpass) {
+      response.status(400).send(result.error(Strings.STUDENT_EMPTY_OLD_PASS));
+      return;
+    }
+
+    // If new password is empty or less than 8 characters
+    if (!newpass || newpass.length < 8) {
+      response.status(400).send(result.error(Strings.STUDENT_INVALID_PASSWORD));
+      return;
+    }
+
+    // If confirm password doesnt match
+    if (newpass !== cnfpass) {
+      response.status(400).send(result.error(Strings.STUDENT_PASSWORDS_DOESNT_MATCH));
+      return;
+    }
+
+    // If no id
+    if (!id) {
+      // Get student id from token
+      Session.getStudentID(request, (error, studentID) => {
+        // If expired or invalid token
+        if (error === ErrorTypes.DB_EXPIRED) {
+          response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
+          return;
+        }
+
+        // If unauthorized
+        if (error === ErrorTypes.UNAUTHORIZED) {
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
+          return;
+        }
+
+        // Compare old password if correct
+        Student.isPasswordMatch(studentID!, oldpass, (error, isMatch) => {
+          // If error
+          if (error === ErrorTypes.DB_ERROR) {
+            response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+            return;
+          }
+
+          // If no result
+          if (error === ErrorTypes.DB_EMPTY_RESULT) {
+            response.status(500).send(result.error(Strings.STUDENT_NOT_FOUND));
+            return;
+          }
+
+          // If incorrect old password
+          if (!isMatch) {
+            response.status(400).send(result.error(Strings.STUDENT_INCORRECT_OLD_PASS));
+            return;
+          }
+
+          // Hash password
+          bcrypt.hash(newpass, 10, (error, hash) => {
+            // If error
+            if (error) {
+              Log.e("[Students] Error hashing password!");
+              response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+              return;
+            }
+
+            // Update password
+            Student.update(studentID!, false, key, hash, error => {
+              // If has errors
+              if (_checkUpdateError(error, response)) return;
+              // Show success
+              response.send(result.success(Strings.STUDENT_UPDATED));
+            });
+          });
+
+        });
+      });
+
+      return;
+    }
+
+    // If using id
+    Student.update(id, isUid, key, newpass, error => {
+      // If has errors
+      if (_checkUpdateError(error, response)) return;
+      // Show success
+      response.send(result.success(Strings.STUDENT_UPDATED));
+    });
+  }
+
+  // If value is empty
   if (!value) {
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+    response.status(400).send(result.error(Strings.GENERAL_INCORRECT_VALUE));
     return;
   }
 
-  // If key is present and id is empty, get student by token
-  if (key && !id) {
-    // Get student from token
+  // If no id
+  if (!id) {
+    // Get student id from token
     Session.getStudentID(request, (error, studentID) => {
-      // If session expired
+      // If expired or invalid token
       if (error === ErrorTypes.DB_EXPIRED) {
         response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
         return;
@@ -225,33 +321,11 @@ function putStudents(request: Request, response: Response) {
         return;
       }
 
-      // Update student by id
-      Student.updateFromID(studentID!, key, value, error => {
-        // if has error, map it
-        if (error === ErrorTypes.DB_ERROR) {
-          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-          return;
-        }
-
-        // If id or key is empty
-        if (error === ErrorTypes.REQUEST_ID || error === ErrorTypes.REQUEST_KEY) {
-          response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-          return;
-        }
-
-        // If key is not allowed or value is invalid
-        if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED || error === ErrorTypes.REQUEST_VALUE) {
-          response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-          return;
-        }
-
-        // If update has no affected rows
-        if (error === ErrorTypes.DB_EMPTY_RESULT) {
-          response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
-          return;
-        }
-
-        // Otherwise, return success
+      // Update student
+      Student.update(studentID!, false, key, value, error => {
+        // If has errors
+        if (_checkUpdateError(error, response)) return;
+        // Show success
         response.send(result.success(Strings.STUDENT_UPDATED));
       });
     });
@@ -259,39 +333,65 @@ function putStudents(request: Request, response: Response) {
     return;
   }
 
-  // If id or key is not present, return invalid request
-  if (!id || !key || !isNumber(id)) {
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+  // If id is empty, not a number, or key is empty
+  if (!id || !isNumber(id) || !key) {
+    response.status(404).send(result.error(Strings.GENERAL_INVALID_REQUEST));
     return;
   }
 
-  // Update student by unique id or student id
-  Student.update(id, request.originalUrl.indexOf("/uid/") !== -1, key, value, error => {
-    // if has error, map it
-    if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-      return;
-    }
-
-    // If id or key is empty
-    if (error === ErrorTypes.REQUEST_ID || error === ErrorTypes.REQUEST_KEY) {
-      response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-      return;
-    }
-
-    // If key is not allowed or value is invalid
-    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED || error === ErrorTypes.REQUEST_VALUE) {
-      response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-      return;
-    }
-
-    // If update has no affected rows
-    if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
-      return;
-    }
-
-    // Otherwise, return success
+  // Update student
+  Student.update(id, isUid, key, value, error => {
+    // If has errors
+    if (_checkUpdateError(error, response)) return;
+    // Show success
     response.send(result.success(Strings.STUDENT_UPDATED));
   });
+}
+
+/**
+ * Check student update error
+ */
+function _checkUpdateError(error: ErrorTypes | null, response: Response) {
+  // If database error
+  if (error === ErrorTypes.DB_ERROR) {
+    response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+    return true;
+  }
+
+  // If empty id
+  if (error === ErrorTypes.REQUEST_ID) {
+    Log.e("[Students] Empty ID!");
+    response.status(400).send(result.error(Strings.STUDENT_UPDATE_ERROR));
+    return true;
+  }
+
+  // If empty key
+  if (error === ErrorTypes.REQUEST_KEY) {
+    Log.e("[Students] Empty key!");
+    response.status(400).send(result.error(Strings.STUDENT_UPDATE_ERROR));
+    return true;
+  }
+
+  // If key not allowed
+  if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+    Log.e("[Students] Key not allowed!");
+    response.status(400).send(result.error(Strings.GENERAL_KEY_NOT_ALLOWED));
+    return true;
+  }
+
+  // If empty value
+  if (error === ErrorTypes.REQUEST_VALUE) {
+    Log.e("[Students] Invalid value!");
+    response.status(400).send(result.error(Strings.GENERAL_INCORRECT_VALUE));
+    return true;
+  }
+
+  // If no result
+  if (error === ErrorTypes.DB_EMPTY_RESULT) {
+    Log.e("[Students] Student not found!");
+    response.status(404).send(result.error(Strings.STUDENT_NOT_FOUND));
+    return true;
+  }
+
+  return false;
 }

@@ -191,7 +191,7 @@ export function putOrders(request: Request, response: Response) {
 
     // if key is not allowed
     if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
-      response.status(400).send(result.error(Strings.ORDER_KEY_NOT_ALLOWED));
+      response.status(400).send(result.error(Strings.GENERAL_KEY_NOT_ALLOWED));
       return;
     }
 
