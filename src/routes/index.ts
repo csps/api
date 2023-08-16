@@ -59,5 +59,6 @@ export const routes: AppRoutes[] = [
 
   // Announcements
   { path: "/announcements/:academic_year", methods: ["GET", "DELETE"], handler: announcements },
-  { path: "/announcements", methods: ["GET"], handler: announcements },
+  { path: "/announcements", methods: ["GET","POST"], handler: announcements },
+  { path: "/announcements/:id", methods: ["PUT"], handler: announcements },
 ];

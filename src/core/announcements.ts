@@ -84,6 +84,32 @@ export function getAnnouncementsByAcademicYear(year: number, request: Request, r
   })
 }
 
+export function addAnnouncement(request: Request, response: Response){
+  
+  const photo = request.body.photo
+  Announcement.insert(request.body,photo,(error,success) => {
+    if(success){
+      response.send(result.success("Success"))
+      return
+    }
+
+    response.send(result.error("Failed"))
+  })
+}
+
+export function updateAnnouncement(request: Request, response: Response){
+  const {id} = request.params
+  const photo = request.body.photo
+  Announcement.update(request.body,photo,(error,success) => {
+    if(success){
+      response.send(result.success("Success"))
+      return
+    }
+
+    response.send(result.error("Failed"))
+  })
+}
+
 export function deleteAnnouncement(request: Request, response: Response){
   const { academic_year } = request.params;
   if (!isNumber(academic_year)) {
