@@ -227,13 +227,12 @@ class Product extends DatabaseModel {
         // Add product id to the variations
         const variationValues = product.variations.map((variation) => [
           product.id,
-          variation.product_variation_types_id,
           variation.photos_id,
           variation.name,
         ]);
 
         //Query the database to insert the variations
-        db.query("INSERT INTO product_variations (products_id, product_variation_types_id, photos_id, name) VALUES ?", [variationValues], (error) => {
+        db.query("INSERT INTO product_variations (products_id, photos_id, name) VALUES ?", [variationValues], (error) => {
           // If has an error
           if (error) {
             Log.e(error.message);

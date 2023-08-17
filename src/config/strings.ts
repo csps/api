@@ -117,7 +117,6 @@ const Strings = {
   ORDERS_EMPTY: "No orders found!",
   ORDERS_FOUND: "Orders found!",
   ORDER_INVALID_ID: "Invalid Order ID!",
-  ORDER_EMPTY_PRODUCT_VARIATION_ID: "Product Variation is required!",
   ORDER_EMPTY_MODE_OF_PAYMENT: "Mode of Payment is required!",
   ORDER_EMPTY_QUANTITY: "Quantity is required!",
   ORDER_POST_ERROR: "Something went wrong while creating order.",

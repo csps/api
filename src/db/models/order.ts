@@ -116,8 +116,6 @@ export class Order extends DatabaseModel {
    * @param data Raw order Data
    */
   public static validate(data: OrderType) {
-    // If product_variations_id is empty
-    if (!data.product_variations_id) return [Strings.ORDER_EMPTY_PRODUCT_VARIATION_ID, "product_variations_id"];
     // If mode_of_payment_id is empty
     if (!data.mode_of_payment_id) return [Strings.ORDER_EMPTY_MODE_OF_PAYMENT, "mode_of_payment_id"];
     // If quantity is empty
