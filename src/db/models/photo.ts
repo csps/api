@@ -1,7 +1,7 @@
 import { Log } from "../../utils/log";
 import { ErrorTypes } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
-import type { PhotoType } from "../../types/models";
+import type { PhotoRequest, PhotoType } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
 
@@ -66,7 +66,7 @@ export class Photo extends DatabaseModel {
    * @param student Photo data
    * @param callback Callback function
    */
-  public static insert(photo: PhotoType, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
+  public static insert(photo: PhotoRequest, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
@@ -87,10 +87,16 @@ export class Photo extends DatabaseModel {
         return;
       }
 
+      // New photo
+      const p: PhotoType = {
+        id: results.insertId,
+        ...photo,
+      };
+
       // Set the date stamp
-      photo.date_stamp = datestamp;
+      p.date_stamp = datestamp;
       // Return the student
-      callback(null, new Photo(photo));
+      callback(null, new Photo(p));
     });
   }
 

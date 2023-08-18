@@ -151,10 +151,18 @@ class Announcement extends DatabaseModel{
       });
     }
 
+    // Get photo data if has one
+    const { photo_data, photo_type, photo_width, photo_height } = announcement;
+
     // If has photo
-    if (announcement.photo) {
+    if (photo_data && photo_type && photo_width && photo_height) {
       // Photo
-      Photo.insert(announcement.photo, (error, photo) => {
+      Photo.insert({
+        data: Buffer.from(photo_data, 'base64'),
+        type: photo_type,
+        width: photo_width,
+        height: photo_height
+      }, (error, photo) => {
         // If has an error
         if (error) {
           callback(error, null);
@@ -227,11 +235,17 @@ class Announcement extends DatabaseModel{
     if (!raw.title) return [Strings.ANNOUNCEMENTS_INVALID_TITLE, "title"];
     // If has no content
     if (!raw.content) return [Strings.ANNOUNCEMENTS_INVALID_CONTENT, "content"];
-    
-    // If has photo
-    if (raw.photo) {
+  
+    // if has one of the photo data
+    if (raw.photo_data || raw.photo_type || raw.photo_width || raw.photo_height) {
       // Validate photo
-      const error = Photo.validate(raw.photo);
+      const error = Photo.validate({
+        data: raw.photo_data,
+        type: raw.photo_type,
+        width: raw.photo_width,
+        height: raw.photo_height
+      });
+
       // If has an error
       if (error) return error;
     }
