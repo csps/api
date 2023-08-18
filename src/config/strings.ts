@@ -113,6 +113,18 @@ const Strings = {
   TUTORIAL_FOUND: "Tutorial found!",
   TUTORIAL_POST_ERROR: "Something went wrong while submitting tutorial request.",
   TUTORIAL_CREATED: "Tutorial succesfully submitted!",
+  TUTORIAL_EMPTY_DATE_STAMP: "Date is required!",
+  TUTORIAL_EMPTY_LANGUAGE: "Language is required!",
+  TUTORIAL_EMPTY_REMARKS: "Remarks is required!",
+  TUTORIAL_EMPTY_SCHEDULE: "Schedule is required!",
+  TUTORIAL_EMPTY_STATUS: "Status is required!",
+  TUTORIAL_EMPTY_STATUS_DATE_STAMP: "Status date stamp is required!",
+  TUTORIAL_EMPTY_STUDENT_ID: "Student id is required",
+
+  ANNOUNCEMENTS_GET_ERROR: "Something went wrong!",
+  ANNOUNCEMENTS_NOT_FOUND: "No announcements found",
+  ANNOUNCEMENTS_FOUND: "Announcements found",
+  ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR: "Invalid academic year!",
 
   ORDERS_EMPTY: "No orders found!",
   ORDERS_FOUND: "Orders found!",

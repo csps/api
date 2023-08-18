@@ -108,3 +108,11 @@ export type ResetPasswordTokensType = {
   reset_date_stamp: string;
   date_stamp: string;
 }
+
+export type AnnouncementType = {
+  id: number,
+  title: string,
+  content: string,
+  photo_id: number,
+  date_stamp: string
+}
