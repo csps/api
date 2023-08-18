@@ -14,6 +14,17 @@ const Strings = {
   GENERAL_INCORRECT_VALUE: "Incorrect value!",
   GENERAL_KEY_NOT_ALLOWED: "Editing this information is not allowed!",
 
+  ANNOUNCEMENT_POST_ERROR: "Something went wrong while adding announcement.",
+  ANNOUNCEMENT_POST_SUCCESS: "Announcement succesfully added!",
+  ANNOUNCEMENTS_GET_ERROR: "Something went wrong while getting announcements.",
+  ANNOUNCEMENTS_NOT_FOUND: "There are currently no announcements available.",
+  ANNOUNCEMENTS_FOUND: "Announcements found",
+  ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR: "Invalid academic year!",
+  ANNOUNCEMENTS_INVALID_TITLE: "Invalid title!",
+  ANNOUNCEMENTS_INVALID_CONTENT: "Invalid content!",
+  ANNOUNCEMENTS_INVALID_DATE_STAMP: "Invalid date stamp!",
+  ANNOUNCEMENTS_INVALID_PHOTO_ID: "Invalid photo id!",
+
   LOGIN_EMPTY_ID: "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
   LOGIN_EMPTY_TOKEN: "Empty Token.",
@@ -120,11 +131,6 @@ const Strings = {
   TUTORIAL_EMPTY_STATUS: "Status is required!",
   TUTORIAL_EMPTY_STATUS_DATE_STAMP: "Status date stamp is required!",
   TUTORIAL_EMPTY_STUDENT_ID: "Student id is required",
-
-  ANNOUNCEMENTS_GET_ERROR: "Something went wrong!",
-  ANNOUNCEMENTS_NOT_FOUND: "No announcements found",
-  ANNOUNCEMENTS_FOUND: "Announcements found",
-  ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR: "Invalid academic year!",
 
   ORDERS_EMPTY: "No orders found!",
   ORDERS_FOUND: "Orders found!",

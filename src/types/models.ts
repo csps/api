@@ -109,10 +109,23 @@ export type ResetPasswordTokensType = {
   date_stamp: string;
 }
 
+/**
+ * Announcement Type
+ */
 export type AnnouncementType = {
   id: number,
+  admin_student_id: string,
   title: string,
   content: string,
-  photo_id: number,
+  photo_id?: number,
   date_stamp: string
 }
+
+/**
+ * Announcement Request
+ */
+export type AnnouncementRequest = {
+  title: string,
+  content: string,
+  photo?: PhotoType;
+};

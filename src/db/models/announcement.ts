@@ -1,5 +1,6 @@
+import Strings from "../../config/strings";
 import { ErrorTypes } from "../../types/enums";
-import { AnnouncementType, PhotoType } from "../../types/models";
+import { AnnouncementRequest, AnnouncementType, PhotoType } from "../../types/models";
 import { getDatestamp } from "../../utils/date";
 import { Log } from "../../utils/log";
 import Database, { DatabaseModel } from "../database";
@@ -9,8 +10,9 @@ class Announcement extends DatabaseModel{
     private id: number;
     private title: string;
     private content: string;
-    private photo_id: number;
+    private photo_id?: number;
     private date_stamp: string;
+    private admin_student_id: string;
 
       /**
    * Event Model
@@ -18,13 +20,20 @@ class Announcement extends DatabaseModel{
    */
   private constructor(data: AnnouncementType) {
     super();
+
     this.id = data.id;
     this.title = data.title;
     this.content = data.content;
     this.photo_id = data.photo_id;
     this.date_stamp = data.date_stamp;
+    this.admin_student_id = data.admin_student_id;
   }
 
+  /**
+   * Get announcement by ID
+   * @param id Announcement ID
+   * @param callback Callback function
+   */
   public static fromId(id: number, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void){
     const db = Database.getInstance();
 
@@ -48,6 +57,9 @@ class Announcement extends DatabaseModel{
 
   }
 
+  /**
+   * Get all announcements
+   */
   public static getAll(callback: (error: ErrorTypes | null, announcement: Announcement[] | null) => void): void {
    // Get database instance
    const db = Database.getInstance();
@@ -99,22 +111,25 @@ class Announcement extends DatabaseModel{
     });
   }
 
-  public static insert(announcement: AnnouncementType,photo: PhotoType, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
+  /**
+   * Get announcement data
+   * @param announcement Announcement request data
+   * @param callback Callback function
+   */
+  public static insert(announcement: AnnouncementRequest, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
     const datestamp = getDatestamp();
 
-    Photo.insert(photo,(err,ph) => {
-      if(err){
-        callback(ErrorTypes.DB_ERROR, null);
-        return;
-      }
+    // Insert the announcement
+    function insert(photo_id?: number) {
       // Query the database
-      db.query("INSERT INTO announcements (title, content, photo_id, date_stamp) VALUES (?, ?, ?, ?)", [
+      db.query("INSERT INTO announcements (admin_student_id, title, content, photo_id, date_stamp) VALUES (?, ?, ?, ?, ?)", [
+        "-", // TODO: Add admin student id
         announcement.title,
         announcement.content,
-        ph?.getId,
+        photo_id || null,
         datestamp
       ], (error, results) => {
         // If has an error
@@ -125,11 +140,36 @@ class Announcement extends DatabaseModel{
         }
   
         // Return the student
-        callback(null, new Announcement(announcement));
+        callback(null, new Announcement({
+          id: results.insertId,
+          admin_student_id: "-", // TODO: Add admin student id
+          title: announcement.title,
+          content: announcement.content,
+          date_stamp: datestamp,
+          photo_id,
+        }));
       });
-      
-    })
+    }
 
+    // If has photo
+    if (announcement.photo) {
+      // Photo
+      Photo.insert(announcement.photo, (error, photo) => {
+        // If has an error
+        if (error) {
+          callback(error, null);
+          return;
+        }
+
+        // If photo add success, insert the announcement
+        insert(photo?.getId());
+      });
+
+      return;
+    }
+
+    // Otherwise, insert the announcement
+    insert();
   }
 
   public static update(announcement: AnnouncementType,photo: PhotoType, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
@@ -176,6 +216,28 @@ class Announcement extends DatabaseModel{
 
       callback(null, true);
     });
+  }
+
+  /**
+   * Validate the announcement raw data
+   * @param raw Raw data
+   */
+  public static validate(raw: any) {
+    // If has no title
+    if (!raw.title) return [Strings.ANNOUNCEMENTS_INVALID_TITLE, "title"];
+    // If has no content
+    if (!raw.content) return [Strings.ANNOUNCEMENTS_INVALID_CONTENT, "content"];
+    
+    // If has photo
+    if (raw.photo) {
+      // Validate photo
+      const error = Photo.validate(raw.photo);
+      // If has an error
+      if (error) return error;
+    }
+
+    // Return null if valid
+    return null;
   }
 
 }
