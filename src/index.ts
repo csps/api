@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
+import cors from "cors";
+
 import { getPattern } from "./utils/route";
 import { routes } from "./routes";
 import { Log } from "./utils/log";
@@ -16,8 +18,14 @@ const app = express();
 // Set the port
 const port = process.env.PORT || 4000;
 
+// Configure cors
+app.use(cors({ origin: "*" }));
 // Use helmet for security
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: {
+    policy: "cross-origin" // TODO: Change this to "same-origin" in production
+  }
+}));
 // Use text/plain request body
 app.use(express.urlencoded({ extended: true }));
 // Use custom logger
