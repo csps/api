@@ -10,6 +10,7 @@ export enum ErrorTypes {
   DB_UPDATE_EMPTY,
   DB_USED,
   DB_EXPIRED,
+  DB_EXIST,
   HASH_ERROR,
   REQUEST_ID,
   REQUEST_KEY,

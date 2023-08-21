@@ -8,3 +8,4 @@ export * from "./tutorials";
 export * from "./orders";
 export * from "./forgot";
 export * from "./reset";
+export * from "./config";

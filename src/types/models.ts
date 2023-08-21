@@ -9,6 +9,13 @@ export type AnnouncementModel = {
   date_stamp: string
 }
 
+export type ConfigModel = {
+  id: number;
+  key: string;
+  value: string;
+  date_stamp: string;
+}
+
 export type EventModel = {
   id: number;
   thumbnail: number;

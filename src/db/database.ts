@@ -6,11 +6,11 @@ import { ErrorTypes } from "../types/enums";
  * Database Model class
  */
 export abstract class DatabaseModel {
-  static fromId(id: number | string, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
+  static fromId(id: number | string, callback: (error: ErrorTypes | null, model: DatabaseModel | null) => void) {
     throw new Error("Method not implemented.");
   }
 
-  static getAll(callback: (error: ErrorTypes | null, product: DatabaseModel[] | null) => void) {
+  static getAll(callback: (error: ErrorTypes | null, model: DatabaseModel[] | null) => void) {
     throw new Error("Method not implemented.");
   }
 }

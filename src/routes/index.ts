@@ -1,7 +1,8 @@
 import {
   example, login, products, students,
   events, tutorials, photos, orders,
-  forgotPassword, resetPassword
+  forgotPassword, resetPassword,
+  config
 } from "../core"
 import { announcements } from "../core/announcements";
 
@@ -18,6 +19,10 @@ import { announcements } from "../core/announcements";
 export const routes: AppRoutes[] = [
   // Example
   { path: "/example", methods: ["GET"], handler: example },
+
+  // Config
+  { path: "/config/:key", methods: ["GET", "PUT", "DELETE"], handler: config },
+  { path: "/config", methods: ["GET", "POST"], handler: config },
 
   // Login
   { path: "/login/:token", methods: ["GET"], handler: login },
