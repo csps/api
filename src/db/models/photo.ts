@@ -1,7 +1,7 @@
 import { Log } from "../../utils/log";
 import { ErrorTypes } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
-import type { PhotoRequest, PhotoType } from "../../types/models";
+import type { PhotoRequest, PhotoModel } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
 
@@ -14,21 +14,17 @@ export class Photo extends DatabaseModel {
   private id: number;
   private data: Buffer;
   private type: string;
-  private width: number;
-  private height: number;
   private date_stamp?: string;
 
   /**
    * Photo Private Constructor
    * @param data Photo data
    */
-  public constructor(data: PhotoType) {
+  public constructor(data: PhotoModel) {
     super();
     this.id = data.id;
     this.data = data.data;
     this.type = data.type;
-    this.width = data.width;
-    this.height = data.height;
     this.date_stamp = data.date_stamp;
   }
 
@@ -73,11 +69,9 @@ export class Photo extends DatabaseModel {
     const datestamp = getDatestamp();
 
     // Query the database
-    db.query("INSERT INTO photos (data, type, width, height, date_stamp) VALUES (?, ?, ?, ?, ?)", [
+    db.query("INSERT INTO photos (data, type, date_stamp) VALUES (?, ?, ?)", [
       photo.data,
       photo.type,
-      photo.width,
-      photo.height,
       datestamp
     ], (error, results) => {
       // If has an error  
@@ -88,8 +82,9 @@ export class Photo extends DatabaseModel {
       }
 
       // New photo
-      const p: PhotoType = {
+      const p: PhotoModel = {
         id: results.insertId,
+        date_stamp: datestamp,
         ...photo,
       };
 
@@ -109,10 +104,6 @@ export class Photo extends DatabaseModel {
     if (!data.data) return [Strings.PHOTO_EMPTY_DATA, "data"];
     // If type is empty
     if (!data.type) return [Strings.PHOTO_EMPTY_TYPE, "type"];
-    // If width is empty
-    if (!data.width) return [Strings.PHOTO_EMPTY_WIDTH, "width"];
-    // If height is empty
-    if (!data.height) return [Strings.PHOTO_EMPTY_HEIGHT, "height"];
   }
 
   /**
@@ -134,20 +125,6 @@ export class Photo extends DatabaseModel {
    */
   public getType() {
     return this.type;
-  }
-
-  /**
-   * Get width
-   */
-  public getWidth() {
-    return this.width;
-  }
-
-  /**
-   * Get height
-   */
-  public getHeight() {
-    return this.height;
   }
 
   /**

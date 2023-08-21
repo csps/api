@@ -1,9 +1,84 @@
 import { ModeOfPayment, OrderStatus, TutorialStatus } from "./enums";
 
-/**
- * Student type data
- */
-export type StudentType = {
+export type AnnouncementModel = {
+  id: number,
+  admin_student_id: string,
+  title: string,
+  content: string,
+  photos_id?: number,
+  date_stamp: string
+}
+
+export type EventModel = {
+  id: number;
+  thumbnail: number;
+  title: string;
+  description: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  venue: string;
+  date_stamp: string;
+};
+
+export type OrderModel = {
+  id: number;
+  students_id: string;
+  products_id: number;
+  variations_id: number;
+  quantity: number;
+  mode_of_payment: ModeOfPayment;
+  status: OrderStatus;
+  user_remarks: string;
+  admin_remarks: string;
+  status_updated: string;
+  edit_date: string;
+  date_stamp: string;
+}
+
+export type PhotoModel = {
+  id: number;
+  type: string;
+  data: Buffer;
+  date_stamp: string;
+}
+
+export type ProductVariationModel = {
+  id: number;
+  products_id: number;
+  variations_id: number;
+  photos_id: number;
+
+  // Extra
+  name: string;
+}
+
+export type ProductModel = {
+  id: number;
+  name: string;
+  thumbnail?: number;
+  short_description: string;
+  description: string;
+  likes: number;
+  stock: number;
+  price: number;
+  max_quantity: number;
+  date_stamp?: string;
+
+  // Extra
+  variations: ProductVariationModel[];
+}
+
+export type ResetTokenModel = {
+  id: number;
+  students_id: number;
+  token: string;
+  is_used: boolean;
+  reset_date_stamp?: string;
+  date_stamp: string;
+}
+
+export type StudentModel = {
   id: number;
   student_id: string;
   last_name: string;
@@ -12,52 +87,10 @@ export type StudentType = {
   email_address: string;
   birth_date: string;
   password?: string;
-  date_stamp?: string;
+  date_stamp: string;
 }
 
-/**
- * Product type data
- */
-export type ProductType = {
-  id: number;
-  name: string;
-  thumbnail: number;
-  short_description: string;
-  description: string;
-  likes: number;
-  stock: number;
-  price: number;
-  max_quantity: number;
-  date_stamp?: string;
-  variations: ProductVariation[];
-}
-
-/**
- * Product Variation data
- */
-export type ProductVariation = {
-  id: number;
-  product_id: number;
-  photos_id: number;
-  name: string;
-};
-
-/**
- * Event type data
- */
-export type EventType = {
-  id: number;
-  thumbnail: Number;
-  title: String;
-  description: String;
-  date: string;
-  start_time: string;
-  end_time: string;
-  venue: String;
-  date_stamp?: string;
-};
-
-export type TutorialType = {
+export type TutorialModel = {
   id: number;
   student_id: string;
   language: string;
@@ -68,58 +101,10 @@ export type TutorialType = {
   date_stamp: string;
 };
 
- /*
- * Photo type data
- */
-export type PhotoType = {
+export type VariationModel = {
   id: number;
-  data: Buffer;
-  type: string;
-  width: number;
-  height: number;
-  date_stamp?: string;
-}
-
-/**
- * Order type data
- */
-export type OrderType = {
-  id: number;
-  student_id: string;
-  product_variations_id: number;
-  quantity: number;
-  mode_of_payment_id: ModeOfPayment;
-  status_id: OrderStatus;
-  user_remarks: string;
-  admin_remarks: string;
-  status_updated: string;
-  edit_date: string;
-  date_stamp: string;
-}
-
-/**
- * Reset Password Tokens type data
- */
-export type ResetPasswordTokensType = {
-  id: number;
-  students_id: number;
-  token: string;
-  is_used: boolean;
-  reset_date_stamp: string;
-  date_stamp: string;
-}
-
-/**
- * Announcement Type
- */
-export type AnnouncementType = {
-  id: number,
-  admin_student_id: string,
-  title: string,
-  content: string,
-  photo_id?: number,
-  date_stamp: string
-}
+  name: string;
+};
 
 /**
  * Announcement Request
@@ -129,16 +114,12 @@ export type AnnouncementRequest = {
   content: string,
   photo_data?: string;
   photo_type?: string;
-  photo_width?: number;
-  photo_height?: number;
 };
 
 /**
  * Photo request
  */
 export type PhotoRequest = {
-  data: Buffer;
   type: string;
-  width: number;
-  height: number;
+  data: Buffer;
 }

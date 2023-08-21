@@ -1,4 +1,4 @@
-import type { StudentType } from "../../types/models";
+import type { StudentModel } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import { StudentColumns, Tables } from "../structure";
 
@@ -33,7 +33,7 @@ class Student extends DatabaseModel {
    * Student Private Constructor
    * @param data Student data
    */
-  public constructor(data: StudentType) {
+  public constructor(data: StudentModel) {
     super();
     this.id = data.id;
     this.student_id = data.student_id;
@@ -169,7 +169,7 @@ class Student extends DatabaseModel {
       }
 
       // Create and return the students
-      callback(null, results.map((student: StudentType) => new Student(student)));
+      callback(null, results.map((student: StudentModel) => new Student(student)));
     });
   }
 
@@ -209,7 +209,7 @@ class Student extends DatabaseModel {
    * @param student Student data
    * @param callback Callback function
    */
-  public static insert(student: StudentType, callback: (error: ErrorTypes | null, student: Student | null) => void) {
+  public static insert(student: StudentModel, callback: (error: ErrorTypes | null, student: Student | null) => void) {
     /**
      * Check if the student already exists
      */

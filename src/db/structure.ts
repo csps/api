@@ -1,8 +1,86 @@
 export enum Tables {
-  STUDENTS = "students",
+  ANNOUNCEMENTS = "announcements",
   EVENTS = "events",
+  ORDERS = "orders",
+  PHOTOS = "photos",
+  PRODUCT_VARIATIONS = "product_variations",
   PRODUCTS = "products",
-  TUTORIALS = "tutorials"
+  RESET_TOKENS = "reset_tokens",
+  STUDENTS = "students",
+  TUTORIALS = "tutorials",
+  VARIATIONS = "variations",
+}
+
+export enum AnnouncementColumns {
+  ID = "id",
+  ADMIN_STUDENT_ID = "admin_student_id",
+  TITLE = "title",
+  CONTENT = "content",
+  PHOTOS_ID = "photos_id",
+  DATE_STAMP = "date_stamp",
+}
+
+export enum EventColumns {
+  ID = "id",
+  THUMBNAIL = "thumbnail",
+  TITLE = "title",
+  DESCRIPTION = "description",
+  DATE = "date",
+  START_TIME = "start_time",
+  END_TIME = "end_time",
+  VENUE = "venue",
+  DATE_STAMP = "date_stamp",
+}
+
+export enum OrderColumns {
+  ID = "id",
+  STUDENTS_ID = "students_id",
+  PRODUCTS_ID = "products_id",
+  VARIATIONS_ID = "variations_id",
+  QUANTITY = "quantity",
+  MODE_OF_PAYMENT = "mode_of_payment",
+  STATUS = "status",
+  USER_REMARKS = "user_remarks",
+  ADMIN_REMARKS = "admin_remarks",
+  STATUS_UPDATED = "status_updated",
+  EDIT_DATE = "edit_date",
+  DATE_STAMP = "date_stamp"
+}
+
+export enum PhotoColumns {
+  ID = "id",
+  DATA = "data",
+  TYPE = "type",
+  DATE_STAMP = "date_stamp",
+}
+
+export enum ProductVariationColumns {
+  ID = "id",
+  PRODUCTS_ID = "products_id",
+  VARIATIONS_ID = "variations_id",
+  PHOTOS_ID = "photos_id",
+}
+
+export enum ProductColumns {
+  ID = "id",
+  NAME = "name",
+  THUMBNAIL = "thumbnail",
+  SHORT_DESCRIPTION = "short_description",
+  DESCRIPTION = "description",
+  LIKES = "likes",
+  STOCK = "stock",
+  PRICE = "price",
+  MAX_QUANTITY = "max_quantity",
+  DATE_STAMP = "date_stamp",
+}
+
+export enum ResetTokenColummns {
+  ID = "id",
+  STUDENTS_ID = "students_id",
+  TOKEN = "token",
+  IS_USED = "is_used",
+  RESET_DATE_STAMP = "reset_date_stamp",
+  DATE_STAMP = "date_stamp",
 }
 
 export enum StudentColumns {
@@ -17,48 +95,6 @@ export enum StudentColumns {
   DATE_STAMP = "date_stamp",
 };
 
-export enum EventColumns {
-  ID = "id",
-  YEAR = "year",
-  THUMBNAIL = "thumbnail",
-  TITLE = "title",
-  DESCRIPTION = "description",
-  DATE = "date",
-  START_TIME = "start_time",
-  END_TIME = "end_time",
-  VENUE = "venue",
-  DATE_STAMP = "date_stamp",
-}
-
-export enum ProductColumns {
-  ID = "id",
-  NAME = "name",
-  THUMBNAIL = "thumbnail",
-  SHORT_DESCRIPTION = "short_description",
-  DESCRIPTION = "description",
-  IMAGE = "image",
-  LIKES = "likes",
-  STOCK = "stock",
-  VARIATIONS = "variations",
-  PRICE = "price",
-  DATE_STAMP = "date_stamp",
-}
-
-export enum ProductVariationColumns {
-  ID = "id",
-  PRODUCTS_ID = "products_id",
-  PHOTO_ID = "photos_id",
-  NAME = "name",
-}
-
-export enum PhotoColumns {
-  ID = "id",
-  DATA = "data",
-  WIDTH = "width",
-  HEIGHT = "height",
-  DATE_STAMP = "date_stamp",
-}
-
 export enum TutorialColumns {
   ID = "id",
   STUDENT_ID = "student_id",
@@ -66,20 +102,11 @@ export enum TutorialColumns {
   SCHEDULE = "schedule",
   STATUS = "status",
   STATUS_DATE_STAMP = "status_date_stamp",
-  REMAKRS = "remarks",
+  REMARKS = "remarks",
   DATE_STAMP = "date_stamp"
 }
 
-export enum OrderColumns {
+export enum VariationColumns {
   ID = "id",
-  STUDENTS_ID = "students_id",
-  PRODUCT_VARIATIONS_ID = "product_variations_id",
-  QUANTITY = "quantity",
-  MODE_OF_PAYMENT_ID = "mode_of_payment_id",
-  STATUS_ID = "status_id",
-  USER_REMARKS = "user_remarks",
-  ADMIN_REMARKS = "admin_remarks",
-  STATUS_UPDATED = "status_updated",
-  EDIT_DATE = "edit_date",
-  DATE_STAMP = "date_stamp"
+  NAME = "name"
 }

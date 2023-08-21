@@ -3,7 +3,7 @@ import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import { Photo } from "../db/models/photo";
-import { PhotoType } from "../types/models";
+import { PhotoModel } from "../types/models";
 import Strings from "../config/strings";
 
 /**
@@ -111,7 +111,7 @@ function postPhotos(request: Request, response: Response) {
   }
 
   // Get request body and convert the base64 data to buffer
-  const photo: PhotoType = {
+  const photo: PhotoModel = {
     ...request.body,
     data: Buffer.from(request.body.data, 'base64')
   };

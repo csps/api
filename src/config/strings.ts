@@ -59,8 +59,6 @@ const Strings = {
   PHOTO_NOT_FOUND: "Photo not found!",
   PHOTO_EMPTY_DATA: "Empty photo data!",
   PHOTO_EMPTY_TYPE: "Empty photo type!",
-  PHOTO_EMPTY_WIDTH: "Empty photo width!",
-  PHOTO_EMPTY_HEIGHT: "Empty photo height!",
 
   PRODUCTS_GET_ERROR: "Something went wrong while fetching products.",
   PRODUCTS_NOT_FOUND: "No products found!",
@@ -85,6 +83,8 @@ const Strings = {
   PRODUCT_INVALID_MAX_QUANTITY: "Max quantity must be numeric!",
   PRODUCT_LIMIT_MAX_QUANTITY: "Max quantity must not be below 0!",
   PRODUCT_INVALID_THUMBNAIL: "Thumbnail must be numeric!",
+  PRODUCT_EMPTY_VARIATIONS: "No product variations found!",
+  PRODUCT_EMPTY_VARIATION_FILE: "No photo found for variation #{id}!",
 
   STUDENTS_GET_ERROR: "Something went wrong while fetching students.",
   STUDENTS_NOT_FOUND: "No students found!",

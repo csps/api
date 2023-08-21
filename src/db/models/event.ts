@@ -1,6 +1,6 @@
 import Database, { DatabaseModel } from "../database";
 import { ErrorTypes } from "../../types/enums";
-import { EventType } from "../../types/models";
+import { EventModel } from "../../types/models";
 import { Log } from "../../utils/log";
 import { isDate } from "../../utils/string";
 import { is24HourTime } from "../../utils/string";
@@ -28,7 +28,7 @@ class Event extends DatabaseModel {
    * Event Model
    * @param data Event data
    */
-  private constructor(data: EventType) {
+  private constructor(data: EventModel) {
     super();
     this.id = data.id;
     this.title = data.title;
@@ -93,7 +93,7 @@ class Event extends DatabaseModel {
       }
 
       // Create and return the events
-      callback(null, result.map((data: EventType) => new Event(data)));
+      callback(null, result.map((data: EventModel) => new Event(data)));
     })
   }
   /**
@@ -101,7 +101,7 @@ class Event extends DatabaseModel {
    * @param event 
    * @param callback 
    */
-  public static insert(event: EventType, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
+  public static insert(event: EventModel, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get date stamp
@@ -137,7 +137,7 @@ class Event extends DatabaseModel {
    * Validate Event Data
    * @param data Raw Event Data
    */
-  public static validate(data: EventType) {
+  public static validate(data: EventModel) {
     // Check if Title is Empty
     if (!data.title) return [Strings.EVENT_EMPTY_TITLE, "title"];
     // Check if Thumbnail is Empty

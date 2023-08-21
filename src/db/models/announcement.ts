@@ -1,6 +1,6 @@
 import Strings from "../../config/strings";
 import { ErrorTypes } from "../../types/enums";
-import { AnnouncementRequest, AnnouncementType, PhotoType } from "../../types/models";
+import { AnnouncementRequest, AnnouncementModel, PhotoModel } from "../../types/models";
 import { getDatestamp } from "../../utils/date";
 import { Log } from "../../utils/log";
 import Database, { DatabaseModel } from "../database";
@@ -10,7 +10,7 @@ class Announcement extends DatabaseModel{
     private id: number;
     private title: string;
     private content: string;
-    private photo_id?: number;
+    private photos_id?: number;
     private date_stamp: string;
     private admin_student_id: string;
 
@@ -18,13 +18,13 @@ class Announcement extends DatabaseModel{
    * Event Model
    * @param data Event data
    */
-  private constructor(data: AnnouncementType) {
+  private constructor(data: AnnouncementModel) {
     super();
 
     this.id = data.id;
     this.title = data.title;
     this.content = data.content;
-    this.photo_id = data.photo_id;
+    this.photos_id = data.photos_id;
     this.date_stamp = data.date_stamp;
     this.admin_student_id = data.admin_student_id;
   }
@@ -79,7 +79,7 @@ class Announcement extends DatabaseModel{
      }
 
      // Create and return the announcements
-     callback(null, result.map((data: AnnouncementType) => new Announcement(data)));
+     callback(null, result.map((data: AnnouncementModel) => new Announcement(data)));
    })   
   }
 
@@ -107,7 +107,7 @@ class Announcement extends DatabaseModel{
       }
 
       // Create and return tutorials
-      callback(null, results.map((announcement: AnnouncementType) => new Announcement(announcement)));
+      callback(null, results.map((announcement: AnnouncementModel) => new Announcement(announcement)));
     });
   }
 
@@ -123,13 +123,13 @@ class Announcement extends DatabaseModel{
     const datestamp = getDatestamp();
 
     // Insert the announcement
-    function insert(photo_id?: number) {
+    function insert(photos_id?: number) {
       // Query the database
       db.query("INSERT INTO announcements (admin_student_id, title, content, photo_id, date_stamp) VALUES (?, ?, ?, ?, ?)", [
         "-", // TODO: Add admin student id
         announcement.title,
         announcement.content,
-        photo_id || null,
+        photos_id || null,
         datestamp
       ], (error, results) => {
         // If has an error
@@ -146,22 +146,20 @@ class Announcement extends DatabaseModel{
           title: announcement.title,
           content: announcement.content,
           date_stamp: datestamp,
-          photo_id,
+          photos_id,
         }));
       });
     }
 
     // Get photo data if has one
-    const { photo_data, photo_type, photo_width, photo_height } = announcement;
+    const { photo_data, photo_type } = announcement;
 
     // If has photo
-    if (photo_data && photo_type && photo_width && photo_height) {
+    if (photo_data && photo_type) {
       // Photo
       Photo.insert({
         data: Buffer.from(photo_data, 'base64'),
         type: photo_type,
-        width: photo_width,
-        height: photo_height
       }, (error, photo) => {
         // If has an error
         if (error) {
@@ -180,16 +178,14 @@ class Announcement extends DatabaseModel{
     insert();
   }
 
-  public static update(announcement: AnnouncementType,photo: PhotoType, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
+  public static update(announcement: AnnouncementModel, photo: PhotoModel, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
     // Get database instance
     const db = Database.getInstance();
-    // Get the current date
-    const datestamp = getDatestamp();
 
-    db.query("UPDATE announcements SET title = ?, content = ?, photo_id = ? WHERE id  = ?", [
+    db.query("UPDATE announcements SET title = ?, content = ?, photos_id = ? WHERE id  = ?", [
       announcement.title,
       announcement.content,
-      announcement.photo_id,
+      announcement.photos_id,
       announcement.id
     ], (error, results) => {
       // If has an error
@@ -208,8 +204,6 @@ class Announcement extends DatabaseModel{
   public static delete(id: number, callback: (error: ErrorTypes | null, success: boolean) => void) {
     // Get database instance
     const db = Database.getInstance();
-    // Get the current date
-    const datestamp = getDatestamp();
 
     // Query the database
     db.query("DELETE from announcements where id = ?", [
@@ -237,13 +231,11 @@ class Announcement extends DatabaseModel{
     if (!raw.content) return [Strings.ANNOUNCEMENTS_INVALID_CONTENT, "content"];
   
     // if has one of the photo data
-    if (raw.photo_data || raw.photo_type || raw.photo_width || raw.photo_height) {
+    if (raw.photo_data || raw.photo_type) {
       // Validate photo
       const error = Photo.validate({
         data: raw.photo_data,
         type: raw.photo_type,
-        width: raw.photo_width,
-        height: raw.photo_height
       });
 
       // If has an error
