@@ -136,7 +136,7 @@ class Product extends DatabaseModel {
       const product: ProductModel = results[0];
 
       // Get product variations
-      db.query('SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_id, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id WHERE pv.products_id = ?', [id], (error, results) => {
+      db.query('SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_id, pv.stock, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id WHERE pv.products_id = ?', [id], (error, results) => {
         // If has error
         if (error) {
           Log.e(error.message);
@@ -182,10 +182,12 @@ class Product extends DatabaseModel {
     if (!isNumber(data.max_quantity)) return [Strings.PRODUCT_INVALID_MAX_QUANTITY, "max_quantity"];
     // If max_quantity is less than 0
     if (data.max_quantity < 0) return [Strings.PRODUCT_LIMIT_MAX_QUANTITY, "max_quantity"];
-    // If Thumbnail is empty
-    if (!data.thumbnail) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
     // If Thumbnail is not in correct format
-    if (!isNumber(data.thumbnail)) return [Strings.PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
+    if (data.thumbnail && !isNumber(data.thumbnail)) return [Strings.PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
+
+    /**
+     * Variations Example: [1-2, 2-3, 3-4] => [variations_id, stock]
+     */
 
     // If has variations
     if (data.variations && data.variations.length > 0) {
@@ -194,15 +196,19 @@ class Product extends DatabaseModel {
 
       // For every variation
       for (const variation of data.variations.split(',').filter(v => v.length > 0)) {
+        // Split variation and stock
+        const [ variationId, stock ] = variation.split('-');
         // Get photo file
-        const photo = files[`variations_${variation}`];
-
+        const photo = files[`variations_${variationId}`];
+        
         // If variation photo not found
-        if (!photo) return [Strings.PRODUCT_EMPTY_VARIATION_FILE.replace("{id}", variation), `variations_${variation}`];
+        if (!photo) return [Strings.PRODUCT_EMPTY_VARIATION_FILE.replace("{id}", variationId), `variations_${variationId}`];
+        // If stock is empty
+        if (!stock) return [Strings.PRODUCT_EMPTY_VARIATION_STOCK.replace("{id}", variationId), `variations_${variationId}`];
 
         // If photo is an empty array
         if (Array.isArray(photo) && photo.length === 0) {
-          return [Strings.PRODUCT_EMPTY_VARIATION_FILE.replace("{id}", variation), `variations_${variation}`];
+          return [Strings.PRODUCT_EMPTY_VARIATION_FILE.replace("{id}", variationId), `variations_${variationId}`];
         }
       }
     }
@@ -222,6 +228,7 @@ class Product extends DatabaseModel {
       if (error) {
         Log.e(error.message);
         callback(ErrorTypes.DB_ERROR);
+        return;
       }
 
       // Begin transaction
@@ -247,6 +254,7 @@ class Product extends DatabaseModel {
         ], (error, results) => {
           // If has an error
           if (error) {
+            Log.e(error.message);
             callback(ErrorTypes.DB_ERROR);
             return;
           }
@@ -257,7 +265,9 @@ class Product extends DatabaseModel {
           // If the product has variations
           if (product.variations && files) {
             // For every variation
-            for (const v of product.variations.split(",").filter(v => v.length > 0)) {
+            for (const variation of product.variations.split(",").filter(v => v.length > 0)) {
+              // Split variation and stock
+              const [ v, stock ] = variation.split("-");
               // Get photo
               const photo = getFile(files, `variations_${v}`);
   
@@ -266,6 +276,7 @@ class Product extends DatabaseModel {
                 // Rollback the transaction
                 conn.rollback(error => {
                   if (error) Log.e(error.message);
+                  Log.e("[Products] Photo not found");
                   callback(ErrorTypes.DB_ERROR);
                 });
                 
@@ -279,6 +290,7 @@ class Product extends DatabaseModel {
                   // Rollback the transaction
                   conn.rollback(error => {
                     if (error) Log.e(error.message);
+                    Log.e("[Products] Error inserting photo: " + error.message);
                     callback(ErrorTypes.DB_ERROR);
                   });
                   
@@ -286,12 +298,13 @@ class Product extends DatabaseModel {
                 }
   
                 // Insert product variation
-                conn.query("INSERT INTO product_variations (products_id, variations_id, photos_id) VALUES (?, ?, ?)", [productId, v, results.insertId], (error) => {
+                conn.query("INSERT INTO product_variations (products_id, variations_id, stock, photos_id) VALUES (?, ?, ?, ?)", [productId, v, stock, results.insertId], (error) => {
                   // If has an error
                   if (error) {
                     // Rollback the transaction
                     conn.rollback(error => {
                       if (error) Log.e(error.message);
+                      Log.e("[Products] Error inserting product variation: " + error.message);
                       callback(ErrorTypes.DB_ERROR);
                     });
                     

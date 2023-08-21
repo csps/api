@@ -98,6 +98,7 @@ const Strings = {
   PRODUCT_INVALID_THUMBNAIL: "Thumbnail must be numeric!",
   PRODUCT_EMPTY_VARIATIONS: "No product variations found!",
   PRODUCT_EMPTY_VARIATION_FILE: "No photo found for variation #{id}!",
+  PRODUCT_EMPTY_VARIATION_STOCK: "Stock is required for variation #{id}!",
 
   STUDENTS_GET_ERROR: "Something went wrong while fetching students.",
   STUDENTS_NOT_FOUND: "No students found!",

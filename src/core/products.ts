@@ -8,6 +8,7 @@ import Strings from "../config/strings";
 /**
  * Products API
  * @author ampats04 (Jeremy Andy F. Ampatin)
+ * @author mavyfaby (Maverick G. Fabroa)
  * 
  * @param request Exprese request
  * @param response Express response

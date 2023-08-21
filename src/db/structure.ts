@@ -66,6 +66,7 @@ export enum ProductVariationColumns {
   ID = "id",
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
+  STOCK = "stock",
   PHOTOS_ID = "photos_id",
 }
 
