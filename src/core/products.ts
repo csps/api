@@ -101,7 +101,7 @@ function getProduct(request: Request, response: Response) {
  */
 function postProducts(request: Request, response: Response){
   // Validate the product data
-  const validation = Product.validate(request.body);
+  const validation = Product.validate(request.body, request.files);
 
   // If has an error
   if (validation){
@@ -109,8 +109,8 @@ function postProducts(request: Request, response: Response){
     return;
   }
 
-  // Insert the student to the database
-  Product.insert(request.body, (error, product) => {
+  // Insert the product to the database
+  Product.insert(request.body, request.files, error => {
     // If has error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
@@ -124,7 +124,7 @@ function postProducts(request: Request, response: Response){
     }
 
     // Otherwise, return the product data
-    response.send(result.success(Strings.PRODUCT_CREATED, product));
+    response.send(result.success(Strings.PRODUCT_CREATED));
   });
 
 }

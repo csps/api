@@ -60,6 +60,13 @@ class Database {
   }
 
   /**
+   * Get the database connection
+   */
+  public static getConnection(callback: (error: mysql.MysqlError | null, connection: mysql.PoolConnection) => void) {
+    Database.pool.getConnection(callback);
+  }
+
+  /**
    * Query the database 
    * @param query SQL query
    * @param values Parameter values

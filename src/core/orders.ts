@@ -118,13 +118,6 @@ export function getOrder(request: Request, response: Response) {
  * POST /orders
  */
 export function postOrders(request: Request, response: Response) {
-  // If request body is empty
-  if (isObjectEmpty(request.body)) {
-    // Return error
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-    return;
-  }
-
   // Validate order data
   const errors = Order.validate(request.body);
 

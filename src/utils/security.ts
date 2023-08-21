@@ -23,9 +23,6 @@ export function sanitize(value: any): any {
   // List of special characters to be escaped
   const specialChars = [
     '\\', // backslash
-    '\'', // single quote
-    '"', // double quote
-    '\`', // backtick
     '<', // less than
     '>', // greater than
     '&', // ampersand

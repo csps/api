@@ -1,3 +1,4 @@
+import fileUpload from "express-fileupload";
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
@@ -28,6 +29,8 @@ app.use(helmet({
 }));
 // Use text/plain request body
 app.use(express.urlencoded({ extended: true }));
+// Use file upload plugin
+app.use(fileUpload());
 // Use custom logger
 app.use(Log.getMiddleware());
 
