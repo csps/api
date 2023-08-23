@@ -1,8 +1,3 @@
-/**
- * This is an example of a structure for a mnemonic and clear api functions.
- * @author mavyfaby (Maverick Fabroa)
- */
-
 import type { Request, Response } from "express";
 import { result } from "../utils/response";
 import { Config } from "../db/models/config";

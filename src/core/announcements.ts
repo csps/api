@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import type { AnnouncementRequest } from "../types/models";
 import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";

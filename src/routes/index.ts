@@ -2,9 +2,8 @@ import {
   example, login, products, students,
   events, tutorials, photos, orders,
   forgotPassword, resetPassword,
-  config
+  config, courses, announcements
 } from "../core"
-import { announcements } from "../core/announcements";
 
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
@@ -23,6 +22,10 @@ export const routes: AppRoutes[] = [
   // Config
   { path: "/config/:key", methods: ["GET", "PUT", "DELETE"], handler: config },
   { path: "/config", methods: ["GET", "POST"], handler: config },
+
+  // Courses
+  { path: "/courses/:id", methods: ["PUT", "DELETE"], handler: courses },
+  { path: "/courses", methods: ["GET", "POST"], handler: courses },
 
   // Login
   { path: "/login/:token", methods: ["GET"], handler: login },
