@@ -17,6 +17,7 @@ export enum ErrorTypes {
   REQUEST_VALUE,
   REQUEST_KEY_NOT_ALLOWED,
   UNAUTHORIZED,
+  REQUEST_FILE
 }
 
 // Tutorial Status

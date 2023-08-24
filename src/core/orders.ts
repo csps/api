@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 
-import { Session } from "../classes/session";
 import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { Order } from "../db/models/order";
@@ -15,36 +14,18 @@ import Strings from "../config/strings";
  * @param response Express Response Object
  */
 export function orders(request: Request, response: Response) {
-  // Get student ID from JWT session
-  Session.getStudentID(request, (error, studentID) => {
-    // If session expired
-    if (error === ErrorTypes.DB_EXPIRED) {
-      response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
-      return;
-    }
-
-    // If unauthorized
-    if (error === ErrorTypes.UNAUTHORIZED) {
-      response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
-      return;
-    }
-
-    // Set student ID to response locals
-    response.locals.studentID = studentID!;
-
-    // Otherwise, map request method
-    switch (request.method) {
-      case 'GET':
-        getOrders(request, response);
-        break;
-      case 'POST':
-        postOrders(request, response);
-        break;
-      case 'PUT':
-        putOrders(request, response);
-        break;
-    }
-  });
+  // Map request method
+  switch (request.method) {
+    case 'GET':
+      getOrders(request, response);
+      break;
+    case 'POST':
+      postOrders(request, response);
+      break;
+    case 'PUT':
+      putOrders(request, response);
+      break;
+  }
 }
 
 /**
@@ -118,8 +99,10 @@ export function getOrder(request: Request, response: Response) {
  * POST /orders
  */
 export function postOrders(request: Request, response: Response) {
+  // Is logged in?
+  const isLoggedIn = !!response.locals.studentID;
   // Validate order data
-  const errors = Order.validate(request.body);
+  const errors = Order.validate(request.body, isLoggedIn, request.files);
 
   // If has an error
   if (errors){
@@ -127,22 +110,45 @@ export function postOrders(request: Request, response: Response) {
     return;
   }
 
-  // Otherwise, create order
-  Order.insert(response.locals.studentID, request.body, (error, order) => {
+  // If logged in
+  if (isLoggedIn) {
+    // Otherwise, create order
+    Order.insert(response.locals.studentID, request.body, request.files || null, error => {
+      // If has an error
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
+        return;
+      }
+
+      // If no photo/proof
+      if (error === ErrorTypes.REQUEST_FILE) {
+        response.status(500).send(result.error(Strings.ORDER_EMPTY_PROOF));
+        return;
+      }
+  
+      // Otherwise, return the product data
+      response.send(result.success(Strings.ORDER_CREATED));
+    });
+
+    return;
+  }
+
+  // Otherwise, insert to non-bscs orders
+  Order.non_bscs_insert(request.body, request.files || null, (error, receiptID) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
       return;
     }
 
-    // If order already exists
-    if (error === ErrorTypes.DB_ORDER_ALREADY_EXISTS) {
-      response.status(400).send(result.error(Strings.ORDER_ALREADY_EXISTS));
+    // If no photo/proof
+    if (error === ErrorTypes.REQUEST_FILE) {
+      response.status(500).send(result.error(Strings.ORDER_EMPTY_PROOF));
       return;
     }
 
     // Otherwise, return the product data
-    response.send(result.success(Strings.ORDER_CREATED, order));
+    response.send(result.success(Strings.ORDER_CREATED, receiptID));
   });
 }
 

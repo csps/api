@@ -1,12 +1,16 @@
-import type { OrderModel } from "../../types/models";
 import { ErrorTypes, ModeOfPayment, OrderStatus } from "../../types/enums";
-import { getDatestamp } from "../../utils/date";
-import { sanitize } from "../../utils/security";
+import type { OrderModel } from "../../types/models";
+import type { FileArray } from "express-fileupload";
+import { getDatestamp, getLocalDate } from "../../utils/date";
+import { generateReceiptID, sanitize } from "../../utils/security";
 import { OrderColumns } from "../structure";
 import { Log } from "../../utils/log";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
+import { OrderRequest } from "../../types/request";
+import { getFile } from "../../utils/file";
+import { Photo } from "./photo";
 
 /**
  * Order model
@@ -117,12 +121,35 @@ export class Order extends DatabaseModel {
    * Validate Order Data
    * @param data Raw order Data
    */
-  public static validate(data: OrderModel) {
-    // If mode_of_payment_id is empty
+  public static validate(data: OrderRequest, isLoggedIn: boolean, files?: FileArray | null) {
+    // If product ID is empty
+    if (!data.products_id) return [Strings.ORDER_EMPTY_PRODUCT_ID, "products_id"];
+    // If mode_of_payment is empty
     if (!data.mode_of_payment) return [Strings.ORDER_EMPTY_MODE_OF_PAYMENT, "mode_of_payment"];
     // If quantity is empty
     if (!data.quantity) return [Strings.ORDER_EMPTY_QUANTITY, "quantity"];
-    // 
+
+    // If mode of payment is GCash
+    if (data.mode_of_payment == ModeOfPayment.GCASH) {
+      // Check if photo/proof is present
+      if (!files?.proof) return [Strings.ORDER_EMPTY_PROOF, "proof"];
+    }
+    
+    // If is logged in 
+    if (isLoggedIn) {
+      // Check student id
+      if (!data.students_id) return [Strings.ORDER_EMPTY_STUDENT_ID, "students_id"];
+      // Check student first name
+      if (!data.students_first_name) return [Strings.ORDER_EMPTY_STUDENT_FIRST_NAME, "students_first_name"];
+      // Check student last name
+      if (!data.students_last_name) return [Strings.ORDER_EMPTY_STUDENT_LAST_NAME, "students_last_name"];
+      // Check student email
+      if (!data.students_email) return [Strings.ORDER_EMPTY_STUDENT_EMAIL, "students_email"];
+      // Check student course
+      if (!data.students_course) return [Strings.ORDER_EMPTY_STUDENT_COURSE, "students_course"];
+      // Check student year
+      if (!data.students_year) return [Strings.ORDER_EMPTY_STUDENT_YEAR, "students_year"];
+    }
   }
 
   /**
@@ -131,64 +158,169 @@ export class Order extends DatabaseModel {
    * @param order Order Data
    * @param callback Callback Function
    */
-  public static insert(studentID: string, order: OrderModel, callback: (error: ErrorTypes | null, order: Order | null) => void) {
+  public static insert(studentID: string, order: OrderModel, files: FileArray | null, callback: (error: ErrorTypes | null) => void) {
     // // Get database instance
     const db = Database.getInstance();
     // Get the current date
     const datestamp = getDatestamp();
 
-    // CHeck if order already exist by student ID, product variations ID, and is pending payment
-    db.query("SELECT COUNT(*) AS count FROM orders WHERE students_id = ? AND variations_id = ? AND status_id = 1", [studentID, order.variations_id], (error, results) => {
+    // Query the Database
+    db.query("INSERT INTO orders (students_id, product_variations_id, quantity, mode_of_payment_id, status_id, user_remarks, admin_remarks, status_updated, edit_date, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+      studentID,
+      order.variations_id,
+      order.quantity,
+      order.mode_of_payment,
+      OrderStatus.PENDING_PAYMENT,
+      order.user_remarks,
+      "", // Default admin_remarks
+      null, // Default status_updated
+      null, // Default edit_date
+      datestamp
+    ], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, null);
+        callback(ErrorTypes.DB_ERROR);
         return;
       }
 
-      // If order already exist
-      if (results[0].count > 0) {
-        callback(ErrorTypes.DB_ORDER_ALREADY_EXISTS, null);
+      // Create and return the order
+      callback(null);
+    });
+  }
+
+  /**
+   * Insert non-bscs orders data to the database
+   * @param order Order Data
+   * @param files Files
+   * @param callback Callback function
+   */
+  public static non_bscs_insert(order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, receiptID: string | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Get the current date
+    const datestamp = getDatestamp();
+
+    // If mode of payment is GCash
+    if (order.mode_of_payment === ModeOfPayment.GCASH) {
+      // Get screenshot/proof
+      const proof = getFile(files, "proof");
+
+      // If no photo
+      if (!proof) {
+        Log.e("No screenshot/proof");
+        callback(ErrorTypes.REQUEST_FILE, null);
         return;
       }
+    }
 
-      // Query the Database
-      db.query("INSERT INTO orders (students_id, product_variations_id, quantity, mode_of_payment_id, status_id, user_remarks, admin_remarks, status_updated, edit_date, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-        studentID,
-        order.variations_id,
-        order.quantity,
-        order.mode_of_payment,
-        OrderStatus.PENDING_PAYMENT,
-        order.user_remarks,
-        "", // Default admin_remarks
-        null, // Default status_updated
-        null, // Default edit_date
-        datestamp
-      ], (error, results) => {
+    // Get orders count
+    Order.getOrdersCountFromDate(new Date(), (count) => {
+      // Generate receipt ID
+      const receiptID = generateReceiptID(count + 1);
+
+      // Get connection for database transaction
+      Database.getConnection((error, conn) => {
         // If has an error
         if (error) {
           Log.e(error.message);
           callback(ErrorTypes.DB_ERROR, null);
           return;
         }
-  
-        // Set order ID
-        order.id = results.insertId;
-        // Set student ID
-        order.students_id = studentID;
-        // Set status
-        order.status = OrderStatus.PENDING_PAYMENT;
-        // Set admin_remarks
-        order.admin_remarks = "";
-        // Set status_updated
-        order.status_updated = "";
-        // Set edit_date
-        order.edit_date = "";
-        // Set date_stamp
-        order.date_stamp = datestamp;
-  
-        // Create and return the order
-        callback(null, new Order(order));
+
+        // Query the Database
+        db.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+          receiptID,
+          order.products_id,
+          order.variations_id || null,
+          order.quantity,
+          order.mode_of_payment,
+          order.students_id,
+          order.students_first_name,
+          order.students_last_name,
+          order.students_email,
+          order.students_course,
+          order.students_year,
+          OrderStatus.PENDING_PAYMENT,
+          "",        // Empty for now (user_remarks)
+          "",        // Default (admin_remarks)
+          datestamp, // Default (status_updated)
+          null,      // Default (edit_date)
+          datestamp
+        ], (error, results) => {
+          // If has an error
+          if (error) {
+            Log.e(error.message);
+
+            // Rollback the transaction
+            conn.rollback(() => {
+              callback(ErrorTypes.DB_ERROR, null);
+              return;
+            });
+
+            return;
+          }
+
+          // If mode of payment is GCash
+          if (order.mode_of_payment == ModeOfPayment.GCASH) {
+            // Get screenshot/proof
+            const photo = getFile(files, "proof");
+
+            // If no photo
+            if (!photo) {
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) Log.e(error.message);
+                callback(ErrorTypes.REQUEST_FILE, null);
+                return;
+              });
+
+              return;
+            }
+
+            // Insert the photo
+            Photo.insert({ data: photo.data, type: photo.mimetype }, (error, photo) => {
+              // If has an error
+              if (error) {
+                Log.e("Error inserting screenshot/proof");
+
+                // Rollback the transaction
+                conn.rollback(error => {
+                  if (error) Log.e(error.message);
+                  callback(ErrorTypes.DB_ERROR, null);
+                  return;
+                });
+
+                return;
+              }
+
+              // Commit the transaction
+              conn.commit((error) => {
+                // If has an error
+                if (error) {
+                  Log.e(error.message);
+
+                  // Rollback the transaction
+                  conn.rollback(error => {
+                    if (error) Log.e(error.message);
+                    callback(ErrorTypes.DB_ERROR, null);
+                    return;
+                  });
+
+                  return;
+                }
+
+                // Success commiting the transaction
+                callback(null, receiptID);
+              });
+            });
+
+            return;
+          }
+
+          // Otherwise, return success
+          callback(null, receiptID);
+        });
       });
     });
   }
@@ -245,6 +377,37 @@ export class Order extends DatabaseModel {
 
       // Otherwise, return success
       callback(null, true);
+    });
+  }
+
+  /**
+   * Get orders count from date
+   * @param date Date to get orders count
+   * @param callback Callback function
+   */
+  private static getOrdersCountFromDate(date: Date, callback: (count: number) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Get local date YYYY-MM-DD
+    const localDate = getLocalDate(date);
+
+    // Query the database
+    db.query("SELECT SUM(count) AS count FROM ((SELECT COUNT(*) AS count FROM orders WHERE DATE(date_stamp) = ?) UNION (SELECT COUNT(*) AS count FROM non_bscs_orders WHERE DATE(date_stamp) = ?)) t", [localDate, localDate], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(0);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(0);
+        return;
+      }
+
+      // Otherwise, return success
+      callback(results[0].count);
     });
   }
 
