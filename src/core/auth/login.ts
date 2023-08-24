@@ -122,7 +122,7 @@ function postLogin(request: Request, response: Response) {
         // Encode secret key
         const secret = new TextEncoder().encode(process.env.SECRET_KEY);
         // Generate token
-        const token = await new SignJWT({ id: student!.getStudentId() })
+        const token = await new SignJWT({ id: "S-" + student!.getStudentId() })
           .setProtectedHeader({ alg: 'HS256' })
           .setExpirationTime('1d')
           .sign(secret);

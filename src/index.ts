@@ -10,6 +10,10 @@ import { Log } from "./utils/log";
 import { checkCredentials } from "./utils/validate";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
 import Database from "./db/database";
+import { Session } from "./classes/session";
+import { ErrorTypes } from "./types/enums";
+import { result } from "./utils/response";
+import Strings from "./config/strings";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -57,8 +61,24 @@ app.use(routes.map(r => r.path), (request, response) => {
         return handleUnimplemented(request, response);
       }
 
-      // Otherwise, call the API handler
-      return route.handler(request, response); 
+      // Get session data
+      Session.getSession(request, (error, data) => {
+
+        // If has authentication token and is expired
+        if (error === ErrorTypes.DB_EXPIRED || data === null) {
+          response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
+          return;
+        }
+
+        // If not allowed to access the route, nakuha najud :) pwede nako matog
+        if (route.auth && route.auth[request.method as HttpMethod] && data.role !== route.auth[request.method as HttpMethod]) {
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
+          return;
+        }
+
+        // Call the API handler
+        return route.handler(request, response); 
+      });
     }
   }
 });

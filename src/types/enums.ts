@@ -1,3 +1,9 @@
+// Auth Type
+export enum AuthType {
+  STUDENT,
+  ADMIN
+}
+
 // Error types
 export enum ErrorTypes {
   DB_ERROR,
@@ -42,3 +48,4 @@ export enum ModeOfPayment {
   WALK_IN = 1,
   GCASH = 2
 }
+

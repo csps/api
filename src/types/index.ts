@@ -1,14 +1,22 @@
 import type { Request, Response } from "express";
+import { AuthType } from "./enums";
 
 declare global {
   // Allowed HTTP methods
   type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
-  // Structure of the routes
   type AppRoutes = {
     path: string;
     methods: HttpMethod[];
     handler: (request: Request, response: Response) => void;
+    auth?: {
+      [key in HttpMethod]?: AuthType;
+    }
+  }
+
+  type SessionData = {
+    id: string,
+    role?: AuthType,
   }
 
   type EmailButton = {
