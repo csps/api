@@ -130,4 +130,5 @@ export type AnnouncementRequest = {
 export type PhotoRequest = {
   type: string;
   data: Buffer;
+  is_receipt?: boolean;
 }

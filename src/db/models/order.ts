@@ -21,7 +21,7 @@ export class Order extends DatabaseModel {
   private id: number;
   private students_id: string;
   private products_id: number;
-  private variations_id: number;
+  private variations_id: number | null;
   private quantity: number;
   private mode_of_payment: ModeOfPayment;
   private status: OrderStatus;
@@ -93,7 +93,7 @@ export class Order extends DatabaseModel {
    * @param studentID Student ID
    * @param callback 
    */
-  public static getAllByStudentID(studentID: string, callback: (error: ErrorTypes | null, order: Order[] | null) => void) {
+  public static getAllByStudentID(studentID: string | undefined, callback: (error: ErrorTypes | null, order: Order[] | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
@@ -135,8 +135,8 @@ export class Order extends DatabaseModel {
       if (!files?.proof) return [Strings.ORDER_EMPTY_PROOF, "proof"];
     }
     
-    // If is logged in 
-    if (isLoggedIn) {
+    // If not logged in 
+    if (!isLoggedIn) {
       // Check student id
       if (!data.students_id) return [Strings.ORDER_EMPTY_STUDENT_ID, "students_id"];
       // Check student first name
@@ -158,77 +158,61 @@ export class Order extends DatabaseModel {
    * @param order Order Data
    * @param callback Callback Function
    */
-  public static insert(studentID: string, order: OrderModel, files: FileArray | null, callback: (error: ErrorTypes | null) => void) {
-    // // Get database instance
-    const db = Database.getInstance();
-    // Get the current date
-    const datestamp = getDatestamp();
-
-    // Query the Database
-    db.query("INSERT INTO orders (students_id, product_variations_id, quantity, mode_of_payment_id, status_id, user_remarks, admin_remarks, status_updated, edit_date, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-      studentID,
-      order.variations_id,
-      order.quantity,
-      order.mode_of_payment,
-      OrderStatus.PENDING_PAYMENT,
-      order.user_remarks,
-      "", // Default admin_remarks
-      null, // Default status_updated
-      null, // Default edit_date
-      datestamp
-    ], (error, results) => {
-      // If has an error
-      if (error) {
-        Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR);
-        return;
-      }
-
-      // Create and return the order
-      callback(null);
-    });
-  }
-
-  /**
-   * Insert non-bscs orders data to the database
-   * @param order Order Data
-   * @param files Files
-   * @param callback Callback function
-   */
-  public static non_bscs_insert(order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, receiptID: string | null) => void) {
+  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, receiptID: string | null) => void) {
     // Get database instance
     const db = Database.getInstance();
-    // Get the current date
     const datestamp = getDatestamp();
+    const isLoggedIn = !!studentID;
 
     // If mode of payment is GCash
     if (order.mode_of_payment === ModeOfPayment.GCASH) {
       // Get screenshot/proof
       const proof = getFile(files, "proof");
 
-      // If no photo
       if (!proof) {
-        Log.e("No screenshot/proof");
+        Log.e(`Student #${studentID || order.students_id} is ordering with GCash without screenshot/proof.`);
         callback(ErrorTypes.REQUEST_FILE, null);
         return;
       }
     }
 
-    // Get orders count
     Order.getOrdersCountFromDate(new Date(), (count) => {
       // Generate receipt ID
       const receiptID = generateReceiptID(count + 1);
 
-      // Get connection for database transaction
       Database.getConnection((error, conn) => {
-        // If has an error
         if (error) {
           Log.e(error.message);
           callback(ErrorTypes.DB_ERROR, null);
           return;
         }
 
-        // Query the Database
+        // If logged in
+        if (isLoggedIn) {
+          // Query the Database
+          db.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            receiptID,
+            studentID,
+            order.products_id,
+            order.variations_id || null,
+            order.quantity,
+            order.mode_of_payment,
+            OrderStatus.PENDING_PAYMENT,
+            "", "", null, null, datestamp
+          ], (error, results) => {
+            if (error) {
+              Log.e(error.message);
+              callback(ErrorTypes.DB_ERROR, null);
+              return;
+            }
+            
+            insertProof();
+          });
+
+          return;
+        }
+
+        // Otherwise, insert to non-bscs orders
         db.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
           receiptID,
           order.products_id,
@@ -242,11 +226,7 @@ export class Order extends DatabaseModel {
           order.students_course,
           order.students_year,
           OrderStatus.PENDING_PAYMENT,
-          "",        // Empty for now (user_remarks)
-          "",        // Default (admin_remarks)
-          datestamp, // Default (status_updated)
-          null,      // Default (edit_date)
-          datestamp
+          "", "", null, null, datestamp
         ], (error, results) => {
           // If has an error
           if (error) {
@@ -261,12 +241,15 @@ export class Order extends DatabaseModel {
             return;
           }
 
+          insertProof();
+        });
+
+        function insertProof() {
           // If mode of payment is GCash
           if (order.mode_of_payment == ModeOfPayment.GCASH) {
             // Get screenshot/proof
             const photo = getFile(files, "proof");
 
-            // If no photo
             if (!photo) {
               // Rollback the transaction
               conn.rollback(error => {
@@ -279,10 +262,9 @@ export class Order extends DatabaseModel {
             }
 
             // Insert the photo
-            Photo.insert({ data: photo.data, type: photo.mimetype }, (error, photo) => {
-              // If has an error
+            Photo.insert({ data: photo.data, type: photo.mimetype, is_receipt: true }, (error, photo) => {
               if (error) {
-                Log.e("Error inserting screenshot/proof");
+                Log.e(`Student #${studentID || order.students_id}: Error inserting screenshot/proof`);
 
                 // Rollback the transaction
                 conn.rollback(error => {
@@ -296,7 +278,6 @@ export class Order extends DatabaseModel {
 
               // Commit the transaction
               conn.commit((error) => {
-                // If has an error
                 if (error) {
                   Log.e(error.message);
 
@@ -310,6 +291,8 @@ export class Order extends DatabaseModel {
                   return;
                 }
 
+                // Log order 
+                Log.i(`Student #${studentID || order.students_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
                 // Success commiting the transaction
                 callback(null, receiptID);
               });
@@ -318,9 +301,26 @@ export class Order extends DatabaseModel {
             return;
           }
 
-          // Otherwise, return success
-          callback(null, receiptID);
-        });
+          // Otherwise, commit the transaction and return the receipt ID
+          conn.commit((error) => {
+            if (error) {
+              Log.e(error.message);
+
+              conn.rollback(error => {
+                if (error) Log.e(error.message);
+                callback(ErrorTypes.DB_ERROR, null);
+                return;
+              });
+
+              return;
+            }
+
+            // Log order 
+            Log.i(`Student #${studentID || order.students_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
+            // Success commiting the transaction
+            callback(null, receiptID);
+          });
+        }
       });
     });
   }

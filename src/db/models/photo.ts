@@ -4,6 +4,7 @@ import { getDatestamp } from "../../utils/date";
 import type { PhotoRequest, PhotoModel } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
+import { Tables } from "../structure";
 
 /**
  * Photos model
@@ -69,7 +70,7 @@ export class Photo extends DatabaseModel {
     const datestamp = getDatestamp();
 
     // Query the database
-    db.query("INSERT INTO photos (data, type, date_stamp) VALUES (?, ?, ?)", [
+    db.query(`INSERT INTO ${photo.is_receipt ? Tables.RECEIPTS : Tables.PHOTOS} (data, type, date_stamp) VALUES (?, ?, ?)`, [
       photo.data,
       photo.type,
       datestamp

@@ -43,6 +43,7 @@ export function getOrders(request: Request, response: Response) {
   }
 
   // Otherwise, get all orders
+  // TODO: Determine if admin or student
   Order.getAllByStudentID(response.locals.studentID, (error, orders) => {
     // If has error
     if (error !== null) {
@@ -110,31 +111,8 @@ export function postOrders(request: Request, response: Response) {
     return;
   }
 
-  // If logged in
-  if (isLoggedIn) {
-    // Otherwise, create order
-    Order.insert(response.locals.studentID, request.body, request.files || null, error => {
-      // If has an error
-      if (error === ErrorTypes.DB_ERROR) {
-        response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
-        return;
-      }
-
-      // If no photo/proof
-      if (error === ErrorTypes.REQUEST_FILE) {
-        response.status(500).send(result.error(Strings.ORDER_EMPTY_PROOF));
-        return;
-      }
-  
-      // Otherwise, return the product data
-      response.send(result.success(Strings.ORDER_CREATED));
-    });
-
-    return;
-  }
-
-  // Otherwise, insert to non-bscs orders
-  Order.non_bscs_insert(request.body, request.files || null, (error, receiptID) => {
+  // Otherwise, insert order
+  Order.insert(response.locals.studentID, request.body, request.files || null, (error, receiptID) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));

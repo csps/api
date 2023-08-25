@@ -10,6 +10,8 @@ export enum Tables {
   STUDENTS = "students",
   TUTORIALS = "tutorials",
   VARIATIONS = "variations",
+  NON_BSCS_ORDERS = "non_bscs_orders",
+  RECEIPTS = "receipts",
 }
 
 export enum AnnouncementColumns {
@@ -42,11 +44,33 @@ export enum EventColumns {
 
 export enum OrderColumns {
   ID = "id",
+  RECEIPT_ID = "receipt_id",
   STUDENTS_ID = "students_id",
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
   QUANTITY = "quantity",
   MODE_OF_PAYMENT = "mode_of_payment",
+  STATUS = "status",
+  USER_REMARKS = "user_remarks",
+  ADMIN_REMARKS = "admin_remarks",
+  STATUS_UPDATED = "status_updated",
+  EDIT_DATE = "edit_date",
+  DATE_STAMP = "date_stamp"
+}
+
+export enum NonBscsOrderColumns {
+  ID = "id",
+  RECEIPT_ID = "receipt_id",
+  PRODUCTS_ID = "products_id",
+  VARIATIONS_ID = "variations_id",
+  QUANTITY = "quantity",
+  MODE_OF_PAYMENT = "mode_of_payment",
+  STUDENTS_ID = "students_id",
+  FIRST_NAME = "first_name",
+  LAST_NAME = "last_name",
+  EMAIL = "email",
+  COURSE = "course",
+  YEAR_LEVEL = "year_level",
   STATUS = "status",
   USER_REMARKS = "user_remarks",
   ADMIN_REMARKS = "admin_remarks",

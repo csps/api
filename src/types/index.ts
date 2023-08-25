@@ -56,4 +56,10 @@ declare global {
       STUDENTS_UPDATE_ALLOWED_KEYS: string,
     }
   }
+
+  namespace Express {
+    interface Locals {
+      studentID?: string
+    }
+  }
 }
