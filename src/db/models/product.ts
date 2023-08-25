@@ -9,6 +9,7 @@ import { getFile } from "../../utils/file";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
+import { Photo } from "./photo";
 
 /**
  * Product Model
@@ -182,24 +183,19 @@ class Product extends DatabaseModel {
     if (!isNumber(data.max_quantity)) return [Strings.PRODUCT_INVALID_MAX_QUANTITY, "max_quantity"];
     // If max_quantity is less than 0
     if (data.max_quantity < 0) return [Strings.PRODUCT_LIMIT_MAX_QUANTITY, "max_quantity"];
-    // If Thumbnail is not in correct format
-    if (data.thumbnail && !isNumber(data.thumbnail)) return [Strings.PRODUCT_INVALID_THUMBNAIL, "thumbnail"];
+    // Check for thumbnail
+    if (!files || !getFile(files, "thumbnail")) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
 
-    /**
-     * Variations Example: [1-2, 2-3, 3-4] => [variations_id, stock]
-     */
-
+    // ------------- Variations Pattern: [1-2, 2-3, 3-4] => [variations_id, stock] ------------- //
+    
     // If has variations
     if (data.variations && data.variations.length > 0) {
-      // If files is empty
-      if (!files || (Array.isArray(files) && files.length === 0)) return [Strings.PRODUCT_EMPTY_VARIATIONS, "variations"];
-
       // For every variation
       for (const variation of data.variations.split(',').filter(v => v.length > 0)) {
         // Split variation and stock
         const [ variationId, stock ] = variation.split('-');
         // Get photo file
-        const photo = files[`variations_${variationId}`];
+        const photo = getFile(files, `variations_${variationId}`);
         
         // If variation photo not found
         if (!photo) return [Strings.PRODUCT_EMPTY_VARIATION_FILE.replace("{id}", variationId), `variations_${variationId}`];
@@ -240,110 +236,162 @@ class Product extends DatabaseModel {
           return;
         }
 
-        // Query the Database
-        conn.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-          product.name,
-          product.thumbnail,
-          product.short_description,
-          product.description,
-          0, // Default likes to 0
-          product.stock,
-          product.price,
-          product.max_quantity,
-          datestamp
-        ], (error, results) => {
-          // If has an error
-          if (error) {
-            Log.e(error.message);
+        // Get thumbnail
+        const thumbnail = getFile(files, "thumbnail");
+
+        // If thumbnail is not found
+        if (!thumbnail) {
+          // Rollback the transaction
+          conn.rollback(error => {
+            if (error) Log.e(error.message);
+            Log.e("[Products] Thumbnail not found");
             callback(ErrorTypes.DB_ERROR);
+          });
+          
+          return;
+        }
+
+        // Insert thumbnail
+        Photo.insert({ data: thumbnail.data, type: thumbnail.mimetype }, (error, photo) => {
+          if (error) {
+            // Rollback the transaction
+            conn.rollback(error => {
+              if (error) Log.e(error.message);
+              Log.e("[Products] Error inserting thumbnail: " + error.message);
+              callback(ErrorTypes.DB_ERROR);
+            });
+            
             return;
           }
-  
-          // New product ID
-          const productId = results.insertId;
-  
-          // If the product has variations
-          if (product.variations && files) {
-            // For every variation
-            for (const variation of product.variations.split(",").filter(v => v.length > 0)) {
-              // Split variation and stock
-              const [ v, stock ] = variation.split("-");
-              // Get photo
-              const photo = getFile(files, `variations_${v}`);
-  
-              // If photo is not found
-              if (!photo) {
-                // Rollback the transaction
-                conn.rollback(error => {
-                  if (error) Log.e(error.message);
-                  Log.e("[Products] Photo not found");
-                  callback(ErrorTypes.DB_ERROR);
-                });
-                
-                return;
-              }
-  
-              // Insert variation photo
-              conn.query("INSERT INTO photos (type, data, date_stamp) VALUES (?, ?, ?)", [photo.mimetype, photo.data, datestamp], (error, results) => {
-                // If has an error
-                if (error) {
-                  // Rollback the transaction
-                  conn.rollback(error => {
-                    if (error) Log.e(error.message);
-                    Log.e("[Products] Error inserting photo: " + error.message);
-                    callback(ErrorTypes.DB_ERROR);
-                  });
-                  
-                  return;
-                }
-  
-                // Insert product variation
-                conn.query("INSERT INTO product_variations (products_id, variations_id, stock, photos_id) VALUES (?, ?, ?, ?)", [productId, v, stock, results.insertId], (error) => {
-                  // If has an error
-                  if (error) {
-                    // Rollback the transaction
-                    conn.rollback(error => {
-                      if (error) Log.e(error.message);
-                      Log.e("[Products] Error inserting product variation: " + error.message);
-                      callback(ErrorTypes.DB_ERROR);
-                    });
-                    
-                    return;
-                  }
-                });
-  
-                // Commit the transaction
-                conn.commit((error) => {
-                  // If has an error
-                  if (error) {
-                    Log.e(error.message);
-                    callback(ErrorTypes.DB_ERROR);
-                    return;
-                  }
-  
-                  // Return the product
-                  callback(null);
-                });
-              });
-            }
-  
-            return;
-          }
-  
-          // Commit transaction and return the product w/ no variations
-          conn.commit((error) => {
+
+          // Query the Database
+          conn.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            product.name,
+            photo?.getId(),
+            product.short_description,
+            product.description,
+            0, // Default likes to 0
+            product.stock,
+            product.price,
+            product.max_quantity,
+            datestamp
+          ], (error, results) => {
             // If has an error
             if (error) {
               Log.e(error.message);
               callback(ErrorTypes.DB_ERROR);
               return;
             }
-  
-            // Return the product
-            callback(null);
+    
+            // New product ID
+            const productId = results.insertId;
+    
+            // If the product has variations
+            if (product.variations && files) {
+              // For every variation
+              for (const variation of product.variations.split(",").filter(v => v.length > 0)) {
+                // Split variation and stock
+                const [ v, stock ] = variation.split("-");
+                // Get photo
+                const photo = getFile(files, `variations_${v}`);
+    
+                // If photo is not found
+                if (!photo) {
+                  // Rollback the transaction
+                  conn.rollback(error => {
+                    if (error) Log.e(error.message);
+                    Log.e("[Products] Photo not found");
+                    callback(ErrorTypes.DB_ERROR);
+                  });
+                  
+                  return;
+                }
+    
+                // Insert variation photo
+                conn.query("INSERT INTO photos (type, data, date_stamp) VALUES (?, ?, ?)", [photo.mimetype, photo.data, datestamp], (error, results) => {
+                  // If has an error
+                  if (error) {
+                    // Rollback the transaction
+                    conn.rollback(error => {
+                      if (error) Log.e(error.message);
+                      Log.e("[Products] Error inserting photo: " + error.message);
+                      callback(ErrorTypes.DB_ERROR);
+                    });
+                    
+                    return;
+                  }
+    
+                  // Insert product variation
+                  conn.query("INSERT INTO product_variations (products_id, variations_id, stock, photos_id) VALUES (?, ?, ?, ?)", [productId, v, stock, results.insertId], (error) => {
+                    // If has an error
+                    if (error) {
+                      // Rollback the transaction
+                      conn.rollback(error => {
+                        if (error) Log.e(error.message);
+                        Log.e("[Products] Error inserting product variation: " + error.message);
+                        callback(ErrorTypes.DB_ERROR);
+                      });
+                      
+                      return;
+                    }
+                  });
+    
+                  // Commit the transaction
+                  conn.commit((error) => {
+                    // If has an error
+                    if (error) {
+                      Log.e(error.message);
+                      callback(ErrorTypes.DB_ERROR);
+                      return;
+                    }
+    
+                    // Return the product
+                    callback(null);
+                  });
+                });
+              }
+    
+              return;
+            }
+    
+            // Commit transaction and return the product w/ no variations
+            conn.commit((error) => {
+              // If has an error
+              if (error) {
+                Log.e(error.message);
+                callback(ErrorTypes.DB_ERROR);
+                return;
+              }
+    
+              // Return the product
+              callback(null);
+            });
           });
         });
       });
+    });
+  }
+
+  /**
+   * Check if product exists
+   * @param id Product ID
+   * @param callback Callback Function
+   */
+  public static isExist(id: number, callback: (error: ErrorTypes | null, exist: boolean) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("SELECT COUNT(*) AS count FROM products WHERE id = ?", [id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, false);
+        return;
+      }
+
+      // Return the result
+      callback(null, results[0].count > 0);      
     });
   }
 
