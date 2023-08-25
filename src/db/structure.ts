@@ -81,6 +81,15 @@ export enum NonBscsOrderColumns {
 
 export enum PhotoColumns {
   ID = "id",
+  NAME = "name",
+  DATA = "data",
+  TYPE = "type",
+  DATE_STAMP = "date_stamp",
+}
+
+export enum ReceiptColumns {
+  ID = "id",
+  NAME = "name",
   DATA = "data",
   TYPE = "type",
   DATE_STAMP = "date_stamp",

@@ -21,7 +21,7 @@ export type OrderRequest = {
   variations_id?: number,
   mode_of_payment: ModeOfPayment,
   quantity: number,
-  students_id: string,
+  students_id?: string,
   students_first_name?: string,
   students_last_name?: string,
   students_email?: string,

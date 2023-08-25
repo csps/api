@@ -13,6 +13,7 @@ import { Tables } from "../structure";
  */
 export class Photo extends DatabaseModel {
   private id: number;
+  private name?: string;
   private data: Buffer;
   private type: string;
   private date_stamp?: string;
@@ -70,8 +71,9 @@ export class Photo extends DatabaseModel {
     const datestamp = getDatestamp();
 
     // Query the database
-    db.query(`INSERT INTO ${photo.is_receipt ? Tables.RECEIPTS : Tables.PHOTOS} (data, type, date_stamp) VALUES (?, ?, ?)`, [
+    db.query(`INSERT INTO ${photo.is_receipt ? Tables.RECEIPTS : Tables.PHOTOS} (data, name, type, date_stamp) VALUES (?, ?, ?, ?)`, [
       photo.data,
+      photo.name || null,
       photo.type,
       datestamp
     ], (error, results) => {
@@ -107,30 +109,22 @@ export class Photo extends DatabaseModel {
     if (!data.type) return [Strings.PHOTO_EMPTY_TYPE, "type"];
   }
 
-  /**
-   * Get ID
-   */
   public getId() {
     return this.id;
   }
 
-  /**
-   * Get data
-   */
+  public getName() {
+    return this.name;
+  }
+
   public getData() {
     return this.data;
   }
 
-  /**
-   * Get type
-   */
   public getType() {
     return this.type;
   }
 
-  /**
-   * Get date stamp
-   */
   public getDatestamp() {
     return this.date_stamp;
   }

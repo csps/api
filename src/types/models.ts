@@ -45,6 +45,15 @@ export type OrderModel = {
 
 export type PhotoModel = {
   id: number;
+  name?: string;
+  type: string;
+  data: Buffer;
+  date_stamp: string;
+}
+
+export type ReceiptModel = {
+  id: number;
+  name?: string;
   type: string;
   data: Buffer;
   date_stamp: string;
@@ -130,5 +139,6 @@ export type AnnouncementRequest = {
 export type PhotoRequest = {
   type: string;
   data: Buffer;
+  name?: string;
   is_receipt?: boolean;
 }

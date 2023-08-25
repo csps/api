@@ -132,7 +132,7 @@ export class Order extends DatabaseModel {
     // If mode of payment is GCash
     if (data.mode_of_payment == ModeOfPayment.GCASH) {
       // Check if photo/proof is present
-      if (!files?.proof) return [Strings.ORDER_EMPTY_PROOF, "proof"];
+      if (!getFile(files, "proof")) return [Strings.ORDER_EMPTY_PROOF, "proof"];
     }
     
     // If not logged in 
@@ -262,8 +262,8 @@ export class Order extends DatabaseModel {
             }
 
             // Insert the photo
-            Photo.insert({ data: photo.data, type: photo.mimetype, is_receipt: true }, (error, photo) => {
-              if (error) {
+            Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, is_receipt: true }, (error, photo) => {
+              if (error === ErrorTypes.DB_ERROR) {
                 Log.e(`Student #${studentID || order.students_id}: Error inserting screenshot/proof`);
 
                 // Rollback the transaction
