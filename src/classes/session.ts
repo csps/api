@@ -37,10 +37,11 @@ export class Session {
       const id = (await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload.id as string;
       // Get role
       const role = id.startsWith("S") ? AuthType.STUDENT : id.startsWith("A") ? AuthType.ADMIN : undefined;
-
       // Verify token
       callback(null, { id: id.split("-")[1], role });
     } catch (e) {
+      // Log error
+      console.error(e);
       // If session expired
       callback(ErrorTypes.DB_EXPIRED, null);
     }

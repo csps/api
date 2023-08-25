@@ -50,9 +50,9 @@ async function getLogin(request: Request, response: Response) {
   // Verify token
   try {
     const { payload } = await jwtVerify(token, secret);
-  
+
     // Get student from ID
-    Student.fromId(payload.id as string, (error, student) => {
+    Student.fromId((payload.id as string).split("-")[1], (error, student) => {
       // If has error
       if (error === ErrorTypes.DB_ERROR) {
         response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
@@ -61,7 +61,7 @@ async function getLogin(request: Request, response: Response) {
 
       // If not found
       if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        response.status(401).send(result.error(Strings.STUDENTS_NOT_FOUND));
+        response.status(401).send(result.error(Strings.STUDENT_NOT_FOUND));
         return;
       }
 
