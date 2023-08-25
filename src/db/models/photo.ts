@@ -1,10 +1,10 @@
 import { Log } from "../../utils/log";
 import { ErrorTypes } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
-import type { PhotoRequest, PhotoModel } from "../../types/models";
+import type { PhotoModel } from "../../types/models";
+import type { PhotoRequest } from "../../types/request";
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
-import { Tables } from "../structure";
 
 /**
  * Photos model
@@ -69,14 +69,19 @@ export class Photo extends DatabaseModel {
     const db = Database.getInstance();
     // Get the current date
     const datestamp = getDatestamp();
+    // Query (photo)
+    let query = `INSERT INTO photos (name, type, data, date_stamp) VALUES (?, ?, ?, ?)`;
+    let data = [ photo.name || null, photo.type, photo.data, datestamp ];
+
+    // If receipt
+    if (photo.receipt_id) {
+      // Query (receipt)
+      query = `INSERT INTO receipts (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
+      data = [ photo.receipt_id, photo.name || null, photo.type, photo.data, datestamp ];
+    }
 
     // Query the database
-    db.query(`INSERT INTO ${photo.is_receipt ? Tables.RECEIPTS : Tables.PHOTOS} (data, name, type, date_stamp) VALUES (?, ?, ?, ?)`, [
-      photo.data,
-      photo.name || null,
-      photo.type,
-      datestamp
-    ], (error, results) => {
+    db.query(query, data, (error, results) => {
       // If has an error  
       if (error) {
         Log.e(error.message);

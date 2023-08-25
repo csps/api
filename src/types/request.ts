@@ -43,6 +43,8 @@ export type AnnouncementRequest = {
  * Photo request
  */
 export type PhotoRequest = {
-  data: Buffer;
   type: string;
+  data: Buffer;
+  name?: string;
+  receipt_id?: string;
 }

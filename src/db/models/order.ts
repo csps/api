@@ -262,7 +262,7 @@ export class Order extends DatabaseModel {
             }
 
             // Insert the photo
-            Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, is_receipt: true }, (error, photo) => {
+            Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, receipt_id: receiptID }, (error, photo) => {
               if (error === ErrorTypes.DB_ERROR) {
                 Log.e(`Student #${studentID || order.students_id}: Error inserting screenshot/proof`);
 

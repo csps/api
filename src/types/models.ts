@@ -122,23 +122,3 @@ export type VariationModel = {
   id: number;
   name: string;
 };
-
-/**
- * Announcement Request
- */
-export type AnnouncementRequest = {
-  title: string,
-  content: string,
-  photo_data?: string;
-  photo_type?: string;
-};
-
-/**
- * Photo request
- */
-export type PhotoRequest = {
-  type: string;
-  data: Buffer;
-  name?: string;
-  is_receipt?: boolean;
-}
