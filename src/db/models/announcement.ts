@@ -1,6 +1,7 @@
 import Strings from "../../config/strings";
 import { ErrorTypes } from "../../types/enums";
-import { AnnouncementRequest, AnnouncementModel, PhotoModel } from "../../types/models";
+import { AnnouncementModel, PhotoModel } from "../../types/models";
+import { AnnouncementRequest } from "../../types/request";
 import { getDatestamp } from "../../utils/date";
 import { Log } from "../../utils/log";
 import Database, { DatabaseModel } from "../database";

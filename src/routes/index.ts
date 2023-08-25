@@ -2,7 +2,8 @@ import {
   example, login, products, students,
   events, tutorials, photos, orders,
   forgotPassword, resetPassword,
-  config, courses, announcements
+  config, courses, announcements,
+  admin_login
 } from "../core"
 
 /**
@@ -26,21 +27,25 @@ export const routes: AppRoutes[] = [
   // Courses
   { path: "/courses/:id", methods: ["PUT", "DELETE"], handler: courses },
   { path: "/courses", methods: ["GET", "POST"], handler: courses },
-
-  // Login
-  { path: "/login/:token", methods: ["GET"], handler: login },
-  { path: "/login", methods: ["POST"], handler: login },
-
+  
   // Forgot password
   { path: "/forgot-password", methods: ["POST"], handler: forgotPassword },
-
+  
   // Reset password
   { path: "/reset-password/:token", methods: ["GET"], handler: resetPassword },
   { path: "/reset-password", methods: ["POST"], handler: resetPassword },
-
+  
   // Products
   { path: "/products/:id", methods: ["GET"], handler: products },
   { path: "/products", methods: ["GET", "POST"], handler: products  },
+
+  // Admin Login
+  { path: "/admins/login/:token", methods: ["GET"], handler: admin_login },
+  { path: "/admins/login", methods: ["POST"], handler: admin_login },
+
+  // Students Login
+  { path: "/students/login/:token", methods: ["GET"], handler: login },
+  { path: "/students/login", methods: ["POST"], handler: login },
 
   // Students
   { path: "/students/:id/uid/:key", methods: ["PUT"], handler: students },

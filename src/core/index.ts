@@ -1,4 +1,5 @@
 export * from "./auth/login";
+export * from "./auth/admin";
 export * from "./announcements";
 export * from "./products";
 export * from "./students";
