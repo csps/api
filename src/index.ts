@@ -65,7 +65,8 @@ app.use(routes.map(r => r.path), (request, response) => {
       Session.getSession(request, (error, data) => {
         // If has authentication token and is expired
         if (error === ErrorTypes.DB_EXPIRED || data === null) {
-          response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
+          Log.w("Session expired for ID: " + data?.id);
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
           return;
         }
 
@@ -74,11 +75,14 @@ app.use(routes.map(r => r.path), (request, response) => {
           response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
           return;
         }
-
+        
         // If student, add ID to response locals
         if (data.role === AuthType.STUDENT) {
           response.locals.studentID = data.id;
         }
+
+        // Add role to response locals
+        response.locals.role = data.role;
 
         // Call the API handler
         return route.handler(request, response); 

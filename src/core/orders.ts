@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 
 import { result } from "../utils/response";
-import { ErrorTypes } from "../types/enums";
+import { AuthType, ErrorTypes } from "../types/enums";
 import { Order } from "../db/models/order";
 import { isObjectEmpty } from "../utils/string";
 import Strings from "../config/strings";
@@ -42,8 +42,31 @@ export function getOrders(request: Request, response: Response) {
     return;
   }
 
+  // If admin
+  if (response.locals.role === AuthType.ADMIN) {
+    // Get all orders
+    Order.getAll((error, orders) => {
+      // If has error
+      if (error !== null) {
+        // Map error
+        switch (error) {
+          case ErrorTypes.DB_ERROR:
+            response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+            return;
+          case ErrorTypes.DB_EMPTY_RESULT:
+            response.status(200).send(result.error(Strings.ORDERS_EMPTY));
+            return;
+        }
+      }
+
+      // Otherwise, send results
+      response.status(200).send(result.success(Strings.ORDERS_FOUND, orders));
+    });
+
+    return;
+  }
+
   // Otherwise, get all orders
-  // TODO: Determine if admin or student
   Order.getAllByStudentID(response.locals.studentID, (error, orders) => {
     // If has error
     if (error !== null) {
@@ -104,6 +127,8 @@ export function postOrders(request: Request, response: Response) {
   const isLoggedIn = !!response.locals.studentID;
   // Validate order data
   const errors = Order.validate(request.body, isLoggedIn, request.files);
+
+  console.log(response.locals.studentID);
 
   // If has an error
   if (errors){

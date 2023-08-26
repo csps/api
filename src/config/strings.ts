@@ -10,7 +10,7 @@ const Strings = {
   GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSPS server admin.",
   GENERAL_SESSION_ERROR: "Session Error! Please logout and login again.",
   GENERAL_SESSION_EXPIRED: "Session Expired! Please logout and login again.",
-  GENERAL_UNAUTHORIZED: "Unauthorized request!",
+  GENERAL_UNAUTHORIZED: "Unauthorized!",
   GENERAL_INCORRECT_VALUE: "Incorrect value!",
   GENERAL_KEY_NOT_ALLOWED: "Editing this information is not allowed!",
 

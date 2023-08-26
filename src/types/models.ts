@@ -30,11 +30,54 @@ export type EventModel = {
 
 export type OrderModel = {
   id: number;
-  students_id: string;
+  student_id: string;
   products_id: number;
   variations_id: number;
   quantity: number;
   mode_of_payment: ModeOfPayment;
+  status: OrderStatus;
+  user_remarks: string;
+  admin_remarks: string;
+  status_updated: string;
+  edit_date: string;
+  date_stamp: string;
+}
+
+export type NonBscsOrderModel = {
+  id: number;
+  receipt_id: string;
+  products_id: number;
+  variations_id: number;
+  quantity: number;
+  mode_of_payment: ModeOfPayment;
+  student_id: string;
+  first_name: string;
+  last_name: string;
+  email_address: string;
+  course: number;
+  year_level: number;
+  status: OrderStatus;
+  user_remarks: string;
+  admin_remarks: string;
+  status_updated: string;
+  edit_date: string;
+  date_stamp: string;
+}
+
+export type FullOrderModel = {
+  id: string;
+  thumbnail: number;
+  receipt_id: string;
+  products_id: number;
+  variations_id: number;
+  quantity: number;
+  mode_of_payment: ModeOfPayment;
+  student_id: string;
+  first_name: string;
+  last_name: string;
+  email_address: string;
+  course: number;
+  year_level: number;
   status: OrderStatus;
   user_remarks: string;
   admin_remarks: string;

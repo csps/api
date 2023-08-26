@@ -13,7 +13,7 @@ import { Photo } from "./photo";
 
 /**
  * Product Model
- * This model contains all the Product Information and Quantity 
+ * This model contains all the Product Information and Quantity :D
  * @author ampats04 (Jeremy Andy F. Ampatin)
  * @author mavyfaby (Maverick Fabroa)
 */

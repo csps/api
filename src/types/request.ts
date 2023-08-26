@@ -21,12 +21,12 @@ export type OrderRequest = {
   variations_id?: number,
   mode_of_payment: ModeOfPayment,
   quantity: number,
-  students_id?: string,
-  students_first_name?: string,
-  students_last_name?: string,
-  students_email?: string,
-  students_course?: number,
-  students_year?: number;
+  student_id?: string,
+  student_first_name?: string,
+  student_last_name?: string,
+  student_email?: string,
+  student_course?: number,
+  student_year?: number;
 };
 
 /**

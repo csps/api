@@ -1,9 +1,9 @@
 import { ErrorTypes, ModeOfPayment, OrderStatus } from "../../types/enums";
-import type { OrderModel } from "../../types/models";
+import type { FullOrderModel, OrderModel } from "../../types/models";
 import type { FileArray } from "express-fileupload";
 import { getDatestamp, getLocalDate } from "../../utils/date";
 import { generateReceiptID, sanitize } from "../../utils/security";
-import { OrderColumns } from "../structure";
+import { NonBscsOrderColumns, OrderColumns } from "../structure";
 import { Log } from "../../utils/log";
 
 import Database, { DatabaseModel } from "../database";
@@ -19,7 +19,7 @@ import { Photo } from "./photo";
  */
 export class Order extends DatabaseModel {
   private id: number;
-  private students_id: string;
+  private student_id: string;
   private products_id: number;
   private variations_id: number | null;
   private quantity: number;
@@ -38,7 +38,7 @@ export class Order extends DatabaseModel {
   public constructor(data: OrderModel) {
     super();
     this.id = data.id;
-    this.students_id = data.students_id;
+    this.student_id = data.student_id;
     this.products_id = data.products_id;
     this.variations_id = data.variations_id;
     this.quantity = data.quantity;
@@ -85,7 +85,37 @@ export class Order extends DatabaseModel {
    * @param callback 
    */
   public static getAll(callback: (error: ErrorTypes | null, order: Order[] | null) => void) {
-    // TODO: Implement this
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Get orders 
+    db.query(`
+      (
+        SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.receipt_id, o.products_id, o.variations_id, o.quantity, o.mode_of_payment, s.student_id, s.first_name, s.last_name,
+          s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
+        FROM orders o INNER JOIN students s ON s.student_id = o.student_id INNER JOIN products p ON p.id = o.products_id
+      ) UNION (
+        SELECT CONCAT("N-", o.id), p.thumbnail, o.receipt_id, o.products_id, o.variations_id, o.quantity, o.mode_of_payment, o.student_id, o.first_name,
+          o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
+        FROM non_bscs_orders o INNER JOIN products p ON p.id = o.products_id
+      );
+    `.trim(), [], (error, orders) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+        
+      callback(null, orders.map((order: FullOrderModel) => {
+        return {
+          ...order,
+          id: order.id?.toString().endsWith("*") ?
+            'B-' + order.id : // BSCS
+            'N-' + order.id   // Non-BSCS
+        }
+      }));
+    });
   }
 
   /**
@@ -98,7 +128,7 @@ export class Order extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query('SELECT * FROM orders WHERE students_id = ?', [studentID], (error, results) => {
+    db.query('SELECT * FROM orders WHERE student_id = ?', [studentID], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
@@ -138,17 +168,17 @@ export class Order extends DatabaseModel {
     // If not logged in 
     if (!isLoggedIn) {
       // Check student id
-      if (!data.students_id) return [Strings.ORDER_EMPTY_STUDENT_ID, "students_id"];
+      if (!data.student_id) return [Strings.ORDER_EMPTY_STUDENT_ID, "student_id"];
       // Check student first name
-      if (!data.students_first_name) return [Strings.ORDER_EMPTY_STUDENT_FIRST_NAME, "students_first_name"];
+      if (!data.student_first_name) return [Strings.ORDER_EMPTY_STUDENT_FIRST_NAME, "student_first_name"];
       // Check student last name
-      if (!data.students_last_name) return [Strings.ORDER_EMPTY_STUDENT_LAST_NAME, "students_last_name"];
+      if (!data.student_last_name) return [Strings.ORDER_EMPTY_STUDENT_LAST_NAME, "student_last_name"];
       // Check student email
-      if (!data.students_email) return [Strings.ORDER_EMPTY_STUDENT_EMAIL, "students_email"];
+      if (!data.student_email) return [Strings.ORDER_EMPTY_STUDENT_EMAIL, "student_email"];
       // Check student course
-      if (!data.students_course) return [Strings.ORDER_EMPTY_STUDENT_COURSE, "students_course"];
+      if (!data.student_course) return [Strings.ORDER_EMPTY_STUDENT_COURSE, "student_course"];
       // Check student year
-      if (!data.students_year) return [Strings.ORDER_EMPTY_STUDENT_YEAR, "students_year"];
+      if (!data.student_year) return [Strings.ORDER_EMPTY_STUDENT_YEAR, "student_year"];
     }
   }
 
@@ -170,7 +200,7 @@ export class Order extends DatabaseModel {
       const proof = getFile(files, "proof");
 
       if (!proof) {
-        Log.e(`Student #${studentID || order.students_id} is ordering with GCash without screenshot/proof.`);
+        Log.e(`Student #${studentID || order.student_id} is ordering with GCash without screenshot/proof.`);
         callback(ErrorTypes.REQUEST_FILE, null);
         return;
       }
@@ -219,12 +249,12 @@ export class Order extends DatabaseModel {
           order.variations_id || null,
           order.quantity,
           order.mode_of_payment,
-          order.students_id,
-          order.students_first_name,
-          order.students_last_name,
-          order.students_email,
-          order.students_course,
-          order.students_year,
+          order.student_id,
+          order.student_first_name,
+          order.student_last_name,
+          order.student_email,
+          order.student_course,
+          order.student_year,
           OrderStatus.PENDING_PAYMENT,
           "", "", null, null, datestamp
         ], (error, results) => {
@@ -264,7 +294,7 @@ export class Order extends DatabaseModel {
             // Insert the photo
             Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, receipt_id: receiptID }, (error, photo) => {
               if (error === ErrorTypes.DB_ERROR) {
-                Log.e(`Student #${studentID || order.students_id}: Error inserting screenshot/proof`);
+                Log.e(`Student #${studentID || order.student_id}: Error inserting screenshot/proof`);
 
                 // Rollback the transaction
                 conn.rollback(error => {
@@ -292,7 +322,7 @@ export class Order extends DatabaseModel {
                 }
 
                 // Log order 
-                Log.i(`Student #${studentID || order.students_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
+                Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
                 // Success commiting the transaction
                 callback(null, receiptID);
               });
@@ -316,7 +346,7 @@ export class Order extends DatabaseModel {
             }
 
             // Log order 
-            Log.i(`Student #${studentID || order.students_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
+            Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
             // Success commiting the transaction
             callback(null, receiptID);
           });

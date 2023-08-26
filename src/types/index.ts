@@ -59,7 +59,8 @@ declare global {
 
   namespace Express {
     interface Locals {
-      studentID?: string
+      studentID?: string,
+      role?: AuthType
     }
   }
 }
