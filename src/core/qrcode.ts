@@ -1,25 +1,24 @@
+import { QRCodeCanvas } from '@loskir/styled-qr-code-node';
 import { Request, Response } from 'express';
-import { generateQRCode } from './qrcode_generator';
-import Jimp from 'jimp';
+import { result } from '../utils/response';
+import { Log } from '../utils/log';
 import Strings from '../config/strings';
-
+import fs from "fs";
+import path from "path";
 
 /**
  * QR Code API
  * @author ampats04 (Jeremy Andy F. Ampatin)
+ * @author mavyfaby (Maverick G. Fabroa)
  * 
  * @param request //Express Request
  * @param response  // Express Response
  */
-
-export function qrcode(request: any , response: Response){
-
-    switch(request.method){
-        case 'GET':
-            getQRCode(request,response);
-            getRawQrCode(request,response);
-    }
-
+export function qrcode(request: Request, response: Response) {
+  switch (request.method) {
+    case "GET":
+      getQRCode(request, response);
+  }
 }
 
 /**
@@ -29,73 +28,67 @@ export function qrcode(request: any , response: Response){
  * @param response Express Response Object
  * @returns 
  */
+async function getQRCode(request: Request, response: Response) {
+  // Get data to encode
+  const { q } = request.params;
 
-async function getQRCode(request: Request , response: Response){
+  // If no data
+  if (!q) {
+    response.status(400).send(result.error(Strings.QRCODE_EMPTY_DATA));
+    return;
+  }
 
-    try {
-
-        const { q } = request.params;
-
-        if (!q){
-            response.status(400).json({ error: Strings.QRCODE_EMPTY_DATA});
-            return;
-        }
-
-        const logoPath = 'assets/favicon.ico';
-        const qrCodeBuffer = await generateQRCode(q, logoPath);
-        response.type('image/png').send(qrCodeBuffer);
-
-    } catch (error){
-        
-        console.error(Strings.QRCODE_GENERATED_ERROR, error);
-        response.status(500).json({ error: Strings.QRCODE_SERVER_ERROR});
+  // Get CSPS logo
+  fs.readFile(path.resolve(__dirname, "../../assets/csps_logo.png"), (error, logo) => {
+    if (error) {
+      Log.e(error.message);
+      response.status(500).send(result.error(Strings.QRCODE_SERVER_ERROR));
+      return;
     }
 
-}
-
-
-/**
- * 
- * GET /qrcode/:q/raw
- * 
- * @param request Express Request Object
- * @param response Express Response Object
- */
-async function getRawQrCode(request: Request, response: Response){
-
-    try{
-        const { q } = request.params;
-
-        if(!q) {
-            return response.status(400).json({ error: Strings.QRCODE_EMPTY_DATA});
-        }
-
-        const logoPath = 'assets/favicon.ico';
-        const qrCodeBuffer = await generateQRCode(q, logoPath);
-        const qrCodeBase64 = qrCodeBuffer.toString('base64');
-
-        //Construct QRCode Data object
-        const qrCodeData = {
-            width: 300,
-            height: 300,
-            type: Jimp.MIME_PNG,
-            data :qrCodeBase64,
-        }
-
-        //Construct JSON response
-
-        const jsonResponse = {
-            success: true,
-            message: Strings.QRCODE_GENERATED_SUCCESFULLY,
-            data: qrCodeData
-        };
-
-        response.json(jsonResponse);
-
-    } catch (error){
-        console.error(Strings.QRCODE_GENERATED_ERROR, error);
-        response.status(500).json({error : Strings.QRCODE_SERVER_ERROR}
-            );
-    }
-
+    // Create QRCode
+    const qrCode = new QRCodeCanvas({
+      width: 1024,
+      height: 1024,
+      data: q.replace(" ", ""),
+      image: logo,
+      margin: 16,
+      qrOptions: {
+        typeNumber: 0,
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      imageOptions: {
+        hideBackgroundDots: true,
+        imageSize: 0.4,
+        margin: 0
+      },
+      dotsOptions: {
+        type: "square",
+        color: "#4a2558",
+      },
+      backgroundOptions: {
+        color: "#fff7fb"
+      },
+      cornersSquareOptions: {
+        type: "extra-rounded",
+        color: "#4a2558",
+      },
+      cornersDotOptions: {
+        color: "#4a2558"
+      },
+    });
+    
+    // Convert to buffer png and respond to client
+    qrCode.toBuffer("png").then(buffer => {
+      response
+        .setHeader('Content-Type', "image/png")
+        .setHeader('Content-Length', buffer.length)
+        .end(buffer);
+    })
+    .catch((error) => {
+      Log.e(error.message);
+      response.status(500).send(result.error(Strings.QRCODE_SERVER_ERROR));
+    });
+  });
 }
