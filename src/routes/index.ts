@@ -6,6 +6,9 @@ import {
   admin_login
 } from "../core"
 
+import { qrcode } from "../core/qrcode";
+
+
 /**
  * This file contains all the routes of the api and the handlers that will be executed.
  * 
@@ -74,8 +77,11 @@ export const routes: AppRoutes[] = [
   { path: "/orders/:id", methods: ["GET"], handler: orders },
   { path: "/orders", methods: ["GET", "POST"], handler: orders },
 
+  //QR Code
+  { path: "/qrcode/:q" , methods: ['GET'], handler: qrcode},
+ 
   // Announcements
   { path: "/announcements/:academic_year", methods: ["GET", "DELETE"], handler: announcements },
   { path: "/announcements/:id", methods: ["PUT"], handler: announcements },
-  { path: "/announcements", methods: ["GET","POST"], handler: announcements },
+  { path: "/announcements", methods: ["GET","POST"], handler: announcements }
 ];
