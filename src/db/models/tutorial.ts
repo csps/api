@@ -1,8 +1,9 @@
 import { ErrorTypes, TutorialStatus } from "../../types/enums";
-import { TutorialType } from "../../types/models";
+import { TutorialModel } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import { Log } from "../../utils/log";
 import { getDatestamp } from "../../utils/date";
+import Strings from "../../config/strings";
 
 /**
  * Tutorials API
@@ -26,7 +27,7 @@ class Tutorial extends DatabaseModel {
    * Tutorial Public Constructor
    * @param data Raw Tutorial Data
    */
-  public constructor(data: TutorialType) {
+  public constructor(data: TutorialModel) {
     super();
     this.id = data.id;
     this.student_id = data.student_id;
@@ -96,7 +97,7 @@ class Tutorial extends DatabaseModel {
       }
 
       // Create and return tutorials
-      callback(null, results.map((tutorial: TutorialType) => new Tutorial(tutorial)));
+      callback(null, results.map((tutorial: TutorialModel) => new Tutorial(tutorial)));
     });
   }
 
@@ -123,7 +124,7 @@ class Tutorial extends DatabaseModel {
       }
 
       // Create and return tutorials
-      callback(null, results.map((tutorial: TutorialType) => new Tutorial(tutorial)));
+      callback(null, results.map((tutorial: TutorialModel) => new Tutorial(tutorial)));
     })
   }
 
@@ -132,7 +133,7 @@ class Tutorial extends DatabaseModel {
    * @param tutorial Tutorial information
    * @param callback Callback function
    */
-  public static insert(tutorial: TutorialType, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
+  public static insert(tutorial: TutorialModel, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
@@ -221,6 +222,29 @@ class Tutorial extends DatabaseModel {
    */
   public getDatestamp() {
     return this.date_stamp;
+  }
+
+  public static validate(data: TutorialModel) {
+    // If name is empty
+    if (!data.date_stamp) return [Strings.TUTORIAL_EMPTY_DATE_STAMP, "date_stamp"];
+    // If Short Description is empty
+    if (!data.language) return [Strings.TUTORIAL_EMPTY_LANGUAGE, "language"];
+    // If Short Description exceeds 128 characters
+    if (!data.remarks) return [Strings.TUTORIAL_EMPTY_REMARKS, "remarks"];
+    // If Description is empty
+    if (!data.schedule) return [Strings.TUTORIAL_EMPTY_SCHEDULE, 'schedule'];
+    // If Price is empty
+    if (!data.status) return [Strings.TUTORIAL_EMPTY_STATUS, 'status'];
+    // If Price is not in correct format
+    // If Price is less than 0
+    // If Stock is empty
+    if (!data.status_date_stamp) return [Strings.TUTORIAL_EMPTY_STATUS_DATE_STAMP, "status_date_stamp"];
+    // If Stock is not in correct format
+    // If Stock is less than 0
+    // If max quantity is not in correct format
+    // If max_quantity is less than 0
+    // If Thumbnail is empty
+    if (!data.student_id) return [Strings.TUTORIAL_EMPTY_STUDENT_ID, "student_id"];
   }
 }
 

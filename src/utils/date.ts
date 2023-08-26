@@ -1,5 +1,5 @@
 /**
- * Get datestamp from date
+ * Get YYYY-MM-DD HH:MM:SS from date
  * @param date Date to get datestamp from
  */
 export function getDatestamp(date?: Date) {
@@ -40,6 +40,20 @@ export function isTimeBefore(time1: string, time2: string) {
 
   // Otherwise, return false
   return false;
+}
+
+/**
+ * Get YYYY-MM-DD from date
+ * @param date Date to get datestamp from
+ */
+export function getLocalDate(date: Date) {
+  // Get year, month, and day
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  // Return datestamp
+  return `${year}-${n(month)}-${n(day)}`;
 }
 
 /**

@@ -23,9 +23,6 @@ export function sanitize(value: any): any {
   // List of special characters to be escaped
   const specialChars = [
     '\\', // backslash
-    '\'', // single quote
-    '"', // double quote
-    '\`', // backtick
     '<', // less than
     '>', // greater than
     '&', // ampersand
@@ -60,4 +57,20 @@ export function sanitizeArray(values: any[]): string[] {
  */
 export function generateToken(length = 16) {
   return randomBytes(Math.floor(length / 2)).toString('hex');
+}
+
+/**
+ * Generate Receipt ID
+ * @param start Starting number
+ */
+export function generateReceiptID(start: number) {
+  // Get date
+  const date = new Date();
+  // Get year, month, date
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  // Return receipt ID
+  return `CSPS${year}${month < 10 ? '0' + month : month}${day < 10 ? '0' + day : day}-${Math.abs(start).toString().padStart(3, '0')}`;
 }

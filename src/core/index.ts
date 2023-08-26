@@ -1,4 +1,6 @@
 export * from "./auth/login";
+export * from "./auth/admin";
+export * from "./announcements";
 export * from "./products";
 export * from "./students";
 export * from "./events";
@@ -8,3 +10,5 @@ export * from "./tutorials";
 export * from "./orders";
 export * from "./forgot";
 export * from "./reset";
+export * from "./config";
+export * from "./courses";

@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { Log } from "../utils/log";
+import { sendEmail } from "../utils/smtp";
 
 import Config from "../config/app";
 import Strings from "../config/strings";
@@ -81,10 +82,8 @@ export function getResetPassword(request: Request, response: Response) {
  * POST /reset-password/:token
  */
 export function postResetPassword(request: Request, response: Response) {
-  // Get token from request params
-  const { token } = request.params;
-  // Get new password from request body
-  const { new_password } = request.body;
+  // Get token and new password from request body
+  const { token, new_password } = request.body;
 
   // If token is empty
   if (!token) {
@@ -123,7 +122,19 @@ export function postResetPassword(request: Request, response: Response) {
       response.status(400).send(result.error(Strings.RESET_PASSWORD_INVALID_TOKEN));
       return;
     }
-    
+
+    // If token already used
+    if (error === ErrorTypes.DB_USED) {
+      response.status(400).send(result.error(Strings.RESET_PASSWORD_TOKEN_USED));
+      return;
+    }
+
+    // If expired
+    if (error === ErrorTypes.DB_EXPIRED) {
+      response.status(400).send(result.error(Strings.RESET_PASSWORD_EXPIRED));
+      return;
+    }
+
     // Reset password
     student!.resetPassword(token, new_password, error => {
       // If db error
@@ -150,14 +161,39 @@ export function postResetPassword(request: Request, response: Response) {
         return;
       }
 
-      // If epired
+      // If expired
       if (error === ErrorTypes.DB_EXPIRED) {
         response.status(400).send(result.error(Strings.RESET_PASSWORD_EXPIRED));
         return;
       }
 
-      // Log message
-      Log.i(`Student ${student!.getFullname()} (${student!.getStudentId()}) resets password.`);
+      // If update no results
+      if (error === ErrorTypes.DB_UPDATE_EMPTY) {
+        response.status(400).send(result.error(Strings.STUDENT_RESET_PASSWORD_UPDATE_EMPTY));
+        return;
+      }
+
+      // Log email sending
+      Log.i(`Sending email to ${student!.getEmailCredential()}...`);
+
+      // Send email
+      sendEmail({
+        to: student!.getEmailAddress(),
+        title: Strings.RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT,
+        subject: Strings.RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT,
+        message: Strings.RESET_PASSWORD_EMAIL_SUCCESS_BODY.replace("{name}", student!.getFullname())
+      }, (error, info) => {
+        // If has error
+        if (error !== null) {
+          console.log(error);
+          Log.e(`Error sending success reset password email to ${student!.getEmailCredential()}: ${error.message}`);
+          return;
+        }
+
+        // Log success
+        Log.i(`Success reset password email sent to ${student!.getEmailCredential()}.`);
+      });
+
       // If no error, send success response
       response.status(200).send(result.success(Strings.RESET_PASSWORD_SUCCESS));
     });

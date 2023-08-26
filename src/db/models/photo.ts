@@ -1,9 +1,12 @@
 import { Log } from "../../utils/log";
 import { ErrorTypes } from "../../types/enums";
 import { getDatestamp } from "../../utils/date";
-import type { PhotoType } from "../../types/models";
+import type { PhotoModel } from "../../types/models";
+import type { PhotoRequest } from "../../types/request";
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
+import { FileArray } from "express-fileupload";
+import { getFile } from "../../utils/file";
 
 /**
  * Photos model
@@ -12,23 +15,20 @@ import Strings from "../../config/strings";
  */
 export class Photo extends DatabaseModel {
   private id: number;
+  private name?: string;
   private data: Buffer;
   private type: string;
-  private width: number;
-  private height: number;
   private date_stamp?: string;
 
   /**
    * Photo Private Constructor
    * @param data Photo data
    */
-  public constructor(data: PhotoType) {
+  public constructor(data: PhotoModel) {
     super();
     this.id = data.id;
     this.data = data.data;
     this.type = data.type;
-    this.width = data.width;
-    this.height = data.height;
     this.date_stamp = data.date_stamp;
   }
 
@@ -66,20 +66,24 @@ export class Photo extends DatabaseModel {
    * @param student Photo data
    * @param callback Callback function
    */
-  public static insert(photo: PhotoType, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
+  public static insert(photo: PhotoRequest, callback: (error: ErrorTypes | null, photoId: number | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
     const datestamp = getDatestamp();
+    // Query (photo)
+    let query = `INSERT INTO photos (name, type, data, date_stamp) VALUES (?, ?, ?, ?)`;
+    let data = [ photo.name || null, photo.type, photo.data, datestamp ];
+
+    // If receipt
+    if (photo.receipt_id) {
+      // Query (receipt)
+      query = `INSERT INTO receipts (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
+      data = [ photo.receipt_id, photo.name || null, photo.type, photo.data, datestamp ];
+    }
 
     // Query the database
-    db.query("INSERT INTO photos (data, type, width, height, date_stamp) VALUES (?, ?, ?, ?, ?)", [
-      photo.data,
-      photo.type,
-      photo.width,
-      photo.height,
-      datestamp
-    ], (error, results) => {
+    db.query(query, data, (error, results) => {
       // If has an error  
       if (error) {
         Log.e(error.message);
@@ -87,10 +91,8 @@ export class Photo extends DatabaseModel {
         return;
       }
 
-      // Set the date stamp
-      photo.date_stamp = datestamp;
-      // Return the student
-      callback(null, new Photo(photo));
+      // Return photo ID
+      callback(null, results.insertId);
     });
   }
 
@@ -98,55 +100,26 @@ export class Photo extends DatabaseModel {
    * Validate photo data 
    * @param data Photo data
    */
-  public static validate(data: any) {
-    // If data is empty
-    if (!data.data) return [Strings.PHOTO_EMPTY_DATA, "data"];
-    // If type is empty
-    if (!data.type) return [Strings.PHOTO_EMPTY_TYPE, "type"];
-    // If width is empty
-    if (!data.width) return [Strings.PHOTO_EMPTY_WIDTH, "width"];
-    // If height is empty
-    if (!data.height) return [Strings.PHOTO_EMPTY_HEIGHT, "height"];
+  public static validate(files?: FileArray | null) {
+    if (!getFile(files, 'data')) return [Strings.PHOTO_EMPTY_DATA, "data"];
   }
 
-  /**
-   * Get ID
-   */
   public getId() {
     return this.id;
   }
 
-  /**
-   * Get data
-   */
+  public getName() {
+    return this.name;
+  }
+
   public getData() {
     return this.data;
   }
 
-  /**
-   * Get type
-   */
   public getType() {
     return this.type;
   }
 
-  /**
-   * Get width
-   */
-  public getWidth() {
-    return this.width;
-  }
-
-  /**
-   * Get height
-   */
-  public getHeight() {
-    return this.height;
-  }
-
-  /**
-   * Get date stamp
-   */
   public getDatestamp() {
     return this.date_stamp;
   }

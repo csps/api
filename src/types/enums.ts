@@ -1,4 +1,8 @@
-import Config from "../config/app";
+// Auth Type
+export enum AuthType {
+  STUDENT,
+  ADMIN
+}
 
 // Error types
 export enum ErrorTypes {
@@ -9,12 +13,17 @@ export enum ErrorTypes {
   DB_PRODUCT_ALREADY_EXISTS,
   DB_EVENT_ALREADY_EXISTS,
   DB_ORDER_ALREADY_EXISTS,
+  DB_UPDATE_EMPTY,
   DB_USED,
   DB_EXPIRED,
+  DB_EXIST,
   HASH_ERROR,
   REQUEST_ID,
   REQUEST_KEY,
+  REQUEST_VALUE,
   REQUEST_KEY_NOT_ALLOWED,
+  UNAUTHORIZED,
+  REQUEST_FILE
 }
 
 // Tutorial Status
@@ -39,3 +48,4 @@ export enum ModeOfPayment {
   WALK_IN = 1,
   GCASH = 2
 }
+

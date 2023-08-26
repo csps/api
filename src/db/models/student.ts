@@ -1,4 +1,4 @@
-import type { StudentType } from "../../types/models";
+import type { StudentModel } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import { StudentColumns, Tables } from "../structure";
 
@@ -6,6 +6,7 @@ import { getDatestamp } from "../../utils/date";
 import { isDate, isEmail, isNumber } from "../../utils/string";
 import { ErrorTypes } from "../../types/enums";
 import { DatabaseHelper } from "../helper";
+import { sanitize } from "../../utils/security";
 import { Log } from "../../utils/log";
 
 import bcrypt from "bcrypt";
@@ -32,7 +33,7 @@ class Student extends DatabaseModel {
    * Student Private Constructor
    * @param data Student data
    */
-  public constructor(data: StudentType) {
+  public constructor(data: StudentModel) {
     super();
     this.id = data.id;
     this.student_id = data.student_id;
@@ -113,7 +114,7 @@ class Student extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query("SELECT *, r.date_stamp AS token_date_stamp FROM students s INNER JOIN reset_password_tokens r ON s.id = r.students_id WHERE r.token = ? LIMIT 1", [token], (error, results) => {
+    db.query("SELECT *, s.id AS id, r.date_stamp AS token_date_stamp FROM students s INNER JOIN reset_password_tokens r ON s.id = r.students_id WHERE r.token = ? LIMIT 1", [token], (error, results) => {
       // If has error
       if (error) {
         console.error(error);
@@ -168,7 +169,7 @@ class Student extends DatabaseModel {
       }
 
       // Create and return the students
-      callback(null, results.map((student: StudentType) => new Student(student)));
+      callback(null, results.map((student: StudentModel) => new Student(student)));
     });
   }
 
@@ -208,7 +209,7 @@ class Student extends DatabaseModel {
    * @param student Student data
    * @param callback Callback function
    */
-  public static insert(student: StudentType, callback: (error: ErrorTypes | null, student: Student | null) => void) {
+  public static insert(student: StudentModel, callback: (error: ErrorTypes | null, student: Student | null) => void) {
     /**
      * Check if the student already exists
      */
@@ -353,6 +354,11 @@ class Student extends DatabaseModel {
             callback(ErrorTypes.DB_ERROR);
             return;
           }
+
+          if (results.affectedRows === 0) {
+            callback(ErrorTypes.DB_UPDATE_EMPTY);
+            return;
+          }
   
           // Query the database
           db.query("UPDATE reset_password_tokens SET is_used = 1, reset_date_stamp = NOW() WHERE token = ?", [token], (error, results) => {
@@ -367,6 +373,112 @@ class Student extends DatabaseModel {
             callback(null);
           });
         });
+      });
+    });
+  }
+
+  /**
+   * Update student data from ID
+   */
+  public static updateFromID(studentID: string, key: string, value: string, callback: (error: ErrorTypes | null) => void) {
+    Student.update(studentID, false, key, value, callback);
+  }
+
+  /**
+   * Update student data from unique ID
+   */
+  public static updateFromUniqueID(uniqueID: string, key: string, value: string, callback: (error: ErrorTypes | null) => void) {
+    Student.update(uniqueID, true, key, value, callback);
+  }
+
+  /**
+   * Update student data
+   * @param id Unique ID or Student ID
+   * @param isUsingUniqueID Is using unique ID
+   * @param key Column name
+   * @param value Column value
+   * @param callback Callback function
+   */
+  public static update(id: string, isUsingUniqueID: boolean, key: string, value: string, callback: (error: ErrorTypes | null) => void) {
+    // If id is not present
+    if (!id) {
+      callback(ErrorTypes.REQUEST_ID);
+      return;
+    }
+
+    // If key is not present
+    if (!key) {
+      callback(ErrorTypes.REQUEST_KEY);
+      return;
+    }
+
+    // if key doesn't exists in order allowed keys
+    if (!process.env.STUDENTS_UPDATE_ALLOWED_KEYS.includes(key)) {
+      callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED);
+      return;
+    }
+
+    // Check if value is valid
+    if (key === StudentColumns.YEAR_LEVEL && (!isNumber(value) || parseInt(value) < 1 || parseInt(value) > 4)) {
+      callback(ErrorTypes.REQUEST_VALUE);
+      return;
+    }
+
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query(`UPDATE students SET ${sanitize(key)} = ? WHERE ${isUsingUniqueID ? "id" : "student_id"} = ?`, [value, id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR);
+        return;
+      }
+
+      // If no results
+      if (results.affectedRows === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT);
+        return;
+      }
+
+      // Return success
+      callback(null);
+    });
+  }
+
+  /**
+   * Is password match
+   */
+  public static isPasswordMatch(studentID: string, password: string, callback: (error: ErrorTypes | null, isMatch: boolean) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("SELECT password FROM students WHERE student_id = ?", [studentID], (error, results) => {
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, false);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, false);
+        return;
+      }
+
+      // Compare password
+      bcrypt.compare(password, results[0].password, (error, isMatch) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, false);
+          return;
+        }
+
+        // Return result
+        callback(null, isMatch);
       });
     });
   }

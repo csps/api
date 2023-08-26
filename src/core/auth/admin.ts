@@ -5,22 +5,22 @@ import { SignJWT, jwtVerify } from 'jose';
 import Student from "../../db/models/student"
 import Strings from "../../config/strings";
 import bcrypt from 'bcrypt';
+import { Admin } from "../../db/models/admin";
 
 /**
- * Login API
- * @author TotalElderBerry (Brian Keith Lisondra)
+ * Admin Login API
  * @author mavyfaby (Maverick Fabroa)
  * 
  * @param request Express Request Object
  * @param response Express Response Object
  */
-export function login(request: Request, response: Response) {
+export function admin_login(request: Request, response: Response) {
   switch (request.method) {
     case 'POST':
-      postLogin(request, response)
+      postAdminLogin(request, response)
       break;
     case 'GET':
-      getLogin(request, response)
+      getAdminLogin(request, response)
       break;
   }
 }
@@ -29,9 +29,9 @@ export function login(request: Request, response: Response) {
 let secret: Uint8Array;
 
 /**
- * GET /login/:token 
+ * GET /admins/login/:token 
  */
-async function getLogin(request: Request, response: Response) {
+async function getAdminLogin(request: Request, response: Response) {
   // Get token
   const { token } = request.params;
 
@@ -51,8 +51,8 @@ async function getLogin(request: Request, response: Response) {
   try {
     const { payload } = await jwtVerify(token, secret);
 
-    // Get student from ID
-    Student.fromId((payload.id as string).split("-")[1], (error, student) => {
+    // Get admin from ID
+    Admin.fromId((payload.id as string).split("-")[1], (error, admin) => {
       // If has error
       if (error === ErrorTypes.DB_ERROR) {
         response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
@@ -67,7 +67,7 @@ async function getLogin(request: Request, response: Response) {
 
       // Send response
       response.send(result.success(Strings.LOGIN_SUCCESS, {
-        ...student,
+        ...admin,
         password: ""
       }));
     });
@@ -77,12 +77,12 @@ async function getLogin(request: Request, response: Response) {
 }
 
 /**
- * POST /login
+ * POST /admins/login
  * 
  * @param request Express Request Object
  * @param response Express Response Object
  */
-function postLogin(request: Request, response: Response) {
+function postAdminLogin(request: Request, response: Response) {
   // Get id and password
   const { id, password } = request.body;
 
@@ -98,10 +98,9 @@ function postLogin(request: Request, response: Response) {
     return response.status(400).send(result.error(Strings.LOGIN_EMPTY_PASSWORD))
   }
 
-  // Get student from ID
-  Student.fromId(id, (error, student) => {
+  Admin.fromId(id, (error, admin) => {
     // If has error
-    if (error !== null || student === null) {
+    if (error !== null || admin === null) {
       // Map error
       switch (error) {
         // If database error
@@ -116,13 +115,13 @@ function postLogin(request: Request, response: Response) {
     }
 
     // Validate password
-    validatePassword(password, student!.getPassword(), async (success) => {
+    validatePassword(password, admin!.getPassword(), async (success) => {
       // If success
       if (success) {
         // Encode secret key
         const secret = new TextEncoder().encode(process.env.SECRET_KEY);
         // Generate token
-        const token = await new SignJWT({ id: "S-" + student!.getStudentId() })
+        const token = await new SignJWT({ id: "A-" + admin!.getStudentId() })
           .setProtectedHeader({ alg: 'HS256' })
           .setExpirationTime('1d')
           .sign(secret);
@@ -131,7 +130,7 @@ function postLogin(request: Request, response: Response) {
         response.send(result.success(Strings.LOGIN_SUCCESS, {
           token: token,
           student: {
-            ...student,
+            ...admin,
             password: ""
           }
         }));

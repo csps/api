@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 
-import { Session } from "../classes/session";
 import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { Order } from "../db/models/order";
@@ -15,30 +14,18 @@ import Strings from "../config/strings";
  * @param response Express Response Object
  */
 export function orders(request: Request, response: Response) {
-  // Get student ID from JWT session
-  Session.getStudentID(request, (studentID) => {
-    // If student ID is null
-    if (studentID === null) {
-      response.status(401).send(result.error(Strings.GENERAL_SESSION_ERROR));
-      return;
-    }
-
-    // Set student ID to response locals
-    response.locals.studentID = studentID;
-
-    // Otherwise, map request method
-    switch (request.method) {
-      case 'GET':
-        getOrders(request, response);
-        break;
-      case 'POST':
-        postOrders(request, response);
-        break;
-      case 'PUT':
-        putOrders(request, response);
-        break;
-    }
-  });
+  // Map request method
+  switch (request.method) {
+    case 'GET':
+      getOrders(request, response);
+      break;
+    case 'POST':
+      postOrders(request, response);
+      break;
+    case 'PUT':
+      putOrders(request, response);
+      break;
+  }
 }
 
 /**
@@ -56,6 +43,7 @@ export function getOrders(request: Request, response: Response) {
   }
 
   // Otherwise, get all orders
+  // TODO: Determine if admin or student
   Order.getAllByStudentID(response.locals.studentID, (error, orders) => {
     // If has error
     if (error !== null) {
@@ -112,15 +100,10 @@ export function getOrder(request: Request, response: Response) {
  * POST /orders
  */
 export function postOrders(request: Request, response: Response) {
-  // If request body is empty
-  if (isObjectEmpty(request.body)) {
-    // Return error
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-    return;
-  }
-
+  // Is logged in?
+  const isLoggedIn = !!response.locals.studentID;
   // Validate order data
-  const errors = Order.validate(request.body);
+  const errors = Order.validate(request.body, isLoggedIn, request.files);
 
   // If has an error
   if (errors){
@@ -128,22 +111,22 @@ export function postOrders(request: Request, response: Response) {
     return;
   }
 
-  // Otherwise, create order
-  Order.insert(response.locals.studentID, request.body, (error, order) => {
+  // Otherwise, insert order
+  Order.insert(response.locals.studentID, request.body, request.files || null, (error, receiptID) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
       return;
     }
 
-    // If order already exists
-    if (error === ErrorTypes.DB_ORDER_ALREADY_EXISTS) {
-      response.status(400).send(result.error(Strings.ORDER_ALREADY_EXISTS));
+    // If no photo/proof
+    if (error === ErrorTypes.REQUEST_FILE) {
+      response.status(500).send(result.error(Strings.ORDER_EMPTY_PROOF));
       return;
     }
 
     // Otherwise, return the product data
-    response.send(result.success(Strings.ORDER_CREATED, order));
+    response.send(result.success(Strings.ORDER_CREATED, receiptID));
   });
 }
 
@@ -156,15 +139,8 @@ export function putOrders(request: Request, response: Response) {
   // Get value from request body
   const { value } = request.body;
 
-  // If request body is empty
-  if (isObjectEmpty(request.body)) {
-    // Return error
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-    return;
-  }
-
-  // If value is empty
-  if (!request.body.value) {
+  // If request body and value is empty
+  if (isObjectEmpty(request.body) || !request.body.value) {
     // Return error
     response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
     return;
@@ -192,7 +168,7 @@ export function putOrders(request: Request, response: Response) {
 
     // if key is not allowed
     if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
-      response.status(400).send(result.error(Strings.ORDER_KEY_NOT_ALLOWED));
+      response.status(400).send(result.error(Strings.GENERAL_KEY_NOT_ALLOWED));
       return;
     }
 

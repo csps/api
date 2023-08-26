@@ -31,7 +31,7 @@ export function forgotPassword(request: Request, response: Response) {
  */
 export function postForgotPassword(request: Request, response: Response) {
   // Get student ID from request body
-  const { student_id } = request.params;
+  const { student_id } = request.body;
 
   // If student ID is empty
   if (student_id === undefined || student_id === "") {
@@ -70,7 +70,7 @@ export function postForgotPassword(request: Request, response: Response) {
       }
 
       // Log sending email
-      Log.i(`Sending reset password link email to ${student!.getEmailCredential()}.`);
+      Log.i(`Sending email to ${student!.getEmailCredential()}...`);
   
       // Otherwise, send email
       sendEmail({

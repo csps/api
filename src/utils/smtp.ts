@@ -3,6 +3,7 @@ import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 import { readFile } from "fs";
 import { resolve } from "path";
+import { Log } from "./log";
 
 // Create transporter from SMTP credentials
 let transporter: Transporter;
@@ -31,7 +32,7 @@ export function sendEmail(metadata: EmailMetaData, callback: (error: Error | nul
   // Get template
   readFile(resolve("./src/templates/email.handlebars"), "utf8", (error, template) => {
     if (error) {
-      console.log(error);
+      Log.e(error.message);
       callback(error, null);
       return;
     }
