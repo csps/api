@@ -3,8 +3,9 @@ import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import { Photo } from "../db/models/photo";
-import { PhotoModel } from "../types/models";
 import Strings from "../config/strings";
+import { getFile } from "../utils/file";
+import { PhotoRequest } from "../types/request";
 
 /**
  * Photos API
@@ -102,7 +103,7 @@ function getPhoto(request: Request, response: Response) {
  */
 function postPhotos(request: Request, response: Response) {
   // Validate the student data
-  const error = Photo.validate(request.body);
+  const error = Photo.validate(request.files);
 
   // If has an error
   if (error) {
@@ -110,14 +111,18 @@ function postPhotos(request: Request, response: Response) {
     return;
   }
 
+  // Get the photo data
+  const data = getFile(request.files, "data");
+
   // Get request body and convert the base64 data to buffer
-  const photo: PhotoModel = {
-    ...request.body,
-    data: Buffer.from(request.body.data, 'base64')
+  const photo: PhotoRequest = {
+    data: data?.data!,
+    type: data?.mimetype!,
+    name: data?.name,
   };
 
   // Insert the student to the database
-  Photo.insert(photo, (error, photo) => {
+  Photo.insert(photo, (error, photoId) => {
     // If has an error
     switch (error) {
       case ErrorTypes.DB_ERROR:
@@ -126,6 +131,6 @@ function postPhotos(request: Request, response: Response) {
     }
 
     // Otherwise, return the student data
-    response.send(result.success(Strings.PHOTO_CREATED));
+    response.send(result.success(Strings.PHOTO_CREATED, photoId));
   });
 }

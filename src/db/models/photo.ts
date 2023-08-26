@@ -5,6 +5,8 @@ import type { PhotoModel } from "../../types/models";
 import type { PhotoRequest } from "../../types/request";
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
+import { FileArray } from "express-fileupload";
+import { getFile } from "../../utils/file";
 
 /**
  * Photos model
@@ -64,7 +66,7 @@ export class Photo extends DatabaseModel {
    * @param student Photo data
    * @param callback Callback function
    */
-  public static insert(photo: PhotoRequest, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
+  public static insert(photo: PhotoRequest, callback: (error: ErrorTypes | null, photoId: number | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
@@ -89,17 +91,8 @@ export class Photo extends DatabaseModel {
         return;
       }
 
-      // New photo
-      const p: PhotoModel = {
-        id: results.insertId,
-        date_stamp: datestamp,
-        ...photo,
-      };
-
-      // Set the date stamp
-      p.date_stamp = datestamp;
-      // Return the student
-      callback(null, new Photo(p));
+      // Return photo ID
+      callback(null, results.insertId);
     });
   }
 
@@ -107,11 +100,8 @@ export class Photo extends DatabaseModel {
    * Validate photo data 
    * @param data Photo data
    */
-  public static validate(data: any) {
-    // If data is empty
-    if (!data.data) return [Strings.PHOTO_EMPTY_DATA, "data"];
-    // If type is empty
-    if (!data.type) return [Strings.PHOTO_EMPTY_TYPE, "type"];
+  public static validate(files?: FileArray | null) {
+    if (!getFile(files, 'data')) return [Strings.PHOTO_EMPTY_DATA, "data"];
   }
 
   public getId() {
