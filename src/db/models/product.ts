@@ -252,7 +252,7 @@ class Product extends DatabaseModel {
         }
 
         // Insert thumbnail
-        Photo.insert({ data: thumbnail.data, type: thumbnail.mimetype }, (error, photo) => {
+        Photo.insert({ data: thumbnail.data, type: thumbnail.mimetype }, (error, photoId) => {
           if (error) {
             // Rollback the transaction
             conn.rollback(error => {
@@ -267,7 +267,7 @@ class Product extends DatabaseModel {
           // Query the Database
           conn.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
             product.name,
-            photo?.getId(),
+            photoId,
             product.short_description,
             product.description,
             0, // Default likes to 0
