@@ -33,7 +33,30 @@ export function orders(request: Request, response: Response) {
  */
 export function getOrders(request: Request, response: Response) {
   // Get order ID from request params
-  const { id } = request.params;
+  const { id, receipt } = request.params;
+
+  // If has receipt
+  if (receipt) {
+    // Get order
+    Order.fromReceipt(receipt, (error, order) => {
+      // If has an error
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
+      }
+
+      // If no results
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
+        return;
+      }
+
+      // Otherwise, send order
+      response.status(200).send(result.success(Strings.ORDER_FOUND, order));
+    });
+
+    return;
+  }
 
   // If order ID is present
   if (id) {

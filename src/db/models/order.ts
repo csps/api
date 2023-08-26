@@ -81,6 +81,46 @@ export class Order extends DatabaseModel {
   }
 
   /**
+   * Get order by receipt ID
+   * @param receipt_id Receipt ID
+   * @param callback Callback function  
+   */
+  public static fromReceipt(receipt_id: string, callback: (error: ErrorTypes | null, order: Order | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    // TODO: Refactor this query
+    db.query(`
+      SELECT * FROM ((
+        SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price, o.variations_id, o.quantity, o.mode_of_payment, s.student_id, s.first_name, s.last_name,
+          s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
+        FROM orders o INNER JOIN students s ON s.student_id = o.student_id INNER JOIN products p ON p.id = o.products_id
+      ) UNION (
+        SELECT CONCAT("N-", o.id), p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price, o.variations_id, o.quantity, o.mode_of_payment, o.student_id, o.first_name,
+          o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
+        FROM non_bscs_orders o INNER JOIN products p ON p.id = o.products_id
+      )) t WHERE receipt_id = ?
+    `, [receipt_id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create and return the order
+      callback(null, results[0]);
+    });
+  }
+
+  /**
    * Get all orders
    * @param callback 
    */

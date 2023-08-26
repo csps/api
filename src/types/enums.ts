@@ -38,9 +38,10 @@ export enum TutorialStatus {
 export enum OrderStatus {
   PENDING_PAYMENT = 1,
   COMPLETED = 2,
-  CANCELLED = 3,
-  REMOVED = 4,
-  REJECTED = 5
+  CANCELLED_BY_USER = 3,
+  CANCELLED_BY_ADMIN = 4,
+  REMOVED = 5,
+  REJECTED = 6
 }
 
 // Mode of payments
