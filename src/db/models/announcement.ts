@@ -161,15 +161,15 @@ class Announcement extends DatabaseModel{
       Photo.insert({
         data: Buffer.from(photo_data, 'base64'),
         type: photo_type,
-      }, (error, photo) => {
+      }, (error, photoId) => {
         // If has an error
-        if (error) {
+        if (error === ErrorTypes.DB_ERROR) {
           callback(error, null);
           return;
         }
 
         // If photo add success, insert the announcement
-        insert(photo?.getId());
+        insert(photoId!);
       });
 
       return;
