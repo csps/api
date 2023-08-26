@@ -12,3 +12,4 @@ export * from "./forgot";
 export * from "./reset";
 export * from "./config";
 export * from "./courses";
+export * from "./qrcode";

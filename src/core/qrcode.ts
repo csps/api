@@ -31,6 +31,8 @@ export function qrcode(request: Request, response: Response) {
 async function getQRCode(request: Request, response: Response) {
   // Get data to encode
   const { q } = request.params;
+  // If dark mode
+  const isDark = request.originalUrl.endsWith("/dark");
 
   // If no data
   if (!q) {
@@ -65,17 +67,17 @@ async function getQRCode(request: Request, response: Response) {
       },
       dotsOptions: {
         type: "square",
-        color: "#4a2558",
+        color: isDark ? "#EDB1FF" : "#4a2558",
       },
       backgroundOptions: {
-        color: "#fff7fb"
+        color: "transparent"
       },
       cornersSquareOptions: {
         type: "extra-rounded",
-        color: "#4a2558",
+        color: isDark ? "#EDB1FF" : "#4a2558",
       },
       cornersDotOptions: {
-        color: "#4a2558"
+        color: isDark ? "#EDB1FF" : "#4a2558",
       },
     });
     
