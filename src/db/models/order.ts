@@ -31,6 +31,29 @@ export class Order extends DatabaseModel {
   private edit_date: string;
   private date_stamp: string;
 
+    // TODO: Refactor this query
+  private static _fullOrderQuery = `
+    (
+      SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
+        o.variations_id, pv.photos_id AS variations_photo_id, v.name AS variations_name, o.quantity, o.mode_of_payment, s.student_id,
+        s.first_name, s.last_name, s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks,
+        o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
+      FROM orders o
+      INNER JOIN students s ON s.student_id = o.student_id
+      INNER JOIN products p ON p.id = o.products_id
+      LEFT JOIN product_variations pv ON pv.id = o.variations_id
+      LEFT JOIN variations v ON v.id = pv.variations_id
+    ) UNION (
+      SELECT CONCAT("N-", o.id), p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
+        o.variations_id, pv.photos_id AS variations_photo_id, v.name AS variations_name, o.quantity, o.mode_of_payment, o.student_id,
+        o.first_name, o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
+      FROM non_bscs_orders o
+      INNER JOIN products p ON p.id = o.products_id
+      LEFT JOIN product_variations pv ON pv.id = o.variations_id
+      LEFT JOIN variations v ON v.id = pv.variations_id
+    )
+  `;
+
   /**
    * Order Private Constructor
    * @param data Order data
@@ -90,18 +113,9 @@ export class Order extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    // TODO: Refactor this query
     db.query(`
-      SELECT * FROM ((
-        SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price, o.variations_id, o.quantity, o.mode_of_payment, s.student_id, s.first_name, s.last_name,
-          s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
-        FROM orders o INNER JOIN students s ON s.student_id = o.student_id INNER JOIN products p ON p.id = o.products_id
-      ) UNION (
-        SELECT CONCAT("N-", o.id), p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price, o.variations_id, o.quantity, o.mode_of_payment, o.student_id, o.first_name,
-          o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
-        FROM non_bscs_orders o INNER JOIN products p ON p.id = o.products_id
-      )) t WHERE receipt_id = ?
-    `, [receipt_id], (error, results) => {
+      SELECT * FROM (${Order._fullOrderQuery}) t WHERE receipt_id = ?
+    `.trim(), [receipt_id], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
@@ -128,18 +142,8 @@ export class Order extends DatabaseModel {
     // Get database instance
     const db = Database.getInstance();
 
-    // Get orders 
-    db.query(`
-      (
-        SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.receipt_id, o.products_id, o.variations_id, o.quantity, o.mode_of_payment, s.student_id, s.first_name, s.last_name,
-          s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
-        FROM orders o INNER JOIN students s ON s.student_id = o.student_id INNER JOIN products p ON p.id = o.products_id
-      ) UNION (
-        SELECT CONCAT("N-", o.id), p.thumbnail, o.receipt_id, o.products_id, o.variations_id, o.quantity, o.mode_of_payment, o.student_id, o.first_name,
-          o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
-        FROM non_bscs_orders o INNER JOIN products p ON p.id = o.products_id
-      );
-    `.trim(), [], (error, orders) => {
+    // Get orders
+    db.query(Order._fullOrderQuery.trim(), [], (error, orders) => {
       // If has an error
       if (error) {
         Log.e(error.message);

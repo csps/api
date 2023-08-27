@@ -72,6 +72,8 @@ export type FullOrderModel = {
   product_name: string;
   product_price: number;
   variations_id: number;
+  variations_name: string;
+  variations_photo_id: number;
   quantity: number;
   mode_of_payment: ModeOfPayment;
   student_id: string;
