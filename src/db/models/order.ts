@@ -1,16 +1,17 @@
-import { ErrorTypes, ModeOfPayment, OrderStatus } from "../../types/enums";
+import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import type { FullOrderModel, OrderModel } from "../../types/models";
 import type { FileArray } from "express-fileupload";
 import { getDatestamp, getLocalDate } from "../../utils/date";
 import { generateReceiptID, sanitize } from "../../utils/security";
-import { NonBscsOrderColumns, OrderColumns } from "../structure";
+import { OrderColumns } from "../structure";
 import { Log } from "../../utils/log";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
-import { OrderRequest } from "../../types/request";
+import { OrderRequest, PaginationRequest } from "../../types/request";
 import { getFile } from "../../utils/file";
 import { Photo } from "./photo";
+import { PaginationQuery, paginationWrapper } from "../../utils/query";
 
 /**
  * Order model
@@ -135,30 +136,64 @@ export class Order extends DatabaseModel {
   }
 
   /**
-   * Get all orders
-   * @param callback 
+   * Find orders
+   * @param param PaginationRequest
    */
-  public static getAll(callback: (error: ErrorTypes | null, order: Order[] | null) => void) {
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, orders: Order[] | null) => void) {
     // Get database instance
     const db = Database.getInstance();
+    // Data
+    const data: PaginationQuery = {
+      query: Order._fullOrderQuery
+    };
 
-    // Get orders
-    db.query(Order._fullOrderQuery.trim(), [], (error, orders) => {
+    // If search column and value is present
+    if (param.search_column && param.search_value) {
+      const cols = JSON.parse(param.search_column);
+      const vals = JSON.parse(param.search_value);
+
+      for (const col of cols) {
+        if (!Object.values(FullOrderEnum).includes(col as FullOrderEnum)) {
+          callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED, null);
+          return;
+        }
+      }
+
+      data.search = cols.map((column: string, index: number) => {
+        return { column, value: vals[index] };
+      });
+    }
+
+    // If order column and type is present
+    if (param.order_column && param.order_type) {
+      data.order = { column: param.order_column, type: param.order_type };
+    }
+
+    // If page and limit is present
+    if (param.page && param.limit) {
+      data.pagination = { page: param.page, limit: param.limit };
+    }
+
+    // Get pagination
+    const { query, values } = paginationWrapper(data);
+
+    // Query the database
+    db.query(query, values, (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
         callback(ErrorTypes.DB_ERROR, null);
         return;
       }
-        
-      callback(null, orders.map((order: FullOrderModel) => {
-        return {
-          ...order,
-          id: order.id?.toString().endsWith("*") ?
-            'B-' + order.id : // BSCS
-            'N-' + order.id   // Non-BSCS
-        }
-      }));
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Create and return the orders
+      callback(null, results.map((order: FullOrderModel) => order));
     });
   }
 

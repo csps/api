@@ -9,7 +9,7 @@ export type PaginationQuery = {
   search?: {
     column: string;
     value: string;
-  },
+  }[],
   pagination?: {
     page: number;
     limit: number;
@@ -22,9 +22,20 @@ export type PaginationQuery = {
  */
 export function paginationWrapper({ query, search, pagination, order }: PaginationQuery): { query: string, values: any[] } {
   let sql = `SELECT * FROM (${query}) t`;
+  const values = [];
 
   if (search) {
-    sql += ` WHERE ${sanitize(search.column)} LIKE ?`;
+    for (let i = 0; i < search.length; i++) {
+      const { column, value } = search[i];
+      values.push(`%${value}%`);
+
+      if (i === 0) {
+        sql += ` WHERE ${sanitize(column)} LIKE ?`;
+        continue;
+      }
+
+      sql += ` ${i === 1 ? 'AND' : 'OR'} ${sanitize(column)} LIKE ?`;
+    }
   }
 
   if (order) {
@@ -40,7 +51,6 @@ export function paginationWrapper({ query, search, pagination, order }: Paginati
   }
 
   return {
-    query: sql,
-    values: search ? [`%${search.value}%`] : []
+    query: sql, values
   };
 }

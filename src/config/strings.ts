@@ -13,6 +13,7 @@ const Strings = {
   GENERAL_UNAUTHORIZED: "Unauthorized!",
   GENERAL_INCORRECT_VALUE: "Incorrect value!",
   GENERAL_KEY_NOT_ALLOWED: "Editing this information is not allowed!",
+  GENERAL_COLUMN_NOT_FOUND: "Column not found!",
 
   ANNOUNCEMENT_POST_ERROR: "Something went wrong while adding announcement.",
   ANNOUNCEMENT_POST_SUCCESS: "Announcement succesfully added!",

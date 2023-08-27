@@ -39,19 +39,16 @@ export function getOrders(request: Request, response: Response) {
   if (receipt) {
     // Get order
     Order.fromReceipt(receipt, (error, order) => {
-      // If has an error
       if (error === ErrorTypes.DB_ERROR) {
         response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
         return;
       }
 
-      // If no results
       if (error === ErrorTypes.DB_EMPTY_RESULT) {
         response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
         return;
       }
 
-      // Otherwise, send order
       response.status(200).send(result.success(Strings.ORDER_FOUND, order));
     });
 
@@ -60,7 +57,6 @@ export function getOrders(request: Request, response: Response) {
 
   // If order ID is present
   if (id) {
-    // Get order
     getOrder(request, response);
     return;
   }
@@ -68,21 +64,22 @@ export function getOrders(request: Request, response: Response) {
   // If admin
   if (response.locals.role === AuthType.ADMIN) {
     // Get all orders
-    Order.getAll((error, orders) => {
-      // If has error
-      if (error !== null) {
-        // Map error
-        switch (error) {
-          case ErrorTypes.DB_ERROR:
-            response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-            return;
-          case ErrorTypes.DB_EMPTY_RESULT:
-            response.status(200).send(result.error(Strings.ORDERS_EMPTY));
-            return;
-        }
+    Order.find(request.query, (error, orders) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
       }
 
-      // Otherwise, send results
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(200).send(result.error(Strings.ORDERS_EMPTY));
+        return;
+      }
+
+      if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+        response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+        return;
+      }
+
       response.status(200).send(result.success(Strings.ORDERS_FOUND, orders));
     });
 
@@ -91,20 +88,16 @@ export function getOrders(request: Request, response: Response) {
 
   // Otherwise, get all orders
   Order.getAllByStudentID(response.locals.studentID, (error, orders) => {
-    // If has error
-    if (error !== null) {
-      // Map error
-      switch (error) {
-        case ErrorTypes.DB_ERROR:
-          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-          return;
-        case ErrorTypes.DB_EMPTY_RESULT:
-          response.status(200).send(result.error(Strings.ORDERS_EMPTY));
-          return;
-      }
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+      return;
     }
 
-    // Otherwise, send results
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(200).send(result.error(Strings.ORDERS_EMPTY));
+      return;
+    }
+    
     response.status(200).send(result.success(Strings.ORDERS_FOUND, orders));
   });
 }
@@ -150,8 +143,6 @@ export function postOrders(request: Request, response: Response) {
   const isLoggedIn = !!response.locals.studentID;
   // Validate order data
   const errors = Order.validate(request.body, isLoggedIn, request.files);
-
-  console.log(response.locals.studentID);
 
   // If has an error
   if (errors){
