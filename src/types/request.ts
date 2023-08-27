@@ -1,8 +1,5 @@
 import { ModeOfPayment } from "./enums";
 
-/**
- * Product Request
- */
 export type ProductRequest = {
   name: string;
   short_description: string;
@@ -13,9 +10,6 @@ export type ProductRequest = {
   variations: string;
 }
 
-/**
- * Order Request
- */
 export type OrderRequest = {
   products_id: number,
   variations_id?: number,
@@ -29,9 +23,6 @@ export type OrderRequest = {
   student_year?: number;
 };
 
-/**
- * Announcement Request
- */
 export type AnnouncementRequest = {
   title: string,
   content: string,
@@ -39,12 +30,18 @@ export type AnnouncementRequest = {
   photo_type?: string;
 };
 
-/**
- * Photo request
- */
 export type PhotoRequest = {
   type: string;
   data: Buffer;
   name?: string;
   receipt_id?: string;
 }
+
+export type PaginationRequest = {
+  order_column?: string;
+  order_type?: 'ASC' | 'DESC';
+  search_column?: string;
+  search_value?: string;
+  page?: number;
+  limit?: number;
+};
