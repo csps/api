@@ -16,7 +16,7 @@ export function sanitize(value: any): any {
   }
 
   // If number or boolean, convert to string
-  if (typeof value === 'number' || typeof value === 'boolean') {
+  if (typeof value === 'boolean') {
     return value.toString();
   }
 
@@ -34,10 +34,12 @@ export function sanitize(value: any): any {
   ];
 
   // Escape each special character
-  specialChars.forEach(char => {
-    const regex = new RegExp(`\\${char}`, 'g');
-    value = value.replace(regex, `\\${char}`);
-  });
+  if (typeof value === 'string') {
+    specialChars.forEach(char => {
+      const regex = new RegExp(`\\${char}`, 'g');
+      value = value.replace(regex, `\\${char}`);
+    });
+  }
 
   // Return the sanitized value
   return value;
