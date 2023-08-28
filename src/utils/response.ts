@@ -6,7 +6,7 @@
  * 
  * If it has a second parameter, it will be the data to be sent to the client.
  * 
- * - result.success("I'm a success", "Data") = { success: true, message: "I'm a success", data: "Data" }
+ * - result.success("I'm a success", "Data") = { success: true, message: "I'm a success", data: "Data", count: 0 }
  */
 export const result = {
   /**
@@ -14,15 +14,15 @@ export const result = {
    * @param message Message to be sent to the client
    * @param data Data to be sent to the client
    */
-  success: (message?: any, data?: any) => {
-    return JSON.stringify({ success: true, message: message ?? "", data }, null, 0);
+  success: (message?: any, data?: any, count?: number) => {
+    return JSON.stringify({ success: true, message: message ?? "", data, count }, null, 0);
   },
   /**
    * Error response format
    * @param message Message to be sent to the client
    * @param data Data to be sent to the client
    */
-  error: (message?: any, data?: any) => {
-    return JSON.stringify({ success: false, message: message ?? "", data }, null, 0);
+  error: (message?: any, data?: any, count?: number) => {
+    return JSON.stringify({ success: false, message: message ?? "", data, count }, null, 0);
   }
 };

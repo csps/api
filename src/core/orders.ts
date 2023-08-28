@@ -64,7 +64,7 @@ export function getOrders(request: Request, response: Response) {
   // If admin
   if (response.locals.role === AuthType.ADMIN) {
     // Get all orders
-    Order.find(request.query, (error, orders) => {
+    Order.find(request.query, (error, orders, count) => {
       if (error === ErrorTypes.DB_ERROR) {
         response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
         return;
@@ -80,7 +80,7 @@ export function getOrders(request: Request, response: Response) {
         return;
       }
 
-      response.status(200).send(result.success(Strings.ORDERS_FOUND, orders));
+      response.status(200).send(result.success(Strings.ORDERS_FOUND, orders, count));
     });
 
     return;

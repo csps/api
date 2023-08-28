@@ -42,6 +42,6 @@ export type PaginationRequest = {
   order_type?: 'ASC' | 'DESC';
   search_column?: string;
   search_value?: string;
-  page?: number;
-  limit?: number;
+  page?: string;
+  limit?: string;
 };

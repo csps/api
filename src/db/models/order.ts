@@ -139,7 +139,7 @@ export class Order extends DatabaseModel {
    * Find orders
    * @param param PaginationRequest
    */
-  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, orders: Order[] | null) => void) {
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, orders: Order[] | null, count?: number) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Data
@@ -171,11 +171,12 @@ export class Order extends DatabaseModel {
 
     // If page and limit is present
     if (param.page && param.limit) {
-      data.pagination = { page: param.page, limit: param.limit };
+      data.pagination = { page: parseInt(param.page), limit: parseInt(param.limit) };
     }
 
+    
     // Get pagination
-    const { query, values } = paginationWrapper(data);
+    const { query, values, countQuery, countValues } = paginationWrapper(data);
 
     // Query the database
     db.query(query, values, (error, results) => {
@@ -192,8 +193,17 @@ export class Order extends DatabaseModel {
         return;
       }
 
-      // Create and return the orders
-      callback(null, results.map((order: FullOrderModel) => order));
+      db.query(countQuery, countValues, (error, countResults) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, null);
+          return;
+        }
+
+        // Create and return the orders with count
+        callback(null, results.map((order: FullOrderModel) => order), countResults[0].count);
+      });
     });
   }
 
