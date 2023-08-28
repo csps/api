@@ -9,7 +9,7 @@ export type AnnouncementModel = {
   date_stamp: string
 }
 
-export type ConfigModel = {
+export type EnvModel = {
   id: number;
   key: string;
   value: string;

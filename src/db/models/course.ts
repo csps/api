@@ -10,14 +10,14 @@ import Database from "../database";
 export class Course {
 
   /**
-   * Get all configurations
+   * Get all courses
    * @param callback Callback function
    */
-  public static getAll(callback: (error: ErrorTypes | null, config: object | null) => void) {
+  public static getAll(callback: (error: ErrorTypes | null, courses: object | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
-    // Get all configurations
+    // Get all courses
     db.query("SELECT * FROM courses", [], (error, results) => {
       // If database error
       if (error) {
@@ -55,7 +55,7 @@ export class Course {
     // Get database instance
     const db = Database.getInstance();
 
-    // Check if config key already exists
+    // Check if course key already exists
     db.query("SELECT COUNT(*) AS count FROM courses WHERE `name` = ?", [name], (error, results) => {
       // If database error
       if (error) {
@@ -64,7 +64,7 @@ export class Course {
         return;
       }
 
-      // If config key already exists
+      // If course key already exists
       if (results.length > 0 && results[0].count > 0) {
         Log.e(`Course "${name}" already exists!`);
         callback(ErrorTypes.DB_EXIST);
@@ -125,7 +125,7 @@ export class Course {
     // Get database instance
     const db = Database.getInstance();
 
-    // Delete the config
+    // Delete the course
     db.query("DELETE FROM courses WHERE `id` = ?", [id], (error, results) => {
       // If database error
       if (error) {

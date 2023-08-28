@@ -10,6 +10,6 @@ export * from "./tutorials";
 export * from "./orders";
 export * from "./forgot";
 export * from "./reset";
-export * from "./config";
+export * from "./env";
 export * from "./courses";
 export * from "./qrcode";

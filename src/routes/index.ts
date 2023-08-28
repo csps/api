@@ -2,7 +2,7 @@ import {
   example, login, products, students,
   events, tutorials, photos, orders,
   forgotPassword, resetPassword,
-  config, courses, announcements,
+  env, courses, announcements,
   admin_login, qrcode
 } from "../core"
 
@@ -20,9 +20,9 @@ export const routes: AppRoutes[] = [
   // Example
   { path: "/example", methods: ["GET"], handler: example },
 
-  // Config
-  { path: "/config/:key", methods: ["GET", "PUT", "DELETE"], handler: config },
-  { path: "/config", methods: ["GET", "POST"], handler: config },
+  // Env
+  { path: "/env/:key", methods: ["GET", "PUT", "DELETE"], handler: env },
+  { path: "/env", methods: ["GET", "POST"], handler: env },
 
   // Courses
   { path: "/courses/:id", methods: ["PUT", "DELETE"], handler: courses },

@@ -105,7 +105,7 @@ function putCourses(request: Request, response: Response) {
     return;
   }
 
-  // Update config
+  // Update course
   Course.update(id, value, error => {
     // If database error
     if (error === ErrorTypes.DB_ERROR) {

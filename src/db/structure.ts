@@ -1,6 +1,6 @@
 export enum Tables {
   ANNOUNCEMENTS = "announcements",
-  CONFIG = "config",
+  ENV = "env",
   EVENTS = "events",
   ORDERS = "orders",
   PHOTOS = "photos",
@@ -23,7 +23,7 @@ export enum AnnouncementColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum ConfigColumns {
+export enum EnvColumns {
   ID = "id",
   KEY = "key",
   VALUE = "value",
