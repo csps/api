@@ -48,7 +48,7 @@ export class Env {
     const db = Database.getInstance();
 
     // Get all env
-    db.query("SELECT * FROM env", [], (error, results) => {
+    db.query("SELECT * FROM env ORDER BY `key` ASC", [], (error, results) => {
       // If database error
       if (error) {
         Log.e(error.message);
@@ -87,7 +87,7 @@ export class Env {
     const db = Database.getInstance();
 
     // Check if env key already exists
-    Env.fromKey(key, (error, value) => {
+    Env.fromKey(key, (error, v) => {
       // If database error
       if (error === ErrorTypes.DB_ERROR) {
         callback(ErrorTypes.DB_ERROR);
@@ -95,7 +95,7 @@ export class Env {
       }
 
       // If env key already exists
-      if (value) {
+      if (v) {
         Log.e(`Env key "${key}" already exists!`);
         callback(ErrorTypes.DB_EXIST);
         return;
