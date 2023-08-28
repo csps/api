@@ -16,12 +16,19 @@ export type PaginationQuery = {
   }
 }
 
+type PaginationResult = {
+  query: string;
+  values: any[];
+  countQuery: string;
+  countValues: any[];
+}
+
 /**
  * Pagination query wrapper
  * @param {PaginationQuery} param
  */
-export function paginationWrapper({ query, search, pagination, order }: PaginationQuery): { query: string, values: any[] } {
-  let sql = `SELECT * FROM (${query}) t`;
+export function paginationWrapper({ query, search, pagination, order }: PaginationQuery): PaginationResult {
+  query = `SELECT * FROM (${query}) t`;
   const values = [];
 
   if (search) {
@@ -30,27 +37,31 @@ export function paginationWrapper({ query, search, pagination, order }: Paginati
       values.push(`%${value}%`);
 
       if (i === 0) {
-        sql += ` WHERE ${sanitize(column)} LIKE ?`;
+        query += ` WHERE ${sanitize(column)} LIKE ?`;
         continue;
       }
 
-      sql += ` ${i === 1 ? 'AND' : 'OR'} ${sanitize(column)} LIKE ?`;
+      query += ` ${i === 1 ? 'AND' : 'OR'} ${sanitize(column)} LIKE ?`;
     }
   }
 
+  const countQuery = `SELECT COUNT(*) AS count FROM (${query}) t`;
+  const countValues = [...values];
+  
   if (order) {
     const { column, type } = order;
-    sql += ` ORDER BY ${sanitize(column)} ${sanitize(type)}`;
+    query += ` ORDER BY ${sanitize(column)} ${sanitize(type)}`;
   }
 
   if (pagination) {
     const { page, limit } = pagination;
-    const offset = (page - 1) * limit;
+    query += ` LIMIT ?, ?`;
 
-    sql += ` LIMIT ${sanitize(offset)}, ${sanitize(limit)}`;
+    values.push((page - 1) * limit);
+    values.push(limit);
   }
 
   return {
-    query: sql, values
+    countQuery, query, values, countValues
   };
 }
