@@ -38,8 +38,8 @@ export type PhotoRequest = {
 }
 
 export type PaginationRequest = {
-  order_column?: string;
-  order_type?: 'ASC' | 'DESC';
+  sort_column?: string;
+  sort_type?: 'ASC' | 'DESC';
   search_column?: string;
   search_value?: string;
   page?: string;
