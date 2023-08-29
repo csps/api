@@ -70,6 +70,7 @@ export const routes: AppRoutes[] = [
   { path: "/photos", methods: ["POST"], handler: photos },
 
   // Orders
+  { path: "/orders/receipt/:receipt/student/:studentId", methods: ["GET"], handler: orders },
   { path: "/orders/receipt/:receipt", methods: ["GET"], handler: orders },
   { path: "/orders/:id/:key", methods: ["PUT"], handler: orders },
   { path: "/orders/:id", methods: ["GET"], handler: orders },
