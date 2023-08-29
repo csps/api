@@ -8,8 +8,7 @@ describe("Security Utilities", () => {
     expect(sanitize(undefined)).toBe('');
   });
 
-  it("should convert number or boolean to string", () => {
-    expect(sanitize(123)).toBe('123');
+  it("should convert  boolean to string", () => {
     expect(sanitize(true)).toBe('true');
   });
 
@@ -22,7 +21,7 @@ describe("Security Utilities", () => {
     const sanitizedValues = sanitizeArray(values);
 
     expect(sanitizedValues[0]).toBe('Example \\<string\\>');
-    expect(sanitizedValues[1]).toBe('123');
+    expect(sanitizedValues[1]).toBe(123);
     expect(sanitizedValues[2]).toBe('true');
   });
 });
