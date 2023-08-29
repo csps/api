@@ -1,8 +1,7 @@
 import type { Response, Request } from "express";
 import { result } from "../utils/response";
-import { ErrorTypes } from "../types/enums";
+import { AuthType, ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
-import { Session } from "../classes/session";
 import { StudentColumns } from "../db/structure";
 import { Log } from "../utils/log";
 import Student from "../db/models/student";
@@ -70,24 +69,33 @@ function getStudents(request: Request, response: Response) {
     return;
   }
 
-  // Otherwisem get all students from the database
-  Student.getAll((error, student) => {
-    // If has an error
-    if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.STUDENTS_GET_ERROR));
-      return;
-    }
-    
-    // If no results
-    if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(Strings.STUDENTS_NOT_FOUND));
+   // If admin
+   if (response.locals.role === AuthType.ADMIN) {
+    // Get all students
+    Student.find(request.query, (error, students, count) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
+      }
+
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(200).send(result.error(Strings.STUDENTS_NOT_FOUND));
+        return;
+      }
+
+      if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+        response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+        return;
+      } 
+
+        response.status(200).send(result.success(Strings.STUDENTS_FOUND, students, count));
+      });
+
       return;
     }
 
-    // Ohterwise, return the student data
-    response.send(result.success(Strings.STUDENTS_FOUND, student));
-  });
-}
+    response.status(401).send(result.success(Strings.GENERAL_UNAUTHORIZED));
+  }
 
 /**
  * GET /students/id/:id

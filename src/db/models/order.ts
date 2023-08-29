@@ -197,8 +197,8 @@ export class Order extends DatabaseModel {
     }
 
     // If order column and type is present
-    if (param.order_column && param.order_type) {
-      data.order = { column: param.order_column, type: param.order_type };
+    if (param.sort_column && param.sort_type) {
+      data.order = { column: param.sort_column, type: param.sort_type };
     }
 
     // If page and limit is present

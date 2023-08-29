@@ -12,6 +12,8 @@ import { Log } from "../../utils/log";
 import bcrypt from "bcrypt";
 import Strings from "../../config/strings";
 import Config from "../../config/app";
+import { PaginationRequest } from "../../types/request";
+import { PaginationQuery, paginationWrapper } from "../../utils/query";
 
 /**
  * Student model
@@ -25,7 +27,6 @@ class Student extends DatabaseModel {
   private first_name: string;
   private year_level: string;
   private email_address: string;
-  private birth_date: string;
   private password?: string;
   private date_stamp?: string;
 
@@ -41,7 +42,6 @@ class Student extends DatabaseModel {
     this.first_name = data.first_name;
     this.year_level = data.year_level;
     this.email_address = data.email_address;
-    this.birth_date = data.birth_date;
     this.password = data.password;
     this.date_stamp = data.date_stamp;
   }
@@ -146,6 +146,70 @@ class Student extends DatabaseModel {
   }
 
   /**
+   * Find orders
+   * @param param PaginationRequest
+   */
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, orders: Student[] | null, count?: number) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Data
+    const data: PaginationQuery = {
+      query: "SELECT * FROM students",
+    };
+
+    // If search column and value is present
+    if (param.search_column && param.search_value) {
+      const cols = JSON.parse(param.search_column);
+      const vals = JSON.parse(param.search_value);
+
+      data.search = cols.map((column: string, index: number) => {
+        return { column, value: vals[index] };
+      });
+    }
+
+    // If student column and type is present
+    if (param.sort_column && param.sort_type) {
+      data.order = { column: param.sort_column, type: param.sort_type };
+    }
+
+    // If page and limit is present
+    if (param.page && param.limit) {
+      data.pagination = { page: parseInt(param.page), limit: parseInt(param.limit) };
+    }
+
+    // Get pagination
+    const { query, values, countQuery, countValues } = paginationWrapper(data);
+
+    // Query the database
+    db.query(query, values, (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      db.query(countQuery, countValues, (error, countResults) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, null);
+          return;
+        }
+
+        // Create and return the orders with count
+        callback(null, results.map((order: Student) => order), countResults[0].count);
+      });
+    });
+  }
+
+  /**
    * Get Product list from the database 
    * @param callback 
    */
@@ -246,13 +310,12 @@ class Student extends DatabaseModel {
         const datestamp = getDatestamp();
 
         // Query the database
-        db.query("INSERT INTO students (student_id, last_name, first_name, year_level, email_address, birth_date, password, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
+        db.query("INSERT INTO students (student_id, last_name, first_name, year_level, email_address, password, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?)", [
           student.student_id,
           student.last_name.trim(),
           student.first_name.trim(),
           student.year_level,
           student.email_address.trim(),
-          student.birth_date.trim(),
           student.password?.trim(),
           datestamp
         ], (error, results) => {
@@ -537,13 +600,6 @@ class Student extends DatabaseModel {
    */
   public getYearLevel() {
     return this.year_level;
-  }
-
-  /**
-   * Get birthdate
-   */
-  public getBirthdate() {
-    return this.birth_date;
   }
 
   /**

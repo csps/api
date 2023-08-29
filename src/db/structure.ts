@@ -132,7 +132,6 @@ export enum StudentColumns {
   FIRST_NAME = "first_name",
   YEAR_LEVEL = "year_level",
   EMAIL_ADDRESS = "email_address",
-  BIRTH_DATE = "birth_date",
   PASSWORD = "password",
   DATE_STAMP = "date_stamp",
 };

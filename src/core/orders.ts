@@ -106,20 +106,7 @@ export function getOrders(request: Request, response: Response) {
     return;
   }
 
-  // Otherwise, get all orders
-  Order.getAllByStudentID(response.locals.studentID, (error, orders) => {
-    if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-      return;
-    }
-
-    if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(200).send(result.error(Strings.ORDERS_EMPTY));
-      return;
-    }
-    
-    response.status(200).send(result.success(Strings.ORDERS_FOUND, orders));
-  });
+  response.status(401).send(result.success(Strings.GENERAL_UNAUTHORIZED));
 }
 
 /**

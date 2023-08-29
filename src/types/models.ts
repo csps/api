@@ -149,7 +149,6 @@ export type StudentModel = {
   first_name: string;
   year_level: string;
   email_address: string;
-  birth_date: string;
   password?: string;
   date_stamp: string;
 }
