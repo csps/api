@@ -243,29 +243,21 @@ class Student extends DatabaseModel {
    */
   public static validate(data: any) {
     // Check if student id is empty
-    if (!data.id) return [Strings.STUDENT_EMPTY_ID, "student_id"];
+    if (!data.student_id) return [Strings.STUDENT_EMPTY_ID, "student_id"];
     // Check if year level is empty
-    if (!data.yearLevel) return [Strings.STUDENT_EMPTY_YEAR_LEVEL, "year_level"];
+    if (!data.year_level) return [Strings.STUDENT_EMPTY_YEAR_LEVEL, "year_level"];
     // Check if first name is empty
-    if (!data.firstName) return [Strings.STUDENT_EMPTY_FIRST_NAME, "first_name"];
+    if (!data.first_name) return [Strings.STUDENT_EMPTY_FIRST_NAME, "first_name"];
     // Check if last name is empty
-    if (!data.lastName) return [Strings.STUDENT_EMPTY_LAST_NAME, "last_name"];
-    // Check if birthdate is empty
-    if (!data.birthdate) return [Strings.STUDENT_EMPTY_BIRTHDATE, "birthdate"];
+    if (!data.last_name) return [Strings.STUDENT_EMPTY_LAST_NAME, "last_name"];
     // Check if email is empty
-    if (!data.email) return [Strings.STUDENT_EMPTY_EMAIL, "email"];
-    // Check if password is empty
-    if (!data.password) return [Strings.STUDENT_EMPTY_PASSWORD, "password"];
+    if (!data.email_address) return [Strings.STUDENT_EMPTY_EMAIL, "email"];
     // Check if student id is a number
-    if (!isNumber(data.id) || data.id.length >= 16) return [Strings.STUDENT_LIMIT_ID, "student_id"];
+    if (!isNumber(data.student_id) || data.student_id.length >= 16) return [Strings.STUDENT_LIMIT_ID, "student_id"];
     // Check if year level is a number and valid
-    if (!isNumber(data.yearLevel) || data.yearLevel < 1 || data.yearLevel > 4) return [Strings.STUDENT_LIMIT_YEAR_LEVEL, "year_level"];
-    // Check if birthdate is valid
-    if (!isDate(data.birthdate)) return [Strings.STUDENT_INVALID_BIRTHDATE, "birthdate"];
+    if (!isNumber(data.year_level) || data.year_level < 1 || data.year_level > 4) return [Strings.STUDENT_LIMIT_YEAR_LEVEL, "year_level"];
     // Check if email is valid
-    if (!isEmail(data.email.trim())) return [Strings.STUDENT_INVALID_EMAIL, "email"];
-    // Check if password is at least 8 characters
-    if (data.password.trim().length < 8) return [Strings.STUDENT_INVALID_PASSWORD, "password"];
+    if (!isEmail(data.email_address.trim())) return [Strings.STUDENT_INVALID_EMAIL, "email"];
   }
 
   /**
@@ -598,7 +590,7 @@ class Student extends DatabaseModel {
   /**
    * Get year level
    */
-  public getYearLevel() {
+  public getYear_level() {
     return this.year_level;
   }
 
