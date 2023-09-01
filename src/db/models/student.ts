@@ -114,7 +114,7 @@ class Student extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query("SELECT *, s.id AS id, r.date_stamp AS token_date_stamp FROM students s INNER JOIN reset_password_tokens r ON s.id = r.students_id WHERE r.token = ? LIMIT 1", [token], (error, results) => {
+    db.query(`SELECT *, s.id AS id, r.date_stamp AS token_date_stamp FROM students s INNER JOIN ${Tables.RESET_TOKENS} r ON s.id = r.students_id WHERE r.token = ? LIMIT 1`, [token], (error, results) => {
       // If has error
       if (error) {
         console.error(error);
@@ -340,7 +340,7 @@ class Student extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query("INSERT INTO reset_password_tokens (students_id, token, is_used, date_stamp) VALUES (?, ?, 0, NOW())", [this.id, token], (error, results) => {
+    db.query(`INSERT INTO ${Tables.RESET_TOKENS} (students_id, token, is_used, date_stamp) VALUES (?, ?, 0, NOW())`, [this.id, token], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
@@ -375,7 +375,7 @@ class Student extends DatabaseModel {
       }
 
       // Check if reset password token is used
-      db.query(`SELECT date_stamp, is_used FROM reset_password_tokens WHERE token = ?`, [token], (error, results) => {
+      db.query(`SELECT date_stamp, is_used FROM ${Tables.RESET_TOKENS} WHERE token = ?`, [token], (error, results) => {
         // If has an error
         if (error) {
           Log.e(error.message);
@@ -416,7 +416,7 @@ class Student extends DatabaseModel {
           }
   
           // Query the database
-          db.query("UPDATE reset_password_tokens SET is_used = 1, reset_date_stamp = NOW() WHERE token = ?", [token], (error, results) => {
+          db.query(`UPDATE ${Tables.RESET_TOKENS} SET is_used = 1, reset_date_stamp = NOW() WHERE token = ?`, [token], (error, results) => {
             // If has an error
             if (error) {
               Log.e(error.message);
