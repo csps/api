@@ -33,9 +33,11 @@ export function photos(request: Request, response: Response) {
 function getPhotos(request: Request, response: Response) {
   // Get id from request parameters
   const { id } = request.params;
+  // Is receipt?
+  const isReceipt = request.originalUrl.includes("receipt");
 
   // If {id} is not a number
-  if (!isNumber(id)) {
+  if (!isNumber(id) && !isReceipt) {
     response.status(400).send(result.error(Strings.PHOTO_INVALID_ID));
     return;
   }
@@ -55,15 +57,17 @@ function getPhoto(request: Request, response: Response) {
   const { id } = request.params;
   // Is raw?
   const isRaw = request.originalUrl.endsWith("raw");
+  // Is receipt?
+  const isReceipt = request.originalUrl.includes("receipt");
 
   // If {id} is not a number
-  if (!isNumber(id)) {
+  if (!isNumber(id) && !isReceipt) {
     response.status(400).send(result.error(Strings.PHOTO_INVALID_ID));
     return;
   }
 
   // Get the photo from the database
-  Photo.fromId(Number(id), (error, photo) => {
+  const callback = (error: ErrorTypes | null, photo: Photo | null) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.PHOTO_GET_ERROR));
@@ -93,7 +97,16 @@ function getPhoto(request: Request, response: Response) {
       ...photo,
       data: data.toString('base64')
     }));
-  });
+  };
+
+  // If is receipt
+  if (isReceipt) {
+    Photo.fromReceipt(id, callback);
+    return;
+  }
+
+  // Otherwise, get the photo from the database
+  Photo.fromId(Number(id), callback);
 }
 
 /**

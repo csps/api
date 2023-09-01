@@ -7,6 +7,7 @@ import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
 import { FileArray } from "express-fileupload";
 import { getFile } from "../../utils/file";
+import { Tables } from "../structure";
 
 /**
  * Photos model
@@ -42,7 +43,36 @@ export class Photo extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query("SELECT * FROM photos WHERE id = ?", [id], (error, results) => {
+    db.query(`SELECT * FROM ${Tables.PHOTOS} WHERE id = ?`, [id], (error, results) => {
+      // If has error
+      if (error) {
+        console.error(error);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Get the first result and return the photo
+      callback(null, new Photo(results[0]));
+    });
+  }
+
+  /**
+   * Get receipt from the database using receipt ID
+   * @param id Recept ID
+   * @param callback Callback function
+   */
+  public static fromReceipt(id: string, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query(`SELECT * FROM ${Tables.RECEIPTS} WHERE receipt_id = ?`, [id], (error, results) => {
       // If has error
       if (error) {
         console.error(error);
@@ -72,13 +102,13 @@ export class Photo extends DatabaseModel {
     // Get the current date
     const datestamp = getDatestamp();
     // Query (photo)
-    let query = `INSERT INTO photos (name, type, data, date_stamp) VALUES (?, ?, ?, ?)`;
+    let query = `INSERT INTO ${Tables.PHOTOS} (name, type, data, date_stamp) VALUES (?, ?, ?, ?)`;
     let data = [ photo.name || null, photo.type, photo.data, datestamp ];
 
     // If receipt
     if (photo.receipt_id) {
       // Query (receipt)
-      query = `INSERT INTO receipts (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
+      query = `INSERT INTO ${Tables.RECEIPTS} (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
       data = [ photo.receipt_id, photo.name || null, photo.type, photo.data, datestamp ];
     }
 

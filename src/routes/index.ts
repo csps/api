@@ -65,6 +65,8 @@ export const routes: AppRoutes[] = [
   { path: "/tutorials", methods: ["GET", "POST"], handler: tutorials },
 
   // Photos
+  { path: "/photos/:id/receipt/raw", methods: ["GET"], handler: photos },
+  { path: "/photos/:id/receipt", methods: ["GET"], handler: photos },
   { path: "/photos/:id/raw", methods: ["GET"], handler: photos },
   { path: "/photos/:id", methods: ["GET"], handler: photos },
   { path: "/photos", methods: ["POST"], handler: photos },
