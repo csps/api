@@ -2,6 +2,7 @@ import { QRCodeCanvas } from '@loskir/styled-qr-code-node';
 import { Request, Response } from 'express';
 import { result } from '../utils/response';
 import { Log } from '../utils/log';
+
 import Strings from '../config/strings';
 import fs from "fs";
 import path from "path";
@@ -52,7 +53,7 @@ async function getQRCode(request: Request, response: Response) {
     const qrCode = new QRCodeCanvas({
       width: 1024,
       height: 1024,
-      data: q.replace(" ", ""),
+      data: q.replace(/s/g, ""),
       image: logo,
       margin: 16,
       qrOptions: {
@@ -66,18 +67,19 @@ async function getQRCode(request: Request, response: Response) {
         margin: 0
       },
       dotsOptions: {
-        type: "square",
-        color: isDark ? "#EDB1FF" : "#4a2558",
+        type: "dots",
+        color: isDark ? "#988e97" : "#4a2558",
       },
       backgroundOptions: {
         color: "transparent"
       },
       cornersSquareOptions: {
         type: "extra-rounded",
-        color: isDark ? "#EDB1FF" : "#4a2558",
+        color: isDark ? "#988e97" : "#4a2558",
       },
       cornersDotOptions: {
-        color: isDark ? "#EDB1FF" : "#4a2558",
+        type: "dot",
+        color: isDark ? "#988e97" : "#4a2558",
       },
     });
     
