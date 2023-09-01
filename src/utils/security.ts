@@ -74,5 +74,5 @@ export function generateReceiptID(start: number) {
   const day = date.getDate();
 
   // Return receipt ID
-  return `CSPS${year}${month < 10 ? '0' + month : month}${day < 10 ? '0' + day : day}-${Math.abs(start).toString().padStart(3, '0')}`;
+  return `CSPS${year}${month < 10 ? '0' + month : month}${day < 10 ? '0' + day : day}${Math.abs(start).toString().padStart(3, '0')}`;
 }
