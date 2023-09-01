@@ -1,5 +1,6 @@
 import { createTransport, SendMailOptions, Transporter } from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
+import type SMTPTransport from "nodemailer/lib/smtp-transport";
+import Handlebars from "handlebars";
 
 import { readFile } from "fs";
 import { resolve } from "path";
@@ -7,6 +8,7 @@ import { Log } from "./log";
 
 // Create transporter from SMTP credentials
 let transporter: Transporter;
+let compiledTemplate: Handlebars.TemplateDelegate;
 
 /**
  * Send email using SMTP
@@ -36,21 +38,21 @@ export function sendEmail(metadata: EmailMetaData, callback: (error: Error | nul
       callback(error, null);
       return;
     }
-    
-    // If button is present, replace placeholders
-    if (metadata.button) {
-      template = template.replace("display: none;", "display: block;");
-      template = template.replace("{url}", metadata.button?.url || "");
-      template = template.replace("{button_name}", metadata.button?.label || "");
 
-      // Append link to message
-      metadata.message += `\n\n${metadata.button.url}`;
+    // Set compiled template if not yet set
+    if (!compiledTemplate) {
+      compiledTemplate = Handlebars.compile(template);
     }
 
-    // Replace placeholders
-    template = template.replace("{title}", metadata.title || "");
-    template = template.replace("{message}", metadata.message.replace(/\n/g, "<br>") || "");
-    template = template.replace("{year}", new Date().getFullYear().toString());
+    // If year is not set, set it to current year
+    if (!metadata.year) {
+      metadata.year = new Date().getFullYear();
+    }
+
+    // Replace \n with <br>
+    metadata.message = metadata.message.replace(/\n/g, "<br>") || "";
+    // Render template
+    template = compiledTemplate(metadata);
 
     // Create data
     const data: SendMailOptions = {

@@ -66,13 +66,13 @@ app.use(routes.map(r => r.path), (request, response) => {
         // If has authentication token and is expired
         if (error === ErrorTypes.DB_EXPIRED || data === null) {
           Log.w("Session expired for ID: " + data?.id);
-          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
           return;
         }
 
         // If not allowed to access the route, nakuha najud :) pwede nako matog
         if (route.auth && route.auth[request.method as HttpMethod] && data.role !== route.auth[request.method as HttpMethod]) {
-          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED));
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
           return;
         }
         
@@ -100,6 +100,8 @@ app.use("*", (request, response) => {
     return response.sendFile("favicon.ico", { root: "./assets" });
   }
 
+  // Set default response content type
+  response.setHeader("Content-Type", "application/json");
   // Otherwise, return 404
   return handleNotFound(request, response);
 });

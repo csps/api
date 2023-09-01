@@ -23,7 +23,7 @@ declare global {
     label: string,
     url: string,
   }
-  
+
   type EmailMetaData = {
     /**
      * Email recipient
@@ -34,10 +34,19 @@ declare global {
     subject: string,
     message: string,
     title?: string,
+    year?: number,
     cc?: string[],
     bcc?: string[],
     button?: EmailButton,
-    attachments?: File[]
+    attachments?: File[],
+
+    order?: {
+      url: string,
+      name: string,
+      total: number,
+      quantity: string,
+      thumbnail_url: string
+    },
   }
 
   namespace NodeJS {
