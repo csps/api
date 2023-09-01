@@ -41,8 +41,10 @@ export function paginationWrapper({ query, search, pagination, order }: Paginati
         continue;
       }
 
-      query += ` ${i === 1 ? 'AND' : 'OR'} ${sanitize(column)} LIKE ?`;
+      query += ` ${i === 1 ? 'AND (' : 'OR'} ${sanitize(column)} LIKE ?`;
     }
+
+    query += `)`;
   }
 
   const countQuery = `SELECT COUNT(*) AS count FROM (${query}) t`;
