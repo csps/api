@@ -171,6 +171,8 @@ export function postOrders(request: Request, response: Response) {
       return;
     }
 
+    // Send email
+    Order.sendEmail(receiptID!);
     // Otherwise, return the product data
     response.send(result.success(Strings.ORDER_CREATED, receiptID));
   });

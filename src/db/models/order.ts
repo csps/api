@@ -1,17 +1,18 @@
-import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import type { FullOrderModel, OrderModel } from "../../types/models";
 import type { FileArray } from "express-fileupload";
-import { getDatestamp, getLocalDate } from "../../utils/date";
+import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
+import { getDatestamp, getLocalDate, getReadableDate } from "../../utils/date";
 import { generateReceiptID, sanitize } from "../../utils/security";
+import { OrderRequest, PaginationRequest } from "../../types/request";
+import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import { OrderColumns } from "../structure";
+import { sendEmail } from "../../utils/smtp";
+import { getFile } from "../../utils/file";
 import { Log } from "../../utils/log";
+import { Photo } from "./photo";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
-import { OrderRequest, PaginationRequest } from "../../types/request";
-import { getFile } from "../../utils/file";
-import { Photo } from "./photo";
-import { PaginationQuery, paginationWrapper } from "../../utils/query";
 
 /**
  * Order model
@@ -109,7 +110,7 @@ export class Order extends DatabaseModel {
    * @param receipt_id Receipt ID
    * @param callback Callback function  
    */
-  public static fromReceipt(receipt_id: string, callback: (error: ErrorTypes | null, order: Order | null) => void) {
+  public static fromReceipt(receipt_id: string, callback: (error: ErrorTypes | null, order: FullOrderModel | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
@@ -559,6 +560,59 @@ export class Order extends DatabaseModel {
 
       // Otherwise, return success
       callback(results[0].count);
+    });
+  }
+
+  /**
+   * Send email upon ordering
+   */
+  public static sendEmail(receiptID: string) {
+    Order.fromReceipt(receiptID, (error, order) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        Log.e(`[ERROR] Can't send email: Database error`);
+        return;
+      }
+
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        Log.e(`[ERROR] Can't send email: Order #${receiptID} not found`);
+        return;
+      }
+
+      // Send email if has an email address
+      if (order?.email_address) {
+        // Log email sending
+        Log.i("Sending order email to " + order?.email_address);
+        // Send email
+        sendEmail({
+          title: Strings.EMAIL_ORDER_TITLE.replace("{receipt}", receiptID),
+          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{receipt}", receiptID),
+          message: Strings.EMAIL_ORDER_BODY
+            .replace("{name}", `${order.first_name} ${order.last_name}`)
+            .replace("{date}", getReadableDate(order.date_stamp))
+            .replace("{mode_of_payment}", order.mode_of_payment === ModeOfPayment.WALK_IN ? "Walk-in" : "GCash"),
+          to: order?.email_address,
+          order: {
+            name: order.product_name,
+            quantity: order.quantity,
+            price: order.product_price,
+            mop: order.mode_of_payment === ModeOfPayment.WALK_IN ? 'Walk-in' : 'GCash',
+            total: order.product_price * order.quantity,
+            url: Strings.DOMAIN + "/merch/receipt/" + receiptID,
+            thumbnail_url: Strings.DOMAIN + "/photos/" + order.thumbnail + "/raw"
+          }
+        }, (error, info) => {
+          if (error) {
+            Log.e(`[ERROR] Can't send email: ${error.message}`);
+            return;
+          }
+
+          Log.i(`Order Email sent to ${order?.email_address}`);
+        });
+
+        return;
+      }
+
+      Log.e(`[ERROR] Can't send email: Student #${order?.student_id} has no email address`);
     });
   }
 

@@ -39,6 +39,10 @@ const Strings = {
   ENV_EXISTS: "Env already exists!",
   ENV_FOUND: "Env found!",
 
+  EMAIL_ORDER_TITLE: "Order #{receipt}",
+  EMAIL_ORDER_SUBJECT: "Order #{receipt} confirmed!",
+  EMAIL_ORDER_BODY: `Hi {name},\n\nWe have received your order on <b>{date}</b> via <b>{mode_of_payment}</b>. Please proceed to the CSPS office to get your order.\n\nSincerely,\nUC Main CSPS`,
+
   COURSES_EMPTY_ID: "Empty ID.",
   COURSES_EMPTY_NAME: "Empty name.",
   COURSES_GET_ERROR: "Something went wrong while fetching course.",

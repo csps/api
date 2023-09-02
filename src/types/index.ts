@@ -43,8 +43,10 @@ declare global {
     order?: {
       url: string,
       name: string,
+      price: number,
+      mop: string,
       total: number,
-      quantity: string,
+      quantity: number,
       thumbnail_url: string
     },
   }
