@@ -445,8 +445,8 @@ export class Order extends DatabaseModel {
 
                 // Log order 
                 Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
-                // Success commiting the transaction
-                callback(null, receiptID);
+                // Decrement stock
+                decrementStock();
               });
             });
 
@@ -469,8 +469,58 @@ export class Order extends DatabaseModel {
 
             // Log order 
             Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
-            // Success commiting the transaction
-            callback(null, receiptID);
+            // Decrement stock
+            decrementStock();
+          });
+        }
+
+        function decrementStock() {
+          Order.decrementStock(order.products_id, order.variations_id || null, error => {
+            if (error === ErrorTypes.DB_ERROR) {
+              Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
+
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) Log.e(error.message);
+                callback(ErrorTypes.DB_ERROR, null);
+                return;
+              });
+
+              return;
+            }
+
+            // If no results
+            if (error === ErrorTypes.DB_EMPTY_RESULT) {
+              Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
+
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) Log.e(error.message);
+                callback(ErrorTypes.DB_EMPTY_RESULT, null);
+                return;
+              });
+
+              return;
+            }
+
+            // Commit the transaction
+            conn.commit((error) => {
+              if (error) {
+                Log.e(error.message);
+
+                // Rollback the transaction
+                conn.rollback(error => {
+                  if (error) Log.e(error.message);
+                  callback(ErrorTypes.DB_ERROR, null);
+                  return;
+                });
+
+                return;
+              }
+
+              // Success commiting the transaction
+              callback(null, receiptID);
+            });
           });
         }
       });
@@ -613,6 +663,33 @@ export class Order extends DatabaseModel {
       }
 
       Log.e(`[ERROR] Can't send email: Student #${order?.student_id} has no email address`);
+    });
+  }
+
+  /**
+   * Decrement stock number
+   */
+  private static decrementStock(products_id: number, variations_id: number | null, callback: (error: ErrorTypes | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query(`UPDATE ${variations_id === null ? 'products' : 'product_variations'} SET stock = stock - 1 WHERE ${variations_id === null ? 'id' : 'products_id'} = ? ${variations_id === null ? '' : 'AND variations_id = ?'}`, [products_id, variations_id], (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR);
+        return;
+      }
+
+      // If no results
+      if (results.affectedRows === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT);
+        return;
+      }
+
+      // Otherwise, return success
+      callback(null);
     });
   }
 
