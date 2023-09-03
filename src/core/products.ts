@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ErrorTypes } from '../types/enums';
+import { AuthType, ErrorTypes } from '../types/enums';
 import { result } from '../utils/response';
 import { isNumber } from '../utils/string';
 import Product from '../db/models/product';
@@ -40,23 +40,32 @@ function getProducts(request: Request, response: Response) {
     return;
   }
 
-  // Get all products
-  Product.getAll((error, products) => {
-    // If has an error
-    if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.PRODUCTS_GET_ERROR));
-      return;
-    }
-    
-    // If no results
-    if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(Strings.PRODUCTS_NOT_FOUND));
-      return;
-    }
-    
-    // Return the products
-    response.send(result.success(Strings.PRODUCTS_FOUND, products));
-  });
+  // If admin
+  if (response.locals.role === AuthType.ADMIN) {
+    // Get all students
+    Product.find(request.query, (error, students, count) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
+      }
+
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(200).send(result.error(Strings.PRODUCTS_NOT_FOUND));
+        return;
+      }
+
+      if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+        response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+        return;
+      } 
+
+      response.status(200).send(result.success(Strings.PRODUCTS_FOUND, students, count));
+    });
+
+    return;
+  }
+
+  response.status(401).send(result.success(Strings.GENERAL_UNAUTHORIZED));
 }
 
 /**

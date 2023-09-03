@@ -3,13 +3,14 @@ import { Log } from "../../utils/log";
 import { ErrorTypes } from "../../types/enums";
 import { isNumber } from "../../utils/string";
 import { getDatestamp } from "../../utils/date";
-import { ProductRequest } from "../../types/request";
+import { PaginationRequest, ProductRequest } from "../../types/request";
 import { FileArray } from "express-fileupload";
 import { getFile } from "../../utils/file";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
 import { Photo } from "./photo";
+import { PaginationQuery, paginationWrapper } from "../../utils/query";
 
 /**
  * Product Model
@@ -106,6 +107,70 @@ class Product extends DatabaseModel {
 
         // Return the products
         callback(null, products.map((product) => new Product(product)));
+      });
+    });
+  }
+
+  /**
+   * Find products
+   * @param param PaginationRequest
+   */
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, products: Product[] | null, count?: number) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Data
+    const data: PaginationQuery = {
+      query: "SELECT * FROM products",
+    };
+
+    // If search column and value is present
+    if (param.search_column && param.search_value) {
+      const cols = JSON.parse(param.search_column);
+      const vals = JSON.parse(param.search_value);
+
+      data.search = cols.map((column: string, index: number) => {
+        return { column, value: vals[index] };
+      });
+    }
+
+    // If student column and type is present
+    if (param.sort_column && param.sort_type) {
+      data.order = { column: param.sort_column, type: param.sort_type };
+    }
+
+    // If page and limit is present
+    if (param.page && param.limit) {
+      data.pagination = { page: parseInt(param.page), limit: parseInt(param.limit) };
+    }
+
+    // Get pagination
+    const { query, values, countQuery, countValues } = paginationWrapper(data);
+
+    // Query the database
+    db.query(query, values, (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      db.query(countQuery, countValues, (error, countResults) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, null);
+          return;
+        }
+
+        // Create and return the orders with count
+        callback(null, results, countResults[0].count);
       });
     });
   }
