@@ -5,7 +5,7 @@ import { getDatestamp, getLocalDate, getReadableDate } from "../../utils/date";
 import { generateReceiptID, sanitize } from "../../utils/security";
 import { OrderRequest, PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
-import { OrderColumns } from "../structure";
+import { OrderColumns, Tables } from "../structure";
 import { sendEmail } from "../../utils/smtp";
 import { getFile } from "../../utils/file";
 import { Log } from "../../utils/log";
@@ -533,7 +533,7 @@ export class Order extends DatabaseModel {
    * @param key Order Key
    * @param value Order Value
    */
-  public static update(id: string | number, key: string, value: string, callback: (error: ErrorTypes | null, success: boolean) => void) { 
+  public static update(id: string, key: string, value: string, callback: (error: ErrorTypes | null, success: boolean) => void) { 
     // If order ID is not present
     if (!id) {
       callback(ErrorTypes.REQUEST_ID, false);
@@ -562,8 +562,11 @@ export class Order extends DatabaseModel {
       data = `${OrderColumns.STATUS} = ?, ${OrderColumns.STATUS_UPDATED} = NOW()`;
     }
 
+    // Split id (B and N)
+    const [ TYPE, ID ] = id.split("-");
+
     // Query the database
-    db.query(`UPDATE orders SET ${data}, ${OrderColumns.EDIT_DATE} = NOW() WHERE id = ?`, [value, id], (error, results) => {
+    db.query(`UPDATE ${TYPE === 'B' ? Tables.ORDERS : Tables.NON_BSCS_ORDERS } SET ${data}, ${OrderColumns.EDIT_DATE} = NOW() WHERE id = ?`, [value, ID], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
