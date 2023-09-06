@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { ErrorTypes } from "../types/enums";
+import { AuthType, ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";
 import Strings from "../config/strings";
@@ -51,23 +51,32 @@ export function getAnnouncements(request: Request, response: Response) {
     return
   }
 
-  // Get all announcements
-  Announcement.getAll((error, announcements) => {
-    // If has an error
-    if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.ANNOUNCEMENTS_GET_ERROR));
-      return;
-    }
+  // If admin
+  if (response.locals.role === AuthType.ADMIN) {
+    // Get all students
+    Announcement.find(request.query, (error, announcements, count) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
+      }
 
-    // If no results
-    if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(Strings.ANNOUNCEMENTS_NOT_FOUND));
-      return;
-    }
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(200).send(result.error(Strings.ANNOUNCEMENTS_NOT_FOUND));
+        return;
+      }
 
-    // Return the events
-    response.send(result.success(Strings.ANNOUNCEMENTS_FOUND, announcements));
-  })
+      if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+        response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+        return;
+      } 
+
+      response.status(200).send(result.success(Strings.ANNOUNCEMENTS_FOUND, announcements, count));
+    });
+
+    return;
+  }
+
+  response.status(401).send(result.success(Strings.GENERAL_UNAUTHORIZED));
 }
 
 /**
