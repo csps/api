@@ -2,7 +2,6 @@ import { ModeOfPayment } from "./enums";
 
 export type ProductRequest = {
   name: string;
-  short_description: string;
   description: string;
   stock: number;
   price: number;

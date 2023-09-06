@@ -22,7 +22,6 @@ class Product extends DatabaseModel {
   private id: number;
   private name: string;
   private thumbnail?: number;
-  private short_description: string;
   private description: string;
   private likes: number;
   private stock: number;
@@ -40,7 +39,6 @@ class Product extends DatabaseModel {
     this.id = data.id;
     this.name = data.name;
     this.thumbnail = data.thumbnail;
-    this.short_description = data.short_description;
     this.description = data.description;
     this.likes = data.likes;
     this.stock = data.stock;
@@ -226,10 +224,6 @@ class Product extends DatabaseModel {
   public static validate(data: ProductRequest, files?: FileArray | null) {
     // If name is empty
     if (!data.name) return [Strings.PRODUCT_EMPTY_NAME, "name"];
-    // If Short Description is empty
-    if (!data.short_description) return [Strings.PRODUCT_EMPTY_SHORT_DESCRIPTION, "short_description"];
-    // If Short Description exceeds 128 characters
-    if (data.short_description.length > 128) return [Strings.PRODUCT_LIMIT_SHORT_DESCRIPTION, "short_description"];
     // If Description is empty
     if (!data.description) return [Strings.PRODUCT_EMPTY_DESCRIPTION, 'description'];
     // If Price is empty
@@ -330,10 +324,9 @@ class Product extends DatabaseModel {
           }
 
           // Query the Database
-          conn.query("INSERT INTO products (name, thumbnail, short_description, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+          conn.query("INSERT INTO products (name, thumbnail, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
             product.name,
             photoId,
-            product.short_description,
             product.description,
             0, // Default likes to 0
             product.stock,
@@ -479,13 +472,6 @@ class Product extends DatabaseModel {
    */
   public getThumbnail() {
     return this.thumbnail;
-  }
-
-  /**
-   * Get Short Description
-   */
-  public getShortDescription() {
-    return this.short_description;
   }
 
   /**

@@ -107,7 +107,6 @@ export enum ProductColumns {
   ID = "id",
   NAME = "name",
   THUMBNAIL = "thumbnail",
-  SHORT_DESCRIPTION = "short_description",
   DESCRIPTION = "description",
   LIKES = "likes",
   STOCK = "stock",
