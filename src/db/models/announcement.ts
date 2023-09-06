@@ -1,12 +1,14 @@
+import { FileArray } from "express-fileupload";
 import Strings from "../../config/strings";
 import { ErrorTypes } from "../../types/enums";
 import { AnnouncementModel, PhotoModel } from "../../types/models";
-import { AnnouncementRequest, PaginationRequest } from "../../types/request";
+import { AnnouncementRequest, PaginationRequest, PhotoRequest } from "../../types/request";
 import { getDatestamp } from "../../utils/date";
 import { Log } from "../../utils/log";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import Database, { DatabaseModel } from "../database";
 import { Photo } from "./photo";
+import { getFile } from "../../utils/file";
 
 class Announcement extends DatabaseModel{
     private id: number;
@@ -190,7 +192,7 @@ class Announcement extends DatabaseModel{
     // Insert the announcement
     function insert(photos_id?: number) {
       // Query the database
-      db.query("INSERT INTO announcements (admin_student_id, title, content, photo_id, date_stamp) VALUES (?, ?, ?, ?, ?)", [
+      db.query("INSERT INTO announcements (admin_student_id, title, content, photos_id, date_stamp) VALUES (?, ?, ?, ?, ?)", [
         "-", // TODO: Add admin student id
         announcement.title,
         announcement.content,
@@ -289,24 +291,12 @@ class Announcement extends DatabaseModel{
    * Validate the announcement raw data
    * @param raw Raw data
    */
-  public static validate(raw: any) {
+  public static validate(data: AnnouncementRequest) {
     // If has no title
-    if (!raw.title) return [Strings.ANNOUNCEMENTS_INVALID_TITLE, "title"];
+    if (!data.title) return [Strings.ANNOUNCEMENTS_INVALID_TITLE, "title"];
     // If has no content
-    if (!raw.content) return [Strings.ANNOUNCEMENTS_INVALID_CONTENT, "content"];
+    if (!data.content) return [Strings.ANNOUNCEMENTS_INVALID_CONTENT, "content"];
   
-    // if has one of the photo data
-    if (raw.photo_data || raw.photo_type) {
-      // Validate photo
-      const error = Photo.validate({
-        data: raw.photo_data,
-        type: raw.photo_type,
-      });
-
-      // If has an error
-      if (error) return error;
-    }
-
     // Return null if valid
     return null;
   }
