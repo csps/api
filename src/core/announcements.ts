@@ -51,32 +51,25 @@ export function getAnnouncements(request: Request, response: Response) {
     return
   }
 
-  // If admin
-  if (response.locals.role === AuthType.ADMIN) {
-    // Get all students
-    Announcement.find(request.query, (error, announcements, count) => {
-      if (error === ErrorTypes.DB_ERROR) {
-        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-        return;
-      }
+  // Get all students
+  Announcement.find(request.query, (error, announcements, count) => {
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+      return;
+    }
 
-      if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        response.status(200).send(result.error(Strings.ANNOUNCEMENTS_NOT_FOUND));
-        return;
-      }
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(200).send(result.error(Strings.ANNOUNCEMENTS_NOT_FOUND));
+      return;
+    }
 
-      if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
-        response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
-        return;
-      } 
+    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+      response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+      return;
+    } 
 
-      response.status(200).send(result.success(Strings.ANNOUNCEMENTS_FOUND, announcements, count));
-    });
-
-    return;
-  }
-
-  response.status(401).send(result.success(Strings.GENERAL_UNAUTHORIZED));
+    response.status(200).send(result.success(Strings.ANNOUNCEMENTS_FOUND, announcements, count));
+  });
 }
 
 /**
