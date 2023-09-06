@@ -116,7 +116,7 @@ export function addAnnouncement(request: Request, response: Response) {
   }
 
   // Add announcement to database
-  Announcement.insert(request.body, (error, announcement) => {
+  Announcement.insert(request.body, request.files, (error, announcement) => {
     // If has error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ANNOUNCEMENT_POST_ERROR));

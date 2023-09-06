@@ -9,6 +9,7 @@ import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import Database, { DatabaseModel } from "../database";
 import { Photo } from "./photo";
 import { getFile } from "../../utils/file";
+import { request } from "http";
 
 class Announcement extends DatabaseModel{
     private id: number;
@@ -183,7 +184,7 @@ class Announcement extends DatabaseModel{
    * @param announcement Announcement request data
    * @param callback Callback function
    */
-  public static insert(announcement: AnnouncementRequest, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
+  public static insert(announcement: AnnouncementRequest, files: FileArray | null | undefined, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
@@ -218,15 +219,14 @@ class Announcement extends DatabaseModel{
       });
     }
 
-    // Get photo data if has one
-    const { photo_data, photo_type } = announcement;
+    // Get photo (if has any)
+    const photo = getFile(files, "photo");
 
-    // If has photo
-    if (photo_data && photo_type) {
+    if (photo) {
       // Photo
       Photo.insert({
-        data: Buffer.from(photo_data, 'base64'),
-        type: photo_type,
+        data: photo.data,
+        type: photo.mimetype,
       }, (error, photoId) => {
         // If has an error
         if (error === ErrorTypes.DB_ERROR) {
