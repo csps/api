@@ -83,7 +83,7 @@ export class Log {
    */
   static response(request: Request, response: Response) {
     // Get the IP, method, URL, and date
-    const ip = request.ip;
+    const ip = request.headers["x-forwarded-for"] || request.ip;
     const method = request.method;
     const url = request.originalUrl;
     const date = getDatestamp();

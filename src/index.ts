@@ -9,11 +9,11 @@ import { routes } from "./routes";
 import { Log } from "./utils/log";
 import { checkCredentials } from "./utils/validate";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
-import Database from "./db/database";
 import { Session } from "./classes/session";
 import { AuthType, ErrorTypes } from "./types/enums";
 import { result } from "./utils/response";
 import Strings from "./config/strings";
+import Database from "./db/database";
 
 // Load environment variables from .env file
 dotenv.config();
