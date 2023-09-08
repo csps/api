@@ -57,6 +57,7 @@ declare global {
       DB_USER: string,
       DB_PASS: string,
       DB_NAME: string,
+      DB_PORT: string,
       SMTP_NAME: string,
       SMTP_HOST: string,
       SMTP_PORT: number,
