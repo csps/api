@@ -21,16 +21,25 @@ export function getDatestamp(date?: Date) {
 }
 
 /**
- * Check if {time1} is before {time2}
- * @param time1 hh:mm format
- * @param time2 hh:mm format
+ * Check if {date1} is before {date2}
+ * @param date1 hh:mm format
+ * @param date2 hh:mm format
  */
-export function isTimeBefore(time1: string, time2: string) {
+export function isTimeBefore(date1: string, date2: string) {
+  // If dates are undefined, return false
+  if (!date1) return false;
+  if (!date2) return false;
+
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+
   // Get time1 hours and minutes
-  const [h1, m1] = time1.split(':').map(x => parseInt(x));
+  const h1 = d1.getHours();
+  const m1 = d1.getMinutes();
 
   // Get time2 hours and minutes
-  const [h2, m2] = time2.split(':').map(x => parseInt(x));
+  const h2 = d2.getHours();
+  const m2 = d2.getMinutes();
 
   // If time1 hours is lesser than time2 hours, return true
   if (h1 < h2) return true;
