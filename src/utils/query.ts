@@ -59,10 +59,13 @@ export function paginationWrapper({ query, search, pagination, order }: Paginati
 
   if (pagination) {
     const { page, limit } = pagination;
-    query += ` LIMIT ?, ?`;
 
-    values.push((page - 1) * limit);
-    values.push(limit);
+    if (limit > 0) {
+      query += ` LIMIT ?, ?`;
+  
+      values.push((page - 1) * limit);
+      values.push(limit);
+    }
   }
 
   return {
