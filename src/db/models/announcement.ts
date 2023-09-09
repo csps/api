@@ -62,7 +62,7 @@ class Announcement extends DatabaseModel{
   }
 
   /**
-   * Find products
+   * Find announcements
    * @param param PaginationRequest
    */
   public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, announcements: Announcement[] | null, count?: number) => void) {

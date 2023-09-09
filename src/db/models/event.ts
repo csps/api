@@ -8,6 +8,8 @@ import { FileArray } from "express-fileupload";
 import { getFile } from "../../utils/file";
 import { Photo } from "./photo";
 import { Tables } from "../structure";
+import { PaginationRequest } from "../../types/request";
+import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import Strings from "../../config/strings";
 
 /**
@@ -71,6 +73,70 @@ class Event extends DatabaseModel {
       // Get the first reuslt and return the event
       callback(null, new Event(results[0]));
     })
+  }
+
+  /**
+   * Find products
+   * @param param PaginationRequest
+   */
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, events: EventModel[] | null, count?: number) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Data
+    const data: PaginationQuery = {
+      query: "SELECT * FROM events",
+    };
+
+    // If search column and value is present
+    if (param.search_column && param.search_value) {
+      const cols = JSON.parse(param.search_column);
+      const vals = JSON.parse(param.search_value);
+
+      data.search = cols.map((column: string, index: number) => {
+        return { column, value: vals[index] };
+      });
+    }
+
+    // If student column and type is present
+    if (param.sort_column && param.sort_type) {
+      data.order = { column: param.sort_column, type: param.sort_type };
+    }
+
+    // If page and limit is present
+    if (param.page && param.limit) {
+      data.pagination = { page: parseInt(param.page), limit: parseInt(param.limit) };
+    }
+
+    // Get pagination
+    const { query, values, countQuery, countValues } = paginationWrapper(data);
+
+    // Query the database
+    db.query(query, values, (error, results) => {
+      // If has an error
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+      
+      // If no results
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      db.query(countQuery, countValues, (error, countResults) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR, null);
+          return;
+        }
+
+        // Create and return the orders with count
+        callback(null, results, countResults[0].count);
+      });
+    });
   }
 
   /**
