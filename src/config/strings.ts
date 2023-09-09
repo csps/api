@@ -76,8 +76,9 @@ const Strings = {
   EVENT_EMPTY_THUMBNAIL: "Thumbnail is required!",
   EVENT_EMPTY_DESCRIPTION: "Description is required!",
   EVENT_EMPTY_VENUE: "Event venue is required!",
-  EVENT_EMPTY_START_DATE_STAMP: "Event start datestamp is required!",
-  EVENT_EMPTY_END_DATE_STAMP: "Event end datestamp is required!",
+  EVENT_EMPTY_DATE: "Event date is required!",
+  EVENT_EMPTY_START_TIME: "Event start time is required!",
+  EVENT_EMPTY_END_TIME: "Event end time is required!",
   EVENT_INVALID_DATE_ORDER: "Start time must be earlier than end time!",
 
   PHOTO_INVALID_ID: "Invalid Photo ID!",

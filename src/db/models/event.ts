@@ -19,8 +19,9 @@ class Event extends DatabaseModel {
   private title: string;
   private description: string;
   private venue: string;
-  private start_date_stamp: string;
-  private end_date_stamp: string;
+  private date: string;
+  private start_time: string;
+  private end_time: string;
   private date_stamp?: string;
 
   /**
@@ -33,8 +34,9 @@ class Event extends DatabaseModel {
     this.title = data.title;
     this.description = data.description;
     this.thumbnail = data.thumbnail;
-    this.start_date_stamp = data.start_date_stamp;
-    this.end_date_stamp = data.end_date_stamp;
+    this.date = data.date;
+    this.start_time = data.start_time;
+    this.end_time = data.end_time;
     this.venue = data.venue;
     this.date_stamp = data.date_stamp;
   }
@@ -106,13 +108,14 @@ class Event extends DatabaseModel {
     const stamp = getDatestamp();
 
     // Query the Database
-    db.query("INSERT INTO events (thumbnail, title, description, venue, start_date_stamp, end_date_stamp, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",[
+    db.query("INSERT INTO events (thumbnail, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
       event.thumbnail || null,
       event.title,
       event.description,
       event.venue,
-      event.start_date_stamp,
-      event.end_date_stamp,
+      event.date,
+      event.start_time,
+      event.end_time,
       stamp
     ], (error, results) => {
       //If has an error
@@ -143,12 +146,14 @@ class Event extends DatabaseModel {
     if (!data.description) return [Strings.EVENT_EMPTY_DESCRIPTION, "description"];
     // Check if Venue is Empty
     if (!data.venue) return [Strings.EVENT_EMPTY_VENUE, "venue"];
-    // Check if Start Time is Empty
-    if (!data.start_date_stamp) return [Strings.EVENT_EMPTY_START_DATE_STAMP, "start_date_stamp"];
-    // Check if End Time is Empty
-    if (!data.end_date_stamp) return [Strings.EVENT_EMPTY_END_DATE_STAMP, "end_date_stamp"];
+    // Check if date is empty
+    if (!data.date) return [Strings.EVENT_EMPTY_DATE, "date"];
+    // Check if start time is empty
+    if (!data.start_time) return [Strings.EVENT_EMPTY_START_TIME, "start_time"];
+    // Check if end time is empty
+    if (!data.end_time) return [Strings.EVENT_EMPTY_END_TIME, "end_time"];
     // Check if End Time is earlier than Start Time
-    if (!isTimeBefore(data.start_date_stamp, data.end_date_stamp)) return [Strings.EVENT_INVALID_DATE_ORDER, "start_date_stamp"];
+    if (!isTimeBefore(data.start_time, data.end_time)) return [Strings.EVENT_INVALID_DATE_ORDER, "start_time"];
   }
 
   /**
@@ -187,17 +192,24 @@ class Event extends DatabaseModel {
   }
 
   /**
-   * Get event start date
+   * Get event date
    */
-  public getStartDate() {
-    return this.start_date_stamp;
+  public getDate() {
+    return this.date;
   }
 
   /**
-   * Get event end date
+   * Get event start time
    */
-  public getEndDate() {
-    return this.end_date_stamp;
+  public getStartTime() {
+    return this.start_time;
+  }
+
+  /**
+   * Get event end time
+   */
+  public getEndTime() {
+    return this.end_time;
   }
 
   /**

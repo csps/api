@@ -22,8 +22,9 @@ export type EventModel = {
   title: string;
   description: string;
   venue: string;
-  start_date_stamp: string;
-  end_date_stamp: string;
+  date: string;
+  start_time: string;
+  end_time: string;
   date_stamp: string;
 };
 
