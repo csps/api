@@ -30,16 +30,9 @@ export function isTimeBefore(date1: string, date2: string) {
   if (!date1) return false;
   if (!date2) return false;
 
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
-
   // Get time1 hours and minutes
-  const h1 = d1.getHours();
-  const m1 = d1.getMinutes();
-
-  // Get time2 hours and minutes
-  const h2 = d2.getHours();
-  const m2 = d2.getMinutes();
+  const [h1, m1] = date1.split(":");
+  const [h2, m2] = date2.split(":");
 
   // If time1 hours is lesser than time2 hours, return true
   if (h1 < h2) return true;
