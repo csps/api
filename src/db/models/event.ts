@@ -1,10 +1,13 @@
+import type { PoolConnection } from "mysql";
 import Database, { DatabaseModel } from "../database";
 import { ErrorTypes } from "../../types/enums";
 import { EventModel } from "../../types/models";
 import { Log } from "../../utils/log";
-import { isDate } from "../../utils/string";
-import { is24HourTime } from "../../utils/string";
 import { getDatestamp, isTimeBefore } from "../../utils/date";
+import { FileArray } from "express-fileupload";
+import { getFile } from "../../utils/file";
+import { Photo } from "./photo";
+import { Tables } from "../structure";
 import Strings from "../../config/strings";
 
 /**
@@ -101,35 +104,91 @@ class Event extends DatabaseModel {
    * @param event 
    * @param callback 
    */
-  public static insert(event: EventModel, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
-    // Get database instance
-    const db = Database.getInstance();
+  public static insert(event: EventModel, files: FileArray | null | undefined, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
     // Get date stamp
     const stamp = getDatestamp();
-
-    // Query the Database
-    db.query("INSERT INTO events (thumbnail, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
-      event.thumbnail || null,
-      event.title,
-      event.description,
-      event.venue,
-      event.date,
-      event.start_time,
-      event.end_time,
-      stamp
-    ], (error, results) => {
-      //If has an error
-      if (error){
+    // Photo (if any)
+    const thumbnail = getFile(files, "thumbnail");
+    
+    // Get database instance
+    Database.getConnection((error, conn) => {
+      if (error) {
         callback(ErrorTypes.DB_ERROR, null);
         return;
       }
+      
+      // If has submitted event photo
+      if (files && thumbnail) {
+        // Begin transaction
+        conn.beginTransaction((error) => {
+          if (error) {
+            callback(ErrorTypes.DB_ERROR, null);
+            return;
+          }
 
-      // Set the primary key ID 
-      event.id = results.insertId;
-      // Set date stamp
-      event.date_stamp = stamp;
-      // Return the Event
-      callback(null, new Event(event));
+          // Insert the event photo
+          Photo.insert({
+            data: thumbnail.data,
+            type: thumbnail.mimetype,
+            name: thumbnail.name
+          }, (error, photoId) => {
+            if (error) {
+              // Rollback transaction
+              conn.rollback(() => {
+                callback(ErrorTypes.DB_ERROR, null);
+              });
+
+              return;
+            }
+
+            // Insert the event data
+            insert(photoId);
+          });
+        });
+
+        return;
+      }
+
+      /**
+       * Insert the Event Data
+       * @param photoId Photo ID
+       */
+      function insert(photoId: number | null) {
+        // Query the Database
+        conn.query(`INSERT INTO ${Tables.EVENTS} (thumbnail, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
+          photoId,
+          event.title,
+          event.description,
+          event.venue,
+          event.date,
+          event.start_time,
+          event.end_time,
+          stamp
+        ], (error, results) => {
+          if (error) {
+            Log.e(error.message);
+            // Rollback transaction
+            conn.rollback(() => {
+              callback(ErrorTypes.DB_ERROR, null);
+            });
+  
+            return;
+          }
+    
+          // Set the primary key ID 
+          event.id = results.insertId;
+          // Set date stamp
+          event.date_stamp = stamp;
+  
+          // Commit transaction
+          conn.commit(() => {
+            callback(null, new Event(event));
+          });
+        });
+      }
+
+      // Otherwise, insert the event data
+      insert(null);
     });
   }
 
@@ -140,8 +199,6 @@ class Event extends DatabaseModel {
   public static validate(data: EventModel) {
     // Check if Title is Empty
     if (!data.title) return [Strings.EVENT_EMPTY_TITLE, "title"];
-    // Check if Thumbnail is Empty
-    if (!data.thumbnail) return [Strings.EVENT_EMPTY_THUMBNAIL, "thumbnail"];
     // Check if Description is Empty
     if (!data.description) return [Strings.EVENT_EMPTY_DESCRIPTION, "description"];
     // Check if Venue is Empty

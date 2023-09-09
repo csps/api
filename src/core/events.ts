@@ -109,7 +109,7 @@ function postEvents(request: Request, response: Response){
   /**
    * Insert the Event Data
    */
-  Event.insert(request.body, (error, event) => {
+  Event.insert(request.body, request.files, (error, event) => {
     // If has error
     switch(error){
       case ErrorTypes.DB_ERROR:

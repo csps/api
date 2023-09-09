@@ -220,6 +220,7 @@ class Product extends DatabaseModel {
   /**
    * Validate Product Data
    * @param data Raw product Data
+   * @param files File Array
    */
   public static validate(data: ProductRequest, files?: FileArray | null) {
     // If name is empty
