@@ -4,7 +4,7 @@ import Config from "./app";
  * String constants
  */
 const Strings = {
-  DOMAIN: "https://csps.vercel.app",
+  DOMAIN: "https://ucmncsps.org",
 
   GENERAL_INVALID_REQUEST: "Invalid request!",
   GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSPS server admin.",
