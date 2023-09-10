@@ -7,6 +7,7 @@ export enum Tables {
   PRODUCT_VARIATIONS = "product_variations",
   PRODUCTS = "products",
   RESET_TOKENS = "reset_tokens",
+  LOGIN_LOGS = "login_logs",
   STUDENTS = "students",
   TUTORIALS = "tutorials",
   VARIATIONS = "variations",

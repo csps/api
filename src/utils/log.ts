@@ -3,6 +3,10 @@ import chalk from "chalk";
 import { getDatestamp } from "./date";
 import { Request, Response } from "express";
 import { parseText } from "./string";
+import { LoginLogModel } from "../types/models";
+import Database from "../db/database";
+import { Tables } from "../db/structure";
+import { result } from "./response";
 
 /**
  * Custom logging event for CSPS Web App API
@@ -134,6 +138,25 @@ export class Log {
         `[${data}${ip}] [${date}] [${method} ${url}] [${statusCode} ${statusMessage}] [${responseData}]`
       )
     );
+  }
+
+  /**
+   * Log user/admin login
+   * @param data Login data
+   */
+  static login(data: LoginLogModel) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Insert the login log
+    db.query(`INSERT INTO ${Tables.LOGIN_LOGS} (students_id, type, ip_address, date_stamp) VALUES (?, ?, ?, NOW())`, [data.students_id, data.type, data.ip_address], (error, results) => {
+      if (error) {
+        Log.e(error.message);
+        return;
+      }
+
+      Log.s("New login detected [" + (data.type === 0 ? 'STUDENT' : 'ADMIN') + "]: " + data.students_id);
+    });
   }
 }
 

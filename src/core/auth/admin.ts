@@ -6,6 +6,7 @@ import Student from "../../db/models/student"
 import Strings from "../../config/strings";
 import bcrypt from 'bcrypt';
 import { Admin } from "../../db/models/admin";
+import { Log } from "../../utils/log";
 
 /**
  * Admin Login API
@@ -125,6 +126,13 @@ function postAdminLogin(request: Request, response: Response) {
           .setProtectedHeader({ alg: 'HS256' })
           .setExpirationTime('1d')
           .sign(secret);
+
+        // Log login
+        Log.login({
+          ip_address: (request.headers["x-forwarded-for"] || request.ip) as string,
+          students_id: `${admin?.getId() || -1}`,
+          type: 1 // 0 = Student, 1 = Admin
+        });
         
         // Send response
         response.send(result.success(Strings.LOGIN_SUCCESS, {
