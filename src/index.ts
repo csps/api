@@ -71,7 +71,7 @@ app.use(routes.map(r => r.path), (request, response) => {
         }
 
         // If not allowed to access the route, nakuha najud :) pwede nako matog
-        if (route.auth && route.auth[request.method as HttpMethod] && data.role !== route.auth[request.method as HttpMethod]) {
+        if (route.auth && route.auth[request.method as HttpMethod] && (data.role !== route.auth[request.method as HttpMethod] || !data.role)) {
           response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
           return;
         }
