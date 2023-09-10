@@ -5,7 +5,7 @@ import { getDatestamp, getLocalDate, getReadableDate } from "../../utils/date";
 import { generateReceiptID, sanitize } from "../../utils/security";
 import { OrderRequest, PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
-import { OrderColumns, Tables } from "../structure";
+import { OrderColumns, ProductColumns, Tables } from "../structure";
 import { sendEmail } from "../../utils/smtp";
 import { getFile } from "../../utils/file";
 import { Log } from "../../utils/log";
@@ -13,6 +13,7 @@ import { Photo } from "./photo";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
+import Product from "./product";
 
 /**
  * Order model
@@ -328,201 +329,221 @@ export class Order extends DatabaseModel {
       }
     }
 
-    Order.getOrdersCountFromDate(new Date(), (count) => {
-      // Generate receipt ID
-      const receiptID = generateReceiptID(count + 1);
+    // Find product
+    Product.find({
+      search_column: `["${ProductColumns.ID}", "${ProductColumns.IS_AVAILABLE}"]`,
+      search_value: `[${order.products_id}, 0]`,
+    }, (error, products, count) => {
+      // If has an error
+      if (error === ErrorTypes.DB_ERROR) {
+        Log.e(`Order: Error finding product`);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
 
-      Database.getConnection((error, conn) => {
-        if (error) {
-          Log.e(error.message);
-          callback(ErrorTypes.DB_ERROR, null);
-          return;
-        }
+      // If has result
+      if ((count || 0) > 0) {
+        Log.e(`Student #${studentID || order.student_id} is ordering an unavailable product #${order.products_id}`);
+        callback(ErrorTypes.UNAVAILABLE, null);
+        return;
+      }
 
-        // If logged in
-        if (isLoggedIn) {
-          // Query the Database
-          db.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+      Order.getOrdersCountFromDate(new Date(), (count) => {
+        // Generate receipt ID
+        const receiptID = generateReceiptID(count + 1);
+  
+        Database.getConnection((error, conn) => {
+          if (error) {
+            Log.e(error.message);
+            callback(ErrorTypes.DB_ERROR, null);
+            return;
+          }
+  
+          // If logged in
+          if (isLoggedIn) {
+            // Query the Database
+            conn.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+              receiptID,
+              studentID,
+              order.products_id,
+              order.variations_id || null,
+              order.quantity,
+              order.mode_of_payment,
+              OrderStatus.PENDING_PAYMENT,
+              "", "", null, null, datestamp
+            ], (error, results) => {
+              if (error) {
+                Log.e(error.message);
+                callback(ErrorTypes.DB_ERROR, null);
+                return;
+              }
+              
+              insertProof();
+            });
+  
+            return;
+          }
+  
+          // Otherwise, insert to non-bscs orders
+          conn.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
             receiptID,
-            studentID,
             order.products_id,
             order.variations_id || null,
             order.quantity,
             order.mode_of_payment,
+            order.student_id,
+            order.student_first_name,
+            order.student_last_name,
+            order.student_email,
+            order.student_course,
+            order.student_year,
             OrderStatus.PENDING_PAYMENT,
             "", "", null, null, datestamp
           ], (error, results) => {
+            // If has an error
             if (error) {
               Log.e(error.message);
-              callback(ErrorTypes.DB_ERROR, null);
-              return;
-            }
-            
-            insertProof();
-          });
-
-          return;
-        }
-
-        // Otherwise, insert to non-bscs orders
-        db.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-          receiptID,
-          order.products_id,
-          order.variations_id || null,
-          order.quantity,
-          order.mode_of_payment,
-          order.student_id,
-          order.student_first_name,
-          order.student_last_name,
-          order.student_email,
-          order.student_course,
-          order.student_year,
-          OrderStatus.PENDING_PAYMENT,
-          "", "", null, null, datestamp
-        ], (error, results) => {
-          // If has an error
-          if (error) {
-            Log.e(error.message);
-
-            // Rollback the transaction
-            conn.rollback(() => {
-              callback(ErrorTypes.DB_ERROR, null);
-              return;
-            });
-
-            return;
-          }
-
-          insertProof();
-        });
-
-        function insertProof() {
-          // If mode of payment is GCash
-          if (order.mode_of_payment == ModeOfPayment.GCASH) {
-            // Get screenshot/proof
-            const photo = getFile(files, "proof");
-
-            if (!photo) {
+  
               // Rollback the transaction
-              conn.rollback(error => {
-                if (error) Log.e(error.message);
-                callback(ErrorTypes.REQUEST_FILE, null);
+              conn.rollback(() => {
+                callback(ErrorTypes.DB_ERROR, null);
                 return;
               });
-
+  
               return;
             }
-
-            // Insert the photo
-            Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, receipt_id: receiptID }, (error, photo) => {
-              if (error === ErrorTypes.DB_ERROR) {
-                Log.e(`Student #${studentID || order.student_id}: Error inserting screenshot/proof`);
-
+  
+            insertProof();
+          });
+  
+          function insertProof() {
+            // If mode of payment is GCash
+            if (order.mode_of_payment == ModeOfPayment.GCASH) {
+              // Get screenshot/proof
+              const photo = getFile(files, "proof");
+  
+              if (!photo) {
                 // Rollback the transaction
                 conn.rollback(error => {
                   if (error) Log.e(error.message);
-                  callback(ErrorTypes.DB_ERROR, null);
+                  callback(ErrorTypes.REQUEST_FILE, null);
                   return;
                 });
-
+  
                 return;
               }
-
-              // Commit the transaction
-              conn.commit((error) => {
-                if (error) {
-                  Log.e(error.message);
-
+  
+              // Insert the photo
+              Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, receipt_id: receiptID }, (error, photo) => {
+                if (error === ErrorTypes.DB_ERROR) {
+                  Log.e(`Student #${studentID || order.student_id}: Error inserting screenshot/proof`);
+  
                   // Rollback the transaction
                   conn.rollback(error => {
                     if (error) Log.e(error.message);
                     callback(ErrorTypes.DB_ERROR, null);
                     return;
                   });
-
+  
                   return;
                 }
-
-                // Log order 
-                Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
-                // Decrement stock
-                decrementStock();
+  
+                // Commit the transaction
+                conn.commit((error) => {
+                  if (error) {
+                    Log.e(error.message);
+  
+                    // Rollback the transaction
+                    conn.rollback(error => {
+                      if (error) Log.e(error.message);
+                      callback(ErrorTypes.DB_ERROR, null);
+                      return;
+                    });
+  
+                    return;
+                  }
+  
+                  // Log order 
+                  Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
+                  // Decrement stock
+                  decrementStock();
+                });
               });
-            });
-
-            return;
-          }
-
-          // Otherwise, commit the transaction and return the receipt ID
-          conn.commit((error) => {
-            if (error) {
-              Log.e(error.message);
-
-              conn.rollback(error => {
-                if (error) Log.e(error.message);
-                callback(ErrorTypes.DB_ERROR, null);
-                return;
-              });
-
+  
               return;
             }
-
-            // Log order 
-            Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
-            // Decrement stock
-            decrementStock();
-          });
-        }
-
-        function decrementStock() {
-          Order.decrementStock(order.products_id, order.variations_id || null, error => {
-            if (error === ErrorTypes.DB_ERROR) {
-              Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
-
-              // Rollback the transaction
-              conn.rollback(error => {
-                if (error) Log.e(error.message);
-                callback(ErrorTypes.DB_ERROR, null);
-                return;
-              });
-
-              return;
-            }
-
-            // If no results
-            if (error === ErrorTypes.DB_EMPTY_RESULT) {
-              Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
-
-              // Rollback the transaction
-              conn.rollback(error => {
-                if (error) Log.e(error.message);
-                callback(ErrorTypes.DB_EMPTY_RESULT, null);
-                return;
-              });
-
-              return;
-            }
-
-            // Commit the transaction
+  
+            // Otherwise, commit the transaction and return the receipt ID
             conn.commit((error) => {
               if (error) {
                 Log.e(error.message);
-
+  
+                conn.rollback(error => {
+                  if (error) Log.e(error.message);
+                  callback(ErrorTypes.DB_ERROR, null);
+                  return;
+                });
+  
+                return;
+              }
+  
+              // Log order 
+              Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
+              // Decrement stock
+              decrementStock();
+            });
+          }
+  
+          function decrementStock() {
+            Order.decrementStock(order.products_id, order.variations_id || null, error => {
+              if (error === ErrorTypes.DB_ERROR) {
+                Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
+  
                 // Rollback the transaction
                 conn.rollback(error => {
                   if (error) Log.e(error.message);
                   callback(ErrorTypes.DB_ERROR, null);
                   return;
                 });
-
+  
                 return;
               }
-
-              // Success commiting the transaction
-              callback(null, receiptID);
+  
+              // If no results
+              if (error === ErrorTypes.DB_EMPTY_RESULT) {
+                Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
+  
+                // Rollback the transaction
+                conn.rollback(error => {
+                  if (error) Log.e(error.message);
+                  callback(ErrorTypes.DB_EMPTY_RESULT, null);
+                  return;
+                });
+  
+                return;
+              }
+  
+              // Commit the transaction
+              conn.commit((error) => {
+                if (error) {
+                  Log.e(error.message);
+  
+                  // Rollback the transaction
+                  conn.rollback(error => {
+                    if (error) Log.e(error.message);
+                    callback(ErrorTypes.DB_ERROR, null);
+                    return;
+                  });
+  
+                  return;
+                }
+  
+                // Success commiting the transaction
+                callback(null, receiptID);
+              });
             });
-          });
-        }
+          }
+        });
       });
     });
   }

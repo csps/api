@@ -134,6 +134,7 @@ export type ProductModel = {
   stock: number,
   price: number,
   max_quantity: number,
+  is_available: boolean,
   date_stamp?: string,
 
   // Extra

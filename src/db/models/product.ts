@@ -6,11 +6,11 @@ import { getDatestamp } from "../../utils/date";
 import { PaginationRequest, ProductRequest } from "../../types/request";
 import { FileArray } from "express-fileupload";
 import { getFile } from "../../utils/file";
+import { Photo } from "./photo";
+import { PaginationQuery, paginationWrapper } from "../../utils/query";
 
 import Database, { DatabaseModel } from "../database";
 import Strings from "../../config/strings";
-import { Photo } from "./photo";
-import { PaginationQuery, paginationWrapper } from "../../utils/query";
 
 /**
  * Product Model
@@ -27,6 +27,7 @@ class Product extends DatabaseModel {
   private stock: number;
   private price: number;
   private max_quantity: number;
+  private is_available: boolean;
   private date_stamp?: string;
   private variations: ProductVariationModel[];
 
@@ -45,6 +46,7 @@ class Product extends DatabaseModel {
     this.max_quantity = data.max_quantity;
     this.price = data.price;
     this.date_stamp = data.date_stamp;
+    this.is_available = !!data.is_available;
     this.variations = data.variations || [];
   }
 
@@ -325,7 +327,7 @@ class Product extends DatabaseModel {
           }
 
           // Query the Database
-          conn.query("INSERT INTO products (name, thumbnail, description, likes, stock, price, max_quantity, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
+          conn.query("INSERT INTO products (name, thumbnail, description, likes, stock, price, max_quantity, is_available, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
             product.name,
             photoId,
             product.description,
@@ -333,6 +335,7 @@ class Product extends DatabaseModel {
             product.stock,
             product.price,
             product.max_quantity,
+            1, // Default is_available to 1
             datestamp
           ], (error, results) => {
             // If has an error
@@ -454,72 +457,46 @@ class Product extends DatabaseModel {
     });
   }
 
-  /**
-   * Get primary key ID
-   */
   public getId() {
     return this.id;
   }
 
-  /**
-   * Get name
-   */
   public getName() {
     return this.name;
   }
 
-  /**
-   * Get Thumbnail 
-   */
   public getThumbnail() {
     return this.thumbnail;
   }
 
-  /**
-   * Get Description
-   */
   public getDescription() {
     return this.description;
   }
 
-  /**
-   * Get Likes
-   */
   public getLikes() {
     return this.likes;
   }
 
-  /**
-   * Get Stock
-   */
   public getStock() {
     return this.stock;
   }
 
-  /**
-   * Get max quantity
-   */
   public getMaxQuantity() {
     return this.max_quantity;
   }
 
-  /**
-   * Get Price
-   */
+  public isAvailable() {
+    return this.is_available;
+  }
+
   public getPrice() {
     return this.price;
   }
 
-  /**
-   * Get Date stamp
-   */
   public getDatestamp() {
     return this.date_stamp;
   }
 
-  /**
-   * Get Variations
-   */
   public getVariations(): ProductVariationModel[] {
     return this.variations;
   }

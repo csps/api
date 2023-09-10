@@ -183,6 +183,12 @@ export function postOrders(request: Request, response: Response) {
       return;
     }
 
+    // If ordering an unavailable product
+    if (error === ErrorTypes.UNAVAILABLE) {
+      response.status(500).send(result.error(Strings.ORDER_UNAVAILABLE));
+      return;
+    }
+
     // If no photo/proof
     if (error === ErrorTypes.REQUEST_FILE) {
       response.status(500).send(result.error(Strings.ORDER_EMPTY_PROOF));

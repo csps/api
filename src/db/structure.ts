@@ -113,6 +113,7 @@ export enum ProductColumns {
   STOCK = "stock",
   PRICE = "price",
   MAX_QUANTITY = "max_quantity",
+  IS_AVAILABLE = "is_available",
   DATE_STAMP = "date_stamp",
 }
 

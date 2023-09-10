@@ -174,6 +174,7 @@ const Strings = {
   ORDER_INVALID_KEY: "Invalid Order Key!",
   ORDER_ALREADY_EXISTS: "Order already exist! Please check your orders in the orders page.",
   ORDER_UPDATE_ERROR: "Something went wrong while updating order.",
+  ORDER_UNAVAILABLE: "Product is unavailable!",
   ORDER_EMPTY_PRODUCT_ID: "Product ID is empty!",
   ORDER_EMPTY_STUDENT_ID: "Student ID is empty!",
   ORDER_EMPTY_STUDENT_FIRST_NAME: "Student first name is empty!",
