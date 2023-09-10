@@ -60,8 +60,13 @@ export function paginationWrapper({ query, search, pagination, order }: Paginati
           condition += ' AND ';
         }
 
-        condition += ` ${sanitize(column)} LIKE ? AND (`;
+        condition += ` ${sanitize(column)} LIKE ?`;
         isFirstColumn = false;
+
+        if (i < search.length - 1) {
+          condition += ` AND (`;
+        }
+
         continue;
       }
 
