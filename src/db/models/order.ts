@@ -186,7 +186,7 @@ export class Order extends DatabaseModel {
       const vals = JSON.parse(param.search_value);
 
       for (const col of cols) {
-        if (!Object.values(FullOrderEnum).includes(col as FullOrderEnum)) {
+        if (!Object.values(FullOrderEnum).includes(col as FullOrderEnum) && !col.startsWith("*")) {
           callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED, null);
           return;
         }

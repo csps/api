@@ -25,6 +25,7 @@ type PaginationResult = {
 
 /**
  * Pagination query wrapper
+ * @author mavyfaby (Maverick Fabroa)
  * @param {PaginationQuery} param
  */
 export function paginationWrapper({ query, search, pagination, order }: PaginationQuery): PaginationResult {
@@ -32,21 +33,47 @@ export function paginationWrapper({ query, search, pagination, order }: Paginati
   const values = [];
 
   if (search) {
+    let condition = " WHERE ";
+    let isRequiredColumn = true;
+    let isFirstColumn = true;
+    let isFirstCondition = true;
+    let requiredCount = 0;
+
     for (let i = 0; i < search.length; i++) {
       const { column, value } = search[i];
       values.push(`%${value}%`);
 
-      if (i === 0) {
-        query += ` WHERE ${sanitize(column)} LIKE ?`;
+      isRequiredColumn = column.startsWith('*');
+
+      if (isRequiredColumn) {
+        if (requiredCount > 0) {
+          condition += ' AND ';
+        }
+        
+        condition += `${sanitize(column.slice(1))} LIKE ? `;
+        requiredCount++;
+        continue;
+      }
+      
+      if (!column.startsWith("*") && !isRequiredColumn && isFirstColumn) {
+        if (requiredCount > 0) {
+          condition += ' AND ';
+        }
+
+        condition += ` ${sanitize(column)} LIKE ? AND (`;
+        isFirstColumn = false;
         continue;
       }
 
-      query += ` ${i === 1 ? 'AND (' : 'OR'} ${sanitize(column)} LIKE ?`;
+      condition += `${isFirstCondition ? '' : ' OR '} ${sanitize(column)} LIKE ?`;
+      isFirstCondition = false;
     }
 
-    if (query.includes('AND (')) {
-      query += `)`;
+    if (condition.includes('AND (')) {
+      condition += ` )`;
     }
+
+    query += condition;
   }
 
   const countQuery = `SELECT COUNT(*) AS count FROM (${query}) t`;
