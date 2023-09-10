@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "1.0.0-pre.100",
+  "version": "1.0.0-alpha.1",
   "main": "dist/index.js",
   "scripts": {
     "dev": "npm test && npm run dev-no-test",

@@ -81,32 +81,50 @@ export function getOrders(request: Request, response: Response) {
     return;
   }
 
-  // If admin
-  if (response.locals.role === AuthType.ADMIN) {
-    // Get all orders
-    Order.find(request.query, (error, orders, count) => {
-      if (error === ErrorTypes.DB_ERROR) {
-        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-        return;
-      }
+  // If auth type is student
+  if (response.locals.role === AuthType.STUDENT) {
+    // Get student ID from response locals
+    const { studentID } = response.locals;
 
-      if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        response.status(200).send(result.error(Strings.ORDERS_EMPTY));
-        return;
-      }
+    // If student ID is not present
+    if (!studentID) {
+      // Return error
+      response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+      return;
+    }
 
-      if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
-        response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
-        return;
-      }
+    const cols = JSON.parse(request.query.search_column as string);
+    const vals = JSON.parse(request.query.search_value as string);
 
-      response.status(200).send(result.success(Strings.ORDERS_FOUND, orders, count));
-    });
+    // add student ID to cols
+    cols.unshift('*student_id');
+    // add student ID to vals
+    vals.unshift(studentID);
 
-    return;
+    // Set search column and value
+    request.query.search_column = JSON.stringify(cols);
+    request.query.search_value = JSON.stringify(vals);
   }
 
-  response.status(401).send(result.success(Strings.GENERAL_UNAUTHORIZED));
+  // Get all orders
+  Order.find(request.query, (error, orders, count) => {
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+      return;
+    }
+
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(200).send(result.error(Strings.ORDERS_EMPTY));
+      return;
+    }
+
+    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+      response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+      return;
+    }
+
+    response.status(200).send(result.success(Strings.ORDERS_FOUND, orders, count));
+  });
 }
 
 /**
