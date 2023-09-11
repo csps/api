@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
     "dev": "npm test && npm run dev-no-test",
@@ -38,7 +38,7 @@
     "@types/jest": "^29.5.4",
     "@types/mysql": "^2.15.21",
     "@types/node": "^20.6.0",
-    "@types/nodemailer": "^6.4.8",
+    "@types/nodemailer": "^6.4.10",
     "chalk": "^4.1.2",
     "glob": "^10.3.4",
     "sucrase": "^3.34.0",
