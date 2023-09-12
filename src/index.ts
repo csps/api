@@ -24,13 +24,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configure cors
-app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'development' ? '*' : Strings.DOMAIN
+}));
+
 // Use helmet for security
 app.use(helmet({
   crossOriginResourcePolicy: {
-    policy: "cross-origin" // TODO: Change this to "same-origin" in production
+    policy: process.env.NODE_ENV === 'development' ? "cross-origin" : "same-origin"
   }
 }));
+
 // Use text/plain request body
 app.use(express.urlencoded({ extended: true }));
 // Use file upload plugin
