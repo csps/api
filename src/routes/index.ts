@@ -30,7 +30,7 @@ export const routes: AppRoutes[] = [
   { path: "/reset-password", methods: ["POST"], handler: resetPassword },
 
   // Products
-  { path: "/products/:id", methods: ["GET"], handler: products },
+  { path: "/products/:id", methods: ["GET","PUT"], handler: products },
   { path: "/products", methods: ["GET", "POST"], handler: products  },
 
   // Students

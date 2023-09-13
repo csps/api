@@ -20,6 +20,10 @@ export function products(request: any, response: Response) {
     case 'POST':
       postProducts(request, response);
       break;
+
+    case 'PUT':
+      updateProduct(request, response);
+      break;
   }
 }
 
@@ -126,6 +130,48 @@ function postProducts(request: Request, response: Response){
     // Otherwise, return the product data
     response.send(result.success(Strings.PRODUCT_CREATED, product));
   });
-
 }
 
+/**
+* PUT /products
+* 
+* @param request 
+* @param response 
+*/
+function updateProduct(request: Request, response: Response){
+// Validate the product data
+const validation = Product.validate(request.body);
+
+// If has an error
+if (validation){
+  response.status(400).send(result.error(validation[0], validation[1]));
+  return;
+}
+
+  const { id } = request.params;
+
+  // If id is not a number, return student not found
+  if (!isNumber(id)) {
+    response.status(404).send(result.error(Strings.PRODUCT_NOT_FOUND));
+    return;
+  }
+
+// Update the student to the database
+Product.update(parseInt(id),request.body, (error, product) => {
+  // If has error
+  if (error === ErrorTypes.DB_ERROR) {
+    response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
+    return;
+  }
+
+  // If product already exists
+  if (error === ErrorTypes.DB_PRODUCT_ALREADY_EXISTS) {
+    response.status(400).send(result.error(Strings.PRODUCT_ALREADY_EXIST));
+    return;
+  }
+
+  // Otherwise, return the product data
+  response.send(result.success(Strings.PRODUCT_CREATED, product));
+});
+
+}
