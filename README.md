@@ -6,8 +6,6 @@
 
 This repository is part of the UC Main CSP-S organization's website, which provides information about our events, activities, and services to the UC Main CCS (College of Computer Studies) students.
 
-> **Please keep in mind that the back-end server is still under development and is not yet ready for production use.**
-
 ## Contributing
 
 We welcome contributions from UC Main and other campuses who are interested in helping us improve and maintain the UC Main CSP-S website. This includes:
