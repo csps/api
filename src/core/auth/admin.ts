@@ -131,6 +131,8 @@ function postAdminLogin(request: Request, response: Response) {
         Log.login({
           ip_address: (request.headers["x-forwarded-for"] || request.ip) as string,
           students_id: `${admin?.getId() || -1}`,
+          name: admin?.getFullname() || "",
+          student_id: admin?.getStudentId() || "",
           type: 1 // 0 = Student, 1 = Admin
         });
         

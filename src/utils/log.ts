@@ -155,7 +155,7 @@ export class Log {
         return;
       }
 
-      Log.s("New login detected [" + (data.type === 0 ? 'STUDENT' : 'ADMIN') + "]: " + data.students_id);
+      Log.s("New login detected [" + (data.type === 0 ? 'STUDENT' : 'ADMIN') + "]: " + data.name + " #" + data.students_id + " (" + data.student_id + ")");
     });
   }
 }

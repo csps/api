@@ -31,6 +31,8 @@ export type EventModel = {
 export type LoginLogModel = {
   // id: number, // Hide for now
   // date_stamp: string // Hide for now
+  name: string,
+  student_id: string,
   students_id: string,
   type: number,
   ip_address: string,
