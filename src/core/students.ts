@@ -183,7 +183,7 @@ function postStudents(request: Request, response: Response) {
   }
 
   // Insert the student to the database
-  Student.insert(request.body, (error, student) => {
+  Student.insert(request.body, (error, student, plainPassword) => {
     // If has an error
     switch (error) {
       case ErrorTypes.DB_ERROR:
@@ -197,6 +197,8 @@ function postStudents(request: Request, response: Response) {
         return;
     }
 
+    // If no errors, send email
+    student?.sendNewAccountEmail(plainPassword!);
     // Otherwise, return the student data
     response.send(result.success(Strings.STUDENT_CREATED, student));
   });

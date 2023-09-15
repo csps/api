@@ -3,10 +3,10 @@ import Database, { DatabaseModel } from "../database";
 import { StudentColumns, Tables } from "../structure";
 
 import { getDatestamp } from "../../utils/date";
-import { isDate, isEmail, isNumber } from "../../utils/string";
+import { isEmail, isNumber } from "../../utils/string";
 import { ErrorTypes } from "../../types/enums";
 import { DatabaseHelper } from "../helper";
-import { sanitize } from "../../utils/security";
+import { generateToken, sanitize } from "../../utils/security";
 import { Log } from "../../utils/log";
 
 import bcrypt from "bcrypt";
@@ -14,6 +14,7 @@ import Strings from "../../config/strings";
 import Config from "../../config/app";
 import { PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
+import { sendEmail } from "../../utils/smtp";
 
 /**
  * Student model
@@ -265,7 +266,7 @@ class Student extends DatabaseModel {
    * @param student Student data
    * @param callback Callback function
    */
-  public static insert(student: StudentModel, callback: (error: ErrorTypes | null, student: Student | null) => void) {
+  public static insert(student: StudentModel, callback: (error: ErrorTypes | null, student: Student | null, plainPassword?: string) => void) {
     /**
      * Check if the student already exists
      */
@@ -300,31 +301,43 @@ class Student extends DatabaseModel {
         const db = Database.getInstance();
         // Get the current date
         const datestamp = getDatestamp();
+        // Generate password
+        const password = generateToken(8).toUpperCase();
 
-        // Query the database
-        db.query("INSERT INTO students (student_id, last_name, first_name, year_level, email_address, password, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?)", [
-          student.student_id,
-          student.last_name.trim(),
-          student.first_name.trim(),
-          student.year_level,
-          student.email_address.trim(),
-          student.password?.trim(),
-          datestamp
-        ], (error, results) => {
+        // Hash the password
+        bcrypt.hash(password, 10, (error, hash) => {
           // If has an error
           if (error) {
             Log.e(error.message);
-            callback(ErrorTypes.DB_ERROR, null);
+            callback(ErrorTypes.HASH_ERROR, null);
             return;
           }
-    
-          // Set the primary key ID
-          student.id = results.insertId;
-          // Set the date stamp
-          student.date_stamp = datestamp;
-    
-          // Return the student
-          callback(null, new Student(student));
+
+          // Query the database
+          db.query("INSERT INTO students (student_id, last_name, first_name, year_level, email_address, password, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+            student.student_id,
+            student.last_name.trim(),
+            student.first_name.trim(),
+            student.year_level,
+            student.email_address.trim(),
+            hash,
+            datestamp
+          ], (error, results) => {
+            // If has an error
+            if (error) {
+              Log.e(error.message);
+              callback(ErrorTypes.DB_ERROR, null);
+              return;
+            }
+      
+            // Set the primary key ID
+            student.id = results.insertId;
+            // Set the date stamp
+            student.date_stamp = datestamp;
+      
+            // Return the student
+            callback(null, new Student(student), password);
+          });
         });
       });
     });
@@ -535,6 +548,24 @@ class Student extends DatabaseModel {
         // Return result
         callback(null, isMatch);
       });
+    });
+  }
+
+  /**
+   * Send new account email
+   */
+  public sendNewAccountEmail(plainPassword: string) {
+    sendEmail({
+      to: this.email_address,
+      message: Strings.EMAIL_STUDENT_ADD.replace("{password}", plainPassword).replace("{name}", this.getFullname()),
+      subject: Strings.EMAIL_STUDENT_ADD_TITLE,
+    }, (error, info) => {
+      if (error) {
+        Log.e(error.message);
+        return;
+      }
+
+      Log.i(`New account email sent to ${this.getFullname()} (${this.student_id})`);
     });
   }
 
