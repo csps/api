@@ -1,6 +1,7 @@
 import type { Request } from "express";
 import { jwtVerify } from "jose";;
 import { ErrorTypes, AuthType } from "../types/enums";
+import { Log } from "../utils/log";
 
 /**
  * Session class
@@ -27,6 +28,13 @@ export class Session {
   
       // Get token
       token = authorization.split(' ')[1];
+    }
+
+    // If using API key
+    if (token === process.env.API_KEY) {
+      Log.i("Using API KEY");
+      callback(null, { id: "API_KEY", role: AuthType.ADMIN });
+      return;
     }
 
     // Decode secret key
