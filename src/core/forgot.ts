@@ -70,7 +70,7 @@ export function postForgotPassword(request: Request, response: Response) {
       }
 
       // Log sending email
-      Log.i(`Sending reset password link email to ${student!.getEmailCredential()}.`);
+      Log.i(`Sending email to ${student!.getEmailCredential()}...`);
   
       // Otherwise, send email
       sendEmail({

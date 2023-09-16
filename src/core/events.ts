@@ -39,21 +39,23 @@ function getEvents(request: Request, response: Response) {
   }
 
   // Get all events
-  Event.getAll((error, events) => {
-    // If has an error
+  Event.find(request.query, (error, events, count) => {
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.EVENTS_GET_ERROR));
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
       return;
     }
-    
-    // If no results
+
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(Strings.EVENTS_NOT_FOUND));
+      response.status(200).send(result.error(Strings.EVENTS_NOT_FOUND));
       return;
     }
-    
-    // Return the events
-    response.send(result.success(Strings.EVENTS_FOUND, events));
+
+    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+      response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+      return;
+    } 
+
+    response.status(200).send(result.success(Strings.EVENTS_FOUND, events, count));
   });
 }
 
@@ -109,7 +111,7 @@ function postEvents(request: Request, response: Response){
   /**
    * Insert the Event Data
    */
-  Event.insert(request.body, (error, event) => {
+  Event.insert(request.body, request.files, (error, event) => {
     // If has error
     switch(error){
       case ErrorTypes.DB_ERROR:

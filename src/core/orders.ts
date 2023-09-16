@@ -1,8 +1,7 @@
 import type { Request, Response } from "express";
 
-import { Session } from "../classes/session";
 import { result } from "../utils/response";
-import { ErrorTypes } from "../types/enums";
+import { AuthType, ErrorTypes } from "../types/enums";
 import { Order } from "../db/models/order";
 import { isObjectEmpty } from "../utils/string";
 import Strings from "../config/strings";
@@ -15,30 +14,18 @@ import Strings from "../config/strings";
  * @param response Express Response Object
  */
 export function orders(request: Request, response: Response) {
-  // Get student ID from JWT session
-  Session.getStudentID(request, (studentID) => {
-    // If student ID is null
-    if (studentID === null) {
-      response.status(401).send(result.error(Strings.GENERAL_SESSION_EXPIRED));
-      return;
-    }
-
-    // Set student ID to response locals
-    response.locals.studentID = studentID;
-
-    // Otherwise, map request method
-    switch (request.method) {
-      case 'GET':
-        getOrders(request, response);
-        break;
-      case 'POST':
-        postOrders(request, response);
-        break;
-      case 'PUT':
-        putOrders(request, response);
-        break;
-    }
-  });
+  // Map request method
+  switch (request.method) {
+    case 'GET':
+      getOrders(request, response);
+      break;
+    case 'POST':
+      postOrders(request, response);
+      break;
+    case 'PUT':
+      putOrders(request, response);
+      break;
+  }
 }
 
 /**
@@ -46,32 +33,97 @@ export function orders(request: Request, response: Response) {
  */
 export function getOrders(request: Request, response: Response) {
   // Get order ID from request params
-  const { id } = request.params;
+  const { id, receipt, studentId } = request.params;
+
+  // If has receipt
+  if (receipt) {
+    // If has student ID
+    if (studentId) {
+      // Get order
+      Order.fromReceiptAndStudent(receipt, studentId, (error, order) => {
+        if (error === ErrorTypes.DB_ERROR) {
+          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+          return;
+        }
+
+        if (error === ErrorTypes.DB_EMPTY_RESULT) {
+          response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
+          return;
+        }
+
+        response.status(200).send(result.success(Strings.ORDER_FOUND, order));
+      });
+
+      return;
+    }
+
+    // Get order
+    Order.fromReceipt(receipt, (error, order) => {
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+        return;
+      }
+
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
+        return;
+      }
+
+      response.status(200).send(result.success(Strings.ORDER_FOUND, order));
+    });
+
+    return;
+  }
 
   // If order ID is present
   if (id) {
-    // Get order
     getOrder(request, response);
     return;
   }
 
-  // Otherwise, get all orders
-  Order.getAllByStudentID(response.locals.studentID, (error, orders) => {
-    // If has error
-    if (error !== null) {
-      // Map error
-      switch (error) {
-        case ErrorTypes.DB_ERROR:
-          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-          return;
-        case ErrorTypes.DB_EMPTY_RESULT:
-          response.status(200).send(result.error(Strings.ORDERS_EMPTY));
-          return;
-      }
+  // If auth type is student
+  if (response.locals.role === AuthType.STUDENT) {
+    // Get student ID from response locals
+    const { studentID } = response.locals;
+
+    // If student ID is not present
+    if (!studentID) {
+      // Return error
+      response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+      return;
     }
 
-    // Otherwise, send results
-    response.status(200).send(result.success(Strings.ORDERS_FOUND, orders));
+    const cols = JSON.parse(request.query.search_column as string);
+    const vals = JSON.parse(request.query.search_value as string);
+
+    // add student ID to cols
+    cols.unshift('*student_id');
+    // add student ID to vals
+    vals.unshift(studentID);
+
+    // Set search column and value
+    request.query.search_column = JSON.stringify(cols);
+    request.query.search_value = JSON.stringify(vals);
+  }
+
+  // Get all orders
+  Order.find(request.query, (error, orders, count) => {
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+      return;
+    }
+
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(200).send(result.error(Strings.ORDERS_EMPTY));
+      return;
+    }
+
+    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+      response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+      return;
+    }
+
+    response.status(200).send(result.success(Strings.ORDERS_FOUND, orders, count));
   });
 }
 
@@ -112,15 +164,10 @@ export function getOrder(request: Request, response: Response) {
  * POST /orders
  */
 export function postOrders(request: Request, response: Response) {
-  // If request body is empty
-  if (isObjectEmpty(request.body)) {
-    // Return error
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-    return;
-  }
-
+  // Is logged in?
+  const isLoggedIn = !!response.locals.studentID;
   // Validate order data
-  const errors = Order.validate(request.body);
+  const errors = Order.validate(request.body, isLoggedIn, request.files);
 
   // If has an error
   if (errors){
@@ -128,22 +175,30 @@ export function postOrders(request: Request, response: Response) {
     return;
   }
 
-  // Otherwise, create order
-  Order.insert(response.locals.studentID, request.body, (error, order) => {
+  // Otherwise, insert order
+  Order.insert(response.locals.studentID, request.body, request.files || null, (error, receiptID) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
       return;
     }
 
-    // If order already exists
-    if (error === ErrorTypes.DB_ORDER_ALREADY_EXISTS) {
-      response.status(400).send(result.error(Strings.ORDER_ALREADY_EXISTS));
+    // If ordering an unavailable product
+    if (error === ErrorTypes.UNAVAILABLE) {
+      response.status(500).send(result.error(Strings.ORDER_UNAVAILABLE));
       return;
     }
 
+    // If no photo/proof
+    if (error === ErrorTypes.REQUEST_FILE) {
+      response.status(500).send(result.error(Strings.ORDER_EMPTY_PROOF));
+      return;
+    }
+
+    // Send email
+    Order.sendEmail(receiptID!);
     // Otherwise, return the product data
-    response.send(result.success(Strings.ORDER_CREATED, order));
+    response.send(result.success(Strings.ORDER_CREATED, receiptID));
   });
 }
 
@@ -156,15 +211,8 @@ export function putOrders(request: Request, response: Response) {
   // Get value from request body
   const { value } = request.body;
 
-  // If request body is empty
-  if (isObjectEmpty(request.body)) {
-    // Return error
-    response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
-    return;
-  }
-
-  // If value is empty
-  if (!request.body.value) {
+  // If request body and value is empty
+  if (isObjectEmpty(request.body) || !request.body.value) {
     // Return error
     response.status(400).send(result.error(Strings.GENERAL_INVALID_REQUEST));
     return;
@@ -192,7 +240,7 @@ export function putOrders(request: Request, response: Response) {
 
     // if key is not allowed
     if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
-      response.status(400).send(result.error(Strings.ORDER_KEY_NOT_ALLOWED));
+      response.status(400).send(result.error(Strings.GENERAL_KEY_NOT_ALLOWED));
       return;
     }
 

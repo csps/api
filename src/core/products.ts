@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ErrorTypes } from '../types/enums';
+import { AuthType, ErrorTypes } from '../types/enums';
 import { result } from '../utils/response';
 import { isNumber } from '../utils/string';
 import Product from '../db/models/product';
@@ -8,6 +8,7 @@ import Strings from "../config/strings";
 /**
  * Products API
  * @author ampats04 (Jeremy Andy F. Ampatin)
+ * @author mavyfaby (Maverick G. Fabroa)
  * 
  * @param request Exprese request
  * @param response Express response
@@ -43,22 +44,24 @@ function getProducts(request: Request, response: Response) {
     return;
   }
 
-  // Get all products
-  Product.getAll((error, products) => {
-    // If has an error
+  // Get all students
+  Product.find(request.query, (error, students, count) => {
     if (error === ErrorTypes.DB_ERROR) {
-      response.status(500).send(result.error(Strings.PRODUCTS_GET_ERROR));
+      response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
       return;
     }
-    
-    // If no results
+
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
-      response.status(404).send(result.error(Strings.PRODUCTS_NOT_FOUND));
+      response.status(200).send(result.error(Strings.PRODUCTS_NOT_FOUND));
       return;
     }
-    
-    // Return the products
-    response.send(result.success(Strings.PRODUCTS_FOUND, products));
+
+    if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
+      response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
+      return;
+    } 
+
+    response.status(200).send(result.success(Strings.PRODUCTS_FOUND, students, count));
   });
 }
 
@@ -105,7 +108,7 @@ function getProduct(request: Request, response: Response) {
  */
 function postProducts(request: Request, response: Response){
   // Validate the product data
-  const validation = Product.validate(request.body);
+  const validation = Product.validate(request.body, request.files);
 
   // If has an error
   if (validation){
@@ -113,8 +116,8 @@ function postProducts(request: Request, response: Response){
     return;
   }
 
-  // Insert the student to the database
-  Product.insert(request.body, (error, product) => {
+  // Insert the product to the database
+  Product.insert(request.body, request.files, error => {
     // If has error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
@@ -128,7 +131,7 @@ function postProducts(request: Request, response: Response){
     }
 
     // Otherwise, return the product data
-    response.send(result.success(Strings.PRODUCT_CREATED, product));
+    response.send(result.success(Strings.PRODUCT_CREATED));
   });
 }
 

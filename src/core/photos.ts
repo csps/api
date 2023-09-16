@@ -3,8 +3,9 @@ import { result } from "../utils/response";
 import { ErrorTypes } from "../types/enums";
 import { isNumber } from "../utils/string";
 import { Photo } from "../db/models/photo";
-import { PhotoType } from "../types/models";
 import Strings from "../config/strings";
+import { getFile } from "../utils/file";
+import { PhotoRequest } from "../types/request";
 
 /**
  * Photos API
@@ -32,9 +33,11 @@ export function photos(request: Request, response: Response) {
 function getPhotos(request: Request, response: Response) {
   // Get id from request parameters
   const { id } = request.params;
+  // Is receipt?
+  const isReceipt = request.originalUrl.includes("receipt");
 
   // If {id} is not a number
-  if (!isNumber(id)) {
+  if (!isNumber(id) && !isReceipt) {
     response.status(400).send(result.error(Strings.PHOTO_INVALID_ID));
     return;
   }
@@ -54,15 +57,17 @@ function getPhoto(request: Request, response: Response) {
   const { id } = request.params;
   // Is raw?
   const isRaw = request.originalUrl.endsWith("raw");
+  // Is receipt?
+  const isReceipt = request.originalUrl.includes("receipt");
 
   // If {id} is not a number
-  if (!isNumber(id)) {
+  if (!isNumber(id) && !isReceipt) {
     response.status(400).send(result.error(Strings.PHOTO_INVALID_ID));
     return;
   }
 
   // Get the photo from the database
-  Photo.fromId(Number(id), (error, photo) => {
+  const callback = (error: ErrorTypes | null, photo: Photo | null) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.PHOTO_GET_ERROR));
@@ -92,7 +97,16 @@ function getPhoto(request: Request, response: Response) {
       ...photo,
       data: data.toString('base64')
     }));
-  });
+  };
+
+  // If is receipt
+  if (isReceipt) {
+    Photo.fromReceipt(id, callback);
+    return;
+  }
+
+  // Otherwise, get the photo from the database
+  Photo.fromId(Number(id), callback);
 }
 
 /**
@@ -102,7 +116,7 @@ function getPhoto(request: Request, response: Response) {
  */
 function postPhotos(request: Request, response: Response) {
   // Validate the student data
-  const error = Photo.validate(request.body);
+  const error = Photo.validate(request.files);
 
   // If has an error
   if (error) {
@@ -110,14 +124,18 @@ function postPhotos(request: Request, response: Response) {
     return;
   }
 
+  // Get the photo data
+  const data = getFile(request.files, "data");
+
   // Get request body and convert the base64 data to buffer
-  const photo: PhotoType = {
-    ...request.body,
-    data: Buffer.from(request.body.data, 'base64')
+  const photo: PhotoRequest = {
+    data: data?.data!,
+    type: data?.mimetype!,
+    name: data?.name,
   };
 
   // Insert the student to the database
-  Photo.insert(photo, (error, photo) => {
+  Photo.insert(photo, (error, photoId) => {
     // If has an error
     switch (error) {
       case ErrorTypes.DB_ERROR:
@@ -126,6 +144,6 @@ function postPhotos(request: Request, response: Response) {
     }
 
     // Otherwise, return the student data
-    response.send(result.success(Strings.PHOTO_CREATED));
+    response.send(result.success(Strings.PHOTO_CREATED, photoId));
   });
 }

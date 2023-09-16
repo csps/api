@@ -1,5 +1,5 @@
 import { ErrorTypes, TutorialStatus } from "../../types/enums";
-import { TutorialType } from "../../types/models";
+import { TutorialModel } from "../../types/models";
 import Database, { DatabaseModel } from "../database";
 import { Log } from "../../utils/log";
 import { getDatestamp } from "../../utils/date";
@@ -27,7 +27,7 @@ class Tutorial extends DatabaseModel {
    * Tutorial Public Constructor
    * @param data Raw Tutorial Data
    */
-  public constructor(data: TutorialType) {
+  public constructor(data: TutorialModel) {
     super();
     this.id = data.id;
     this.student_id = data.student_id;
@@ -97,7 +97,7 @@ class Tutorial extends DatabaseModel {
       }
 
       // Create and return tutorials
-      callback(null, results.map((tutorial: TutorialType) => new Tutorial(tutorial)));
+      callback(null, results.map((tutorial: TutorialModel) => new Tutorial(tutorial)));
     });
   }
 
@@ -124,7 +124,7 @@ class Tutorial extends DatabaseModel {
       }
 
       // Create and return tutorials
-      callback(null, results.map((tutorial: TutorialType) => new Tutorial(tutorial)));
+      callback(null, results.map((tutorial: TutorialModel) => new Tutorial(tutorial)));
     })
   }
 
@@ -133,7 +133,7 @@ class Tutorial extends DatabaseModel {
    * @param tutorial Tutorial information
    * @param callback Callback function
    */
-  public static insert(tutorial: TutorialType, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
+  public static insert(tutorial: TutorialModel, callback: (error: ErrorTypes | null, tutorial: Tutorial | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Get the current date
@@ -224,7 +224,7 @@ class Tutorial extends DatabaseModel {
     return this.date_stamp;
   }
 
-  public static validate(data: TutorialType) {
+  public static validate(data: TutorialModel) {
     // If name is empty
     if (!data.date_stamp) return [Strings.TUTORIAL_EMPTY_DATE_STAMP, "date_stamp"];
     // If Short Description is empty

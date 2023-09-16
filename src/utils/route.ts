@@ -5,6 +5,15 @@ import { routes } from "../routes";
  * @param path What path to check
  */
 export function getPattern(requestPath: string) {
+  // index of ?
+  const i = requestPath.indexOf('?');
+
+  // If has a question mark (?)
+  if (i >= 0) {
+    // Get the path
+    requestPath = requestPath.slice(0, i);
+  }
+
   // Path pattern
   const patterns = requestPath.slice(1).split("/");
 

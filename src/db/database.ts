@@ -6,11 +6,11 @@ import { ErrorTypes } from "../types/enums";
  * Database Model class
  */
 export abstract class DatabaseModel {
-  static fromId(id: number | string, callback: (error: ErrorTypes | null, product: DatabaseModel | null) => void) {
+  static fromId(id: number | string, callback: (error: ErrorTypes | null, model: DatabaseModel | null) => void) {
     throw new Error("Method not implemented.");
   }
 
-  static getAll(callback: (error: ErrorTypes | null, product: DatabaseModel[] | null) => void) {
+  static getAll(callback: (error: ErrorTypes | null, model: DatabaseModel[] | null) => void) {
     throw new Error("Method not implemented.");
   }
 }
@@ -41,6 +41,7 @@ class Database {
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
+      port: parseInt(process.env.DB_PORT),
       dateStrings: true
     });
   }
@@ -57,6 +58,13 @@ class Database {
 
     // Return the instance
     return Database.instance;
+  }
+
+  /**
+   * Get the database connection
+   */
+  public static getConnection(callback: (error: mysql.MysqlError | null, connection: mysql.PoolConnection) => void) {
+    Database.pool.getConnection(callback);
   }
 
   /**

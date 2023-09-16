@@ -1,11 +1,18 @@
+import fileUpload from "express-fileupload";
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
+import cors from "cors";
+
 import { getPattern } from "./utils/route";
 import { routes } from "./routes";
 import { Log } from "./utils/log";
 import { checkCredentials } from "./utils/validate";
 import { handleNotFound, handleUnimplemented } from "./routes/handler";
+import { Session } from "./classes/session";
+import { AuthType, ErrorTypes } from "./types/enums";
+import { result } from "./utils/response";
+import Strings from "./config/strings";
 import Database from "./db/database";
 
 // Load environment variables from .env file
@@ -14,12 +21,24 @@ dotenv.config();
 // Create an express app
 const app = express();
 // Set the port
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 3000;
+
+// Configure cors
+app.use(cors({
+  origin: process.env.NODE_ENV === 'development' ? '*' : Strings.DOMAIN
+}));
 
 // Use helmet for security
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: {
+    policy: process.env.NODE_ENV === 'development' ? "cross-origin" : "same-origin"
+  }
+}));
+
 // Use text/plain request body
 app.use(express.urlencoded({ extended: true }));
+// Use file upload plugin
+app.use(fileUpload());
 // Use custom logger
 app.use(Log.getMiddleware());
 
@@ -46,8 +65,32 @@ app.use(routes.map(r => r.path), (request, response) => {
         return handleUnimplemented(request, response);
       }
 
-      // Otherwise, call the API handler
-      return route.handler(request, response); 
+      // Get session data
+      Session.getSession(request, (error, data) => {
+        // If has authentication token and is expired
+        if (error === ErrorTypes.DB_EXPIRED || data === null) {
+          Log.w("Session expired for ID: " + data?.id);
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
+          return;
+        }
+
+        // If not allowed to access the route, nakuha najud :) pwede nako matog
+        if (route.auth && route.auth[request.method as HttpMethod] && (data.role !== route.auth[request.method as HttpMethod] || !data.role)) {
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
+          return;
+        }
+        
+        // If student, add ID to response locals
+        if (data.role === AuthType.STUDENT) {
+          response.locals.studentID = data.id;
+        }
+
+        // Add role to response locals
+        response.locals.role = data.role;
+
+        // Call the API handler
+        return route.handler(request, response); 
+      });
     }
   }
 });
@@ -61,6 +104,8 @@ app.use("*", (request, response) => {
     return response.sendFile("favicon.ico", { root: "./assets" });
   }
 
+  // Set default response content type
+  response.setHeader("Content-Type", "application/json");
   // Otherwise, return 404
   return handleNotFound(request, response);
 });
