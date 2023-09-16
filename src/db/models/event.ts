@@ -224,7 +224,7 @@ class Event extends DatabaseModel {
         conn.query(`INSERT INTO ${Tables.EVENTS} (thumbnail, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
           photoId,
           event.title,
-          event.description,
+          event.description || "",
           event.venue,
           event.date,
           event.start_time,
@@ -265,8 +265,6 @@ class Event extends DatabaseModel {
   public static validate(data: EventModel) {
     // Check if Title is Empty
     if (!data.title) return [Strings.EVENT_EMPTY_TITLE, "title"];
-    // Check if Description is Empty
-    if (!data.description) return [Strings.EVENT_EMPTY_DESCRIPTION, "description"];
     // Check if Venue is Empty
     if (!data.venue) return [Strings.EVENT_EMPTY_VENUE, "venue"];
     // Check if date is empty
