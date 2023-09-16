@@ -513,10 +513,10 @@ class Product extends DatabaseModel {
         // Update product
         function updateProduct(thumbnail: number) {
           // Data
-          const data = [product.name, thumbnail, product.description, product.stock, product.price, product.max_quantity, 1, id];
+          const data = [product.name, thumbnail, product.description, product.stock, product.price, product.max_quantity, id];
 
           // Query the Database
-          conn.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ?, is_available = ? WHERE id = ?", data, (error, results) => {
+          conn.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE id = ?", data, (error, results) => {
             if (error) {
               Log.e(error.message);
               callback(ErrorTypes.DB_ERROR);
