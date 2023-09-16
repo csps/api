@@ -141,10 +141,6 @@ function postProducts(request: Request, response: Response){
 function updateProduct(request: Request, response: Response){
 // Validate the product data
     const validation = Product.validate(request.body);
-    console.log("Test");
-    
-    console.log(request.body);
-
     // If has an error
     if (validation){
       response.status(400).send(result.error(validation[0], validation[1]));

@@ -277,7 +277,6 @@ class Product extends DatabaseModel {
       }
 
       product.variations = product.variations || []
-      console.log(product.variations);
       
       // If has variations
       if (product.variations.length > 0) {
