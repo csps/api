@@ -59,7 +59,7 @@ function getProducts(request: Request, response: Response) {
     if (error === ErrorTypes.REQUEST_KEY_NOT_ALLOWED) {
       response.status(400).send(result.error(Strings.GENERAL_COLUMN_NOT_FOUND));
       return;
-    } 
+    }
 
     response.status(200).send(result.success(Strings.PRODUCTS_FOUND, students, count));
   });
@@ -88,7 +88,7 @@ function getProduct(request: Request, response: Response) {
       response.status(500).send(result.error(Strings.PRODUCT_GET_ERROR));
       return;
     }
-    
+
     // If no results
     if (error === ErrorTypes.DB_EMPTY_RESULT) {
       response.status(404).send(result.error(Strings.PRODUCT_NOT_FOUND));
@@ -106,12 +106,12 @@ function getProduct(request: Request, response: Response) {
  * @param request 
  * @param response 
  */
-function postProducts(request: Request, response: Response){
+function postProducts(request: Request, response: Response) {
   // Validate the product data
   const validation = Product.validate(request.body, request.files);
 
   // If has an error
-  if (validation){
+  if (validation) {
     response.status(400).send(result.error(validation[0], validation[1]));
     return;
   }
@@ -141,14 +141,15 @@ function postProducts(request: Request, response: Response){
 * @param request 
 * @param response 
 */
-function updateProduct(request: Request, response: Response){
-// Validate the product data
-    const validation = Product.validate(request.body);
-    // If has an error
-    if (validation){
-      response.status(400).send(result.error(validation[0], validation[1]));
-      return;
-    }
+function updateProduct(request: Request, response: Response) {
+  // Validate the product data
+  const validation = Product.validate(request.body, request.files, true);
+
+  // If has an error
+  if (validation) {
+    response.status(400).send(result.error(validation[0], validation[1]));
+    return;
+  }
 
   const { id } = request.params;
 
@@ -158,22 +159,22 @@ function updateProduct(request: Request, response: Response){
     return;
   }
 
-// Update the student to the database
-Product.update(parseInt(id),request.body, (error, product) => {
-  // If has error
-  if (error === ErrorTypes.DB_ERROR) {
-    response.status(500).send(result.error(Strings.PRODUCT_PUT_ERROR));
-    return;
-  }
+  // Update the student to the database
+  Product.update(parseInt(id), request.body, request.files, error => {
+    // If has error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.PRODUCT_PUT_ERROR));
+      return;
+    }
 
-  // If product already exists
-  if (error === ErrorTypes.DB_PRODUCT_ALREADY_EXISTS) {
-    response.status(400).send(result.error(Strings.PRODUCT_ALREADY_EXIST));
-    return;
-  }
+    // If product already exists
+    if (error === ErrorTypes.DB_PRODUCT_ALREADY_EXISTS) {
+      response.status(400).send(result.error(Strings.PRODUCT_ALREADY_EXIST));
+      return;
+    }
 
-  // Otherwise, return the product data
-  response.send(result.success(Strings.PRODUCT_UPDATED, product));
-});
+    // Otherwise, return the product data
+    response.send(result.success(Strings.PRODUCT_UPDATED));
+  });
 
 }

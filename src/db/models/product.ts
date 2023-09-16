@@ -224,7 +224,7 @@ class Product extends DatabaseModel {
    * @param data Raw product Data
    * @param files File Array
    */
-  public static validate(data: ProductRequest, files?: FileArray | null) {
+  public static validate(data: ProductRequest, files: FileArray | null | undefined, isUpdate = false) {
     // If name is empty
     if (!data.name) return [Strings.PRODUCT_EMPTY_NAME, "name"];
     // If Description is empty
@@ -246,7 +246,7 @@ class Product extends DatabaseModel {
     // If max_quantity is less than 0
     if (data.max_quantity < 0) return [Strings.PRODUCT_LIMIT_MAX_QUANTITY, "max_quantity"];
     // Check for thumbnail
-    if (!files || !getFile(files, "thumbnail")) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
+    if (!isUpdate && (!files || !getFile(files, "thumbnail"))) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
 
     // ------------- Variations Pattern: [1-2, 2-3, 3-4] => [variations_id, stock] ------------- //
     
@@ -462,58 +462,82 @@ class Product extends DatabaseModel {
    * @param product Product Data
    * @param callback Callback Function
    */
-  public static update(id: number,product: ProductType, callback: (error: ErrorTypes | null, product: Product | null) => void) {
-    // Get database instance
-    const db = Database.getInstance();
+  public static update(id: number, product: ProductRequest, files: FileArray | null | undefined, callback: (error: ErrorTypes | null) => void) {
     // Get the current date
     const datestamp = getDatestamp();
 
-    //Query the Database
-    db.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE id = ?", [
-      product.name,
-      product.thumbnail,
-      product.description,
-      product.stock,
-      product.price,
-      product.max_quantity,
-      id,
-    ], (error, results) => {
-      // If has an error
+    // Get database connection
+    Database.getConnection((error, conn) => {
       if (error) {
-        callback(ErrorTypes.DB_ERROR, null);
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR);
         return;
       }
 
-      product.variations = product.variations || []
-      
-      // If has variations
-      if (product.variations.length > 0) {
-        // Add product id to the variations
-        const variationValues = product.variations.map((variation) => [
-          id,
-          variation.photos_id,
-          variation.name,
-          variation.product_variation_types_id,
-        ]);
+      // Begin transaction
+      conn.beginTransaction(error => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR);
+          return;
+        }
 
-        //Query the database to insert the variations
-        db.query("UPDATE product_variations photos_id = ?, name = ? WHERE product_variation_types_id = ?", [variationValues], (error) => {
-          // If has an error
-          if (error) {
-            Log.e(error.message);
-            callback(ErrorTypes.DB_ERROR, null);
-            return;
-          }
+        // Get thumbnail
+        const thumbnail = getFile(files, "thumbnail");
 
-          // Return the product
-          callback(null, new Product(product));
-        });
-        
-        return;
-      }
+        if (thumbnail) {
+          // Insert thumbnail
+          Photo.insert({ data: thumbnail.data, type: thumbnail.mimetype }, (error, photoId) => {
+            if (error || !photoId) {
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) Log.e(error.message);
+                Log.e("[Products] Error inserting thumbnail: " + error.message);
+                callback(ErrorTypes.DB_ERROR);
+              });
+              
+              return;
+            }
+            
+            // Update with thumbnail changes
+            updateProduct(photoId);
+          });
 
-      // Return the product w/ no variations
-      callback(null, new Product(product));
+          return;
+        }
+
+        // Update with no thumbnail changes
+        updateProduct(product.thumbnail as number);
+
+        // Update product
+        function updateProduct(thumbnail: number) {
+          // Data
+          const data = [product.name, thumbnail, product.description, product.stock, product.price, product.max_quantity, 1, id];
+
+          // Query the Database
+          conn.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ?, is_available = ? WHERE id = ?", data, (error, results) => {
+            if (error) {
+              Log.e(error.message);
+              callback(ErrorTypes.DB_ERROR);
+              return;
+            }
+    
+            // Commit transaction and return the product w/ no variations
+            conn.commit((error) => {
+              // If has an error
+              if (error) {
+                Log.e(error.message);
+                callback(ErrorTypes.DB_ERROR);
+                return;
+              }
+    
+              // Return the product
+              callback(null);
+            });
+          });
+        }
+      });
     });
   }
 

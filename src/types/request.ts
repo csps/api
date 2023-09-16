@@ -7,6 +7,7 @@ export type ProductRequest = {
   price: number;
   max_quantity: number;
   variations: string;
+  thumbnail: number | File;
 }
 
 export type OrderRequest = {
