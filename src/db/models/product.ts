@@ -156,10 +156,6 @@ class Product extends DatabaseModel {
   public static validate(data: ProductType) {
     // If name is empty
     if (!data.name) return [Strings.PRODUCT_EMPTY_NAME, "name"];
-    // If Short Description is empty
-    if (!data.short_description) return [Strings.PRODUCT_EMPTY_SHORT_DESCRIPTION, "short_description"];
-    // If Short Description exceeds 128 characters
-    if (data.short_description.length > 128) return [Strings.PRODUCT_LIMIT_SHORT_DESCRIPTION, "short_description"];
     // If Description is empty
     if (!data.description) return [Strings.PRODUCT_EMPTY_DESCRIPTION, 'description'];
     // If Price is empty
@@ -265,10 +261,9 @@ class Product extends DatabaseModel {
     const datestamp = getDatestamp();
 
     //Query the Database
-    db.query("UPDATE products SET name = ?, thumbnail = ?, short_description = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE products_id = ?", [
+    db.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE id = ?", [
       product.name,
       product.thumbnail,
-      product.short_description,
       product.description,
       product.stock,
       product.price,
@@ -282,7 +277,8 @@ class Product extends DatabaseModel {
       }
 
       product.variations = product.variations || []
-
+      console.log(product.variations);
+      
       // If has variations
       if (product.variations.length > 0) {
         // Add product id to the variations

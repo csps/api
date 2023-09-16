@@ -12,7 +12,7 @@ import Strings from "../config/strings";
  * @param request Exprese request
  * @param response Express response
  */
-export function products(request: any, response: Response) {
+export function products(request: Request, response: Response) {
   switch (request.method) {
     case 'GET':
       getProducts(request, response);
@@ -140,13 +140,16 @@ function postProducts(request: Request, response: Response){
 */
 function updateProduct(request: Request, response: Response){
 // Validate the product data
-const validation = Product.validate(request.body);
+    const validation = Product.validate(request.body);
+    console.log("Test");
+    
+    console.log(request.body);
 
-// If has an error
-if (validation){
-  response.status(400).send(result.error(validation[0], validation[1]));
-  return;
-}
+    // If has an error
+    if (validation){
+      response.status(400).send(result.error(validation[0], validation[1]));
+      return;
+    }
 
   const { id } = request.params;
 
@@ -160,7 +163,7 @@ if (validation){
 Product.update(parseInt(id),request.body, (error, product) => {
   // If has error
   if (error === ErrorTypes.DB_ERROR) {
-    response.status(500).send(result.error(Strings.PRODUCT_POST_ERROR));
+    response.status(500).send(result.error(Strings.PRODUCT_PUT_ERROR));
     return;
   }
 
@@ -171,7 +174,7 @@ Product.update(parseInt(id),request.body, (error, product) => {
   }
 
   // Otherwise, return the product data
-  response.send(result.success(Strings.PRODUCT_CREATED, product));
+  response.send(result.success(Strings.PRODUCT_UPDATED, product));
 });
 
 }
