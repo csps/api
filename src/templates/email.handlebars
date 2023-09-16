@@ -127,19 +127,20 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0"
                   style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;"
                   width="100%">
+                  {{#title}}
                   <tr>
                     <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
                       <h4 class="title"
-                        style="font-family: sans-serif; line-height: 1.4; margin: 0; font-size: 20px; font-weight: 500; letter-spacing: 0.2px; color: #1e1b1e;">
-                        {{ title }}
+                        style="font-family: sans-serif; line-height: 1.4; margin: 0 0 20px 0; font-size: 20px; font-weight: 500; letter-spacing: 0.2px; color: #1e1b1e;">
+                        {{ . }}
                       </h4>
                     </td>
                   </tr>
+                  {{/title}}
                   <tr>
                     <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
-
                       {{#order}}
-                      <div style="border-bottom:0px none; margin-top: 20px;">
+                      <div style="border-bottom:0px none; margin-bottom: 20px;">
                         <table cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #cec3cd;padding-bottom:16px;">
                           <tbody>
                             <tr>
@@ -182,7 +183,7 @@
                       </div>
                       {{/order}}
 
-                      <p style="font-family: sans-serif; font-size: 14px; margin: 0; margin-top: 20px; font-weight: 500; color:#4c444d;">
+                      <p style="font-family: sans-serif; font-size: 14px; margin: 0; font-weight: 500; color:#4c444d;">
                         {{{ message }}}
                       </p>
 

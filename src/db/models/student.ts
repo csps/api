@@ -559,6 +559,7 @@ class Student extends DatabaseModel {
       to: this.email_address,
       message: Strings.EMAIL_STUDENT_ADD.replace("{password}", plainPassword).replace("{name}", this.getFullname()),
       subject: Strings.EMAIL_STUDENT_ADD_TITLE,
+      title: Strings.EMAIL_STUDENT_ADD_TITLE,
     }, (error, info) => {
       if (error) {
         Log.e(error.message);

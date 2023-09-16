@@ -41,9 +41,9 @@ const Strings = {
 
   EMAIL_ORDER_TITLE: "Order #{receipt}",
   EMAIL_ORDER_SUBJECT: "Order #{receipt} confirmed!",
-  EMAIL_ORDER_BODY: `Hi {name},\n\nWe have received your order on <b>{date}</b> via <b>{mode_of_payment}</b>. Please proceed to the CSPS office to get your order.\n\nSincerely,\nUC Main CSPS`,
+  EMAIL_ORDER_BODY: `Hi {name},\n\nWe have received your order on <b>{date}</b> via <b>{mode_of_payment}</b>. Please proceed to the CSPS office to get your order.\n\nCheers,\nUC Main CSPS`,
   EMAIL_STUDENT_ADD_TITLE: `Welcome to UC Main CSPS!`,
-  EMAIL_STUDENT_ADD: `Hi {name},\n\nWe set up an account for you on our CSPS website. Your auto-generated default password is <b>{password}</b>. Just login with your student ID and the password provided in the login page.\n\nKeep your password confidential. If you forget your password, you can easily reset it by going to the login page and clicking on the Forgot Password button.\n\nSincerely,\nUC Main CSPS`,
+  EMAIL_STUDENT_ADD: `Hi {name},\n\nWe set up an account for you on our CSPS website. Your auto-generated default password is <b>{password}</b>. Just login with your student ID and the password provided in the login page.\n\nKeep your password confidential. If you forget your password, you can easily reset it by going to the login page and clicking on the Forgot Password button.\n\nCheers,\nUC Main CSPS`,
 
   COURSES_EMPTY_ID: "Empty ID.",
   COURSES_EMPTY_NAME: "Empty name.",
@@ -206,7 +206,7 @@ const Strings = {
   QRCODE_GENERATED_SUCCESFULLY: "QR Code generated succesfully!",
 
   RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT: "Password Changed!",
-  RESET_PASSWORD_EMAIL_SUCCESS_BODY: `Hi {name},\n\nYour password has been reset successfully. If you didn't make this request, please contact the CSPS server admin.\n\nSincerely,\nUC Main CSPS`,
+  RESET_PASSWORD_EMAIL_SUCCESS_BODY: `Hi {name},\n\nYour password has been reset successfully. If you didn't make this request, please contact the CSPS server admin.\n\nCheers,\nUC Main CSPS`,
 };
 
 export default Strings;
