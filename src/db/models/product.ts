@@ -456,7 +456,70 @@ class Product extends DatabaseModel {
       callback(null, results[0].count > 0);      
     });
   }
+  
+  /**
+   * Update product data to the database
+   * @param product Product Data
+   * @param callback Callback Function
+   */
+  public static update(id: number,product: ProductType, callback: (error: ErrorTypes | null, product: Product | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+    // Get the current date
+    const datestamp = getDatestamp();
 
+    //Query the Database
+    db.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE id = ?", [
+      product.name,
+      product.thumbnail,
+      product.description,
+      product.stock,
+      product.price,
+      product.max_quantity,
+      id,
+    ], (error, results) => {
+      // If has an error
+      if (error) {
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      product.variations = product.variations || []
+      
+      // If has variations
+      if (product.variations.length > 0) {
+        // Add product id to the variations
+        const variationValues = product.variations.map((variation) => [
+          id,
+          variation.photos_id,
+          variation.name,
+          variation.product_variation_types_id,
+        ]);
+
+        //Query the database to insert the variations
+        db.query("UPDATE product_variations photos_id = ?, name = ? WHERE product_variation_types_id = ?", [variationValues], (error) => {
+          // If has an error
+          if (error) {
+            Log.e(error.message);
+            callback(ErrorTypes.DB_ERROR, null);
+            return;
+          }
+
+          // Return the product
+          callback(null, new Product(product));
+        });
+        
+        return;
+      }
+
+      // Return the product w/ no variations
+      callback(null, new Product(product));
+    });
+  }
+
+  /**
+   * Get primary key ID
+   */
   public getId() {
     return this.id;
   }
