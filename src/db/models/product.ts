@@ -542,6 +542,24 @@ class Product extends DatabaseModel {
   }
 
   /**
+   * Toggle status availability status
+   */
+  public toggleStatus(callback: (error: ErrorTypes | null) => void) {
+    const db = Database.getInstance();
+
+    // Query the database
+    db.query("UPDATE products SET is_available = IF(is_available = 1, 0, 1) WHERE id = ?", [this.id], (error) => {
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR);
+        return;
+      }
+
+      callback(null);
+    });
+  }
+
+  /**
    * Get primary key ID
    */
   public getId() {

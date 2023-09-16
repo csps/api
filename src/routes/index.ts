@@ -38,6 +38,7 @@ export const routes: AppRoutes[] = [
   { path: "/reset-password", methods: ["POST"], handler: resetPassword },
   
   // Products
+  { path: "/products/status/:id", methods: ["PUT"], handler: products, auth: { "PUT": AuthType.ADMIN }},
   { path: "/products/:id", methods: ["GET", "PUT"], handler: products, auth: { "PUT": AuthType.ADMIN }},
   { path: "/products", methods: ["GET", "POST"], handler: products, auth: { "POST": AuthType.ADMIN }},
 

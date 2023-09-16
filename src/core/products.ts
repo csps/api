@@ -21,7 +21,6 @@ export function products(request: Request, response: Response) {
     case 'POST':
       postProducts(request, response);
       break;
-
     case 'PUT':
       updateProduct(request, response);
       break;
@@ -142,6 +141,12 @@ function postProducts(request: Request, response: Response) {
 * @param response 
 */
 function updateProduct(request: Request, response: Response) {
+  // If ends with status route
+  if (request.originalUrl.includes('/status')) {
+    updateProductStatus(request, response);
+    return;
+  }
+
   // Validate the product data
   const validation = Product.validate(request.body, request.files, true);
 
@@ -177,4 +182,42 @@ function updateProduct(request: Request, response: Response) {
     response.send(result.success(Strings.PRODUCT_UPDATED));
   });
 
+}
+
+function updateProductStatus(request: Request, response: Response) {
+  // Get the product ID
+  const { id } = request.params;
+
+  // If id is not a number, return student not found
+  if (!isNumber(id)) {
+    response.status(404).send(result.error(Strings.PRODUCT_NOT_FOUND));
+    return;
+  }
+
+  // Get the product by its ID
+  Product.fromId(parseInt(id), (error, product) => {
+    // If has an error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.PRODUCT_GET_ERROR));
+      return;
+    }
+
+    // If no results
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(Strings.PRODUCT_NOT_FOUND));
+      return;
+    }
+
+    // Update the product status
+    product!.toggleStatus(error => {
+      // If has error
+      if (error === ErrorTypes.DB_ERROR) {
+        response.status(500).send(result.error(Strings.PRODUCT_PUT_ERROR));
+        return;
+      }
+
+      // Otherwise, return the product data
+      response.send(result.success(Strings.PRODUCT_UPDATED));
+    });
+  });
 }
