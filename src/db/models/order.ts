@@ -576,7 +576,7 @@ export class Order extends DatabaseModel {
         Log.i("Sending order email to " + order?.email_address);
         // Send email
         sendEmail({
-          title: Strings.EMAIL_ORDER_TITLE.replace("{receipt}", receiptId),
+          title: Strings.EMAIL_ORDER_TITLE,
           subject: Strings.EMAIL_ORDER_SUBJECT.replace("{receipt}", receiptId),
           message: Strings.EMAIL_ORDER_BODY
             .replace("{name}", `${order.first_name} ${order.last_name}`)
@@ -585,11 +585,14 @@ export class Order extends DatabaseModel {
           to: order?.email_address,
           order: {
             name: order.product_name,
+            variation: order.variations_name || "Standard",
             quantity: order.quantity,
             price: order.product_price,
             mop: order.mode_of_payment === ModeOfPayment.WALK_IN ? 'Walk-in' : 'GCash',
             total: order.product_price * order.quantity,
-            url: Strings.DOMAIN + "/orders/receipt/" + uniqueId,
+            url: Strings.DOMAIN + "/merch/" + order.products_id,
+            reference: receiptId,
+            mode_of_payment: order.mode_of_payment === ModeOfPayment.WALK_IN ? "Cash" : "GCash",
             thumbnail_url: Strings.DOMAIN + "/api/photos/" + order.thumbnail + "/raw"
           }
         }, (error, info) => {

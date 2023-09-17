@@ -44,9 +44,12 @@ declare global {
       url: string,
       name: string,
       price: number,
+      variation: string,
       mop: string,
       total: number,
       quantity: number,
+      mode_of_payment: string
+      reference: string
       thumbnail_url: string
     },
   }

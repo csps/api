@@ -39,9 +39,9 @@ const Strings = {
   ENV_EXISTS: "Env already exists!",
   ENV_FOUND: "Env found!",
 
-  EMAIL_ORDER_TITLE: "Order #{receipt}",
-  EMAIL_ORDER_SUBJECT: "Order #{receipt} confirmed!",
-  EMAIL_ORDER_BODY: `Hi {name},\n\nWe have received your order on <b>{date}</b> via <b>{mode_of_payment}</b>. Please proceed to the CSPS office to get your order.\n\nCheers,\nUC Main CSPS`,
+  EMAIL_ORDER_TITLE: "Thank you for your order!",
+  EMAIL_ORDER_SUBJECT: "Order confirmation #{receipt}",
+  EMAIL_ORDER_BODY: `Hi {name},\n\nWe have received your order on <span style="border-bottom:1px dashed #7d747d;font-weight:500">{date}</span> via <span style="border-bottom:1px dashed #7d747d;font-weight:500">{mode_of_payment}</span>. To complete your purchase, please visit our office at room 540 during our school hours at your earliest convenience. When you arrive, <span style="border-bottom:1px dashed #7d747d;font-weight:500">kindly present this email as proof of your reservation</span>. We currently accept <span style="border-bottom:1px dashed #7d747d;font-weight:500">cash</span> as payment method. Once the payment is made, <span style="border-bottom:1px dashed #7d747d;font-weight:500">you will receive a receipt via email</span> for your records. Please ensure that the item matches your selection before leaving.\n\nFor any inquiries or if you require assistance, please do not hesitate to reply to this email. We are delighted to have you as a customer and look forward to serving you. Enjoy your new merchandise from CSP-S!`,
   EMAIL_STUDENT_ADD_TITLE: `Welcome to UC Main CSPS!`,
   EMAIL_STUDENT_ADD: `Hi {name},\n\nWe set up an account for you on our CSPS website. Your auto-generated default password is <b>{password}</b>. Just login with your student ID and the password provided in the login page.\n\nKeep your password confidential. If you forget your password, you can easily reset it by going to the login page and clicking on the Forgot Password button.\n\nCheers,\nUC Main CSPS`,
 
@@ -171,7 +171,7 @@ const Strings = {
   ORDER_EMPTY_MODE_OF_PAYMENT: "Mode of Payment is required!",
   ORDER_EMPTY_QUANTITY: "Quantity is required!",
   ORDER_POST_ERROR: "Something went wrong while creating order.",
-  ORDER_CREATED: "Order succesfully placed!",
+  ORDER_CREATED: "Order successfully placed_Please check your email for order confirmation. Thank you 💛",
   ORDER_NOT_FOUND: "Order not found!",
   ORDER_FOUND: "Order found!",
   ORDER_UPDATED: "Order updated!",
