@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { result } from "../utils/response";
 import { AuthType, ErrorTypes } from "../types/enums";
 import { Order } from "../db/models/order";
+import { OrderColumns } from "../db/structure";
 import { isObjectEmpty } from "../utils/string";
 import Strings from "../config/strings";
 
@@ -32,15 +33,22 @@ export function orders(request: Request, response: Response) {
  * GET /orders
  */
 export function getOrders(request: Request, response: Response) {
-  // Get order ID from request params
-  const { id, receipt, studentId } = request.params;
+  // Get request data from request params
+  const { id, receiptId, studentId, uniqueId } = request.params;
 
-  // If has receipt
-  if (receipt) {
-    // If has student ID
-    if (studentId) {
-      // Get order
-      Order.fromReceiptAndStudent(receipt, studentId, (error, order) => {
+  // If order ID is present
+  if (id) {
+    getOrder(request, response);
+    return;
+  }
+
+  // If receipt ID and is admin
+  if (receiptId && response.locals.role === AuthType.ADMIN) {
+    // Find order by receipt ID
+    Order.find({
+      search_column: `["${OrderColumns.RECEIPT_ID}"]`,
+      search_value: `["${receiptId}"]`,
+    }, (error, orders, count) => {
         if (error === ErrorTypes.DB_ERROR) {
           response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
           return;
@@ -51,33 +59,55 @@ export function getOrders(request: Request, response: Response) {
           return;
         }
 
-        response.status(200).send(result.success(Strings.ORDER_FOUND, order));
-      });
-
-      return;
-    }
-
-    // Get order
-    Order.fromReceipt(receipt, (error, order) => {
-      if (error === ErrorTypes.DB_ERROR) {
-        response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-        return;
-      }
-
-      if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
-        return;
-      }
-
-      response.status(200).send(result.success(Strings.ORDER_FOUND, order));
+        response.status(200).send(result.success(Strings.ORDER_FOUND, orders ? orders[0] : null));
     });
 
     return;
   }
 
-  // If order ID is present
-  if (id) {
-    getOrder(request, response);
+  // If unique ID is present
+  if (uniqueId) {
+    // Find order by unique ID
+    Order.find({
+      search_column: `["${OrderColumns.UNIQUE_ID}"]`,
+      search_value: `["${uniqueId}"]`,
+    }, (error, orders, count) => {
+        if (error === ErrorTypes.DB_ERROR) {
+          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+          return;
+        }
+
+        if (error === ErrorTypes.DB_EMPTY_RESULT) {
+          response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
+          return;
+        }
+
+        response.status(200).send(result.success(Strings.ORDER_FOUND, orders ? orders[0] : null));    
+    });
+
+    return;
+  }
+
+  // If receipt and student ID is present
+  if (receiptId && studentId) {
+    // Find order by receipt and student ID
+    Order.find({
+      search_column: `["${OrderColumns.RECEIPT_ID}", "${OrderColumns.STUDENT_ID}"]`,
+      search_value: `["${receiptId}", "${studentId}"]`,
+    }, (error, orders, count) => {
+        if (error === ErrorTypes.DB_ERROR) {
+          response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
+          return;
+        }
+
+        if (error === ErrorTypes.DB_EMPTY_RESULT) {
+          response.status(404).send(result.error(Strings.ORDER_NOT_FOUND));
+          return;
+        }
+
+        response.status(200).send(result.success(Strings.ORDER_FOUND, orders ? orders[0] : null));
+    });
+
     return;
   }
 
@@ -176,7 +206,7 @@ export function postOrders(request: Request, response: Response) {
   }
 
   // Otherwise, insert order
-  Order.insert(response.locals.studentID, request.body, request.files || null, (error, receiptID) => {
+  Order.insert(response.locals.studentID, request.body, request.files || null, (error, uniqueId, receiptId) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
@@ -196,9 +226,9 @@ export function postOrders(request: Request, response: Response) {
     }
 
     // Send email
-    Order.sendEmail(receiptID!);
+    Order.sendEmail(uniqueId!, receiptId!);
     // Otherwise, return the product data
-    response.send(result.success(Strings.ORDER_CREATED, receiptID));
+    response.send(result.success(Strings.ORDER_CREATED, uniqueId));
   });
 }
 

@@ -80,11 +80,8 @@ app.use(routes.map(r => r.path), (request, response) => {
           return;
         }
         
-        // If student, add ID to response locals
-        if (data.role === AuthType.STUDENT) {
-          response.locals.studentID = data.id;
-        }
-
+        // Add ID to response locals
+        response.locals.studentID = data.id;
         // Add role to response locals
         response.locals.role = data.role;
 

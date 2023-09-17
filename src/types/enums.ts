@@ -55,6 +55,7 @@ export enum FullOrderEnum {
   id = "id",
   thumbnail = "thumbnail",
   receipt_id = "receipt_id",
+  unique_id = "unique_id",
   products_id = "products_id",
   product_name = "product_name",
   product_price = "product_price",

@@ -46,7 +46,8 @@ export enum EventColumns {
 export enum OrderColumns {
   ID = "id",
   RECEIPT_ID = "receipt_id",
-  STUDENTS_ID = "students_id",
+  UNIQUE_ID = "unique_id",
+  STUDENT_ID = "student_id",
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
   QUANTITY = "quantity",
@@ -62,11 +63,12 @@ export enum OrderColumns {
 export enum NonBscsOrderColumns {
   ID = "id",
   RECEIPT_ID = "receipt_id",
+  UNIQUE_ID = "unique_id",
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
   QUANTITY = "quantity",
   MODE_OF_PAYMENT = "mode_of_payment",
-  STUDENTS_ID = "students_id",
+  STUDENT_ID = "student_id",
   FIRST_NAME = "first_name",
   LAST_NAME = "last_name",
   EMAIL = "email",

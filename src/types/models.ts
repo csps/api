@@ -40,6 +40,8 @@ export type LoginLogModel = {
 
 export type OrderModel = {
   id: number,
+  receipt_id: string,
+  unique_id: string,
   student_id: string,
   products_id: number,
   variations_id: number,
@@ -56,6 +58,7 @@ export type OrderModel = {
 export type NonBscsOrderModel = {
   id: number,
   receipt_id: string,
+  unique_id: string,
   products_id: number,
   variations_id: number,
   quantity: number,
@@ -78,6 +81,7 @@ export type FullOrderModel = {
   id: string,
   thumbnail: number,
   receipt_id: string,
+  unique_id: string,
   products_id: number,
   product_name: string,
   product_price: number,

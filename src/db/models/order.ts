@@ -2,7 +2,7 @@ import type { FullOrderModel, OrderModel } from "../../types/models";
 import type { FileArray } from "express-fileupload";
 import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { getDatestamp, getLocalDate, getReadableDate } from "../../utils/date";
-import { generateReceiptID, sanitize } from "../../utils/security";
+import { generateReceiptID, generateToken, sanitize } from "../../utils/security";
 import { OrderRequest, PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import { OrderColumns, ProductColumns, Tables } from "../structure";
@@ -37,7 +37,7 @@ export class Order extends DatabaseModel {
     // TODO: Refactor this query
   private static _fullOrderQuery = `
     (
-      SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
+      SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.unique_id, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
         o.variations_id, pv.photos_id AS variations_photo_id, v.name AS variations_name, o.quantity, o.mode_of_payment, s.student_id,
         s.first_name, s.last_name, s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks,
         o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
@@ -47,7 +47,7 @@ export class Order extends DatabaseModel {
       LEFT JOIN product_variations pv ON pv.id = o.variations_id
       LEFT JOIN variations v ON v.id = pv.variations_id
     ) UNION (
-      SELECT CONCAT("N-", o.id), p.thumbnail, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
+      SELECT CONCAT("N-", o.id), p.thumbnail, o.unique_id, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
         o.variations_id, pv.photos_id AS variations_photo_id, v.name AS variations_name, o.quantity, o.mode_of_payment, o.student_id,
         o.first_name, o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
       FROM non_bscs_orders o
@@ -107,73 +107,10 @@ export class Order extends DatabaseModel {
   }
 
   /**
-   * Get order by receipt ID
-   * @param receipt_id Receipt ID
-   * @param callback Callback function  
-   */
-  public static fromReceipt(receipt_id: string, callback: (error: ErrorTypes | null, order: FullOrderModel | null) => void) {
-    // Get database instance
-    const db = Database.getInstance();
-
-    // Query the database
-    db.query(`
-      SELECT * FROM (${Order._fullOrderQuery}) t WHERE receipt_id = ?
-    `.trim(), [receipt_id], (error, results) => {
-      // If has an error
-      if (error) {
-        Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, null);
-        return;
-      }
-      
-      // If no results
-      if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, null);
-        return;
-      }
-
-      // Create and return the order
-      callback(null, results[0]);
-    });
-  }
-
-  /**
-   * Get order by receipt ID and student ID
-   * @param receipt_id Receipt ID
-   * @param student_id Student ID
-   * @param callback Callback function  
-   */
-  public static fromReceiptAndStudent(receipt_id: string, student_id: string, callback: (error: ErrorTypes | null, order: Order | null) => void) {
-    // Get database instance
-    const db = Database.getInstance();
-
-    // Query the database
-    db.query(`
-      SELECT * FROM (${Order._fullOrderQuery}) t WHERE receipt_id = ? AND student_id = ?
-    `.trim(), [receipt_id, student_id], (error, results) => {
-      // If has an error
-      if (error) {
-        Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, null);
-        return;
-      }
-      
-      // If no results
-      if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, null);
-        return;
-      }
-
-      // Create and return the order
-      callback(null, results[0]);
-    });
-  }
-
-  /**
    * Find orders
    * @param param PaginationRequest
    */
-  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, orders: Order[] | null, count?: number) => void) {
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, orders: FullOrderModel[] | null, count?: number) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Data
@@ -207,7 +144,6 @@ export class Order extends DatabaseModel {
     if (param.page && param.limit) {
       data.pagination = { page: parseInt(param.page), limit: parseInt(param.limit) };
     }
-
     
     // Get pagination
     const { query, values, countQuery, countValues } = paginationWrapper(data);
@@ -238,35 +174,6 @@ export class Order extends DatabaseModel {
         // Create and return the orders with count
         callback(null, results.map((order: FullOrderModel) => order), countResults[0].count);
       });
-    });
-  }
-
-  /**
-   * Get all orders by student ID
-   * @param studentID Student ID
-   * @param callback 
-   */
-  public static getAllByStudentID(studentID: string | undefined, callback: (error: ErrorTypes | null, order: Order[] | null) => void) {
-    // Get database instance
-    const db = Database.getInstance();
-
-    // Query the database
-    db.query('SELECT * FROM orders WHERE student_id = ?', [studentID], (error, results) => {
-      // If has an error
-      if (error) {
-        Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, null);
-        return;
-      }
-      
-      // If no results
-      if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, null);
-        return;
-      }
-
-      // Create and return the students
-      callback(null, results.map((order: OrderModel) => new Order(order)));
     });
   }
 
@@ -311,7 +218,7 @@ export class Order extends DatabaseModel {
    * @param order Order Data
    * @param callback Callback Function
    */
-  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, receiptID: string | null) => void) {
+  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, uniqueId: string | null, receiptId?: string | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     const datestamp = getDatestamp();
@@ -358,12 +265,16 @@ export class Order extends DatabaseModel {
             callback(ErrorTypes.DB_ERROR, null);
             return;
           }
+
+          // Generate unique ID
+          const uniqueId = generateToken(20);
   
           // If logged in
           if (isLoggedIn) {
             // Query the Database
-            conn.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            conn.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
               receiptID,
+              uniqueId,
               studentID,
               order.products_id,
               order.variations_id || null,
@@ -385,8 +296,9 @@ export class Order extends DatabaseModel {
           }
   
           // Otherwise, insert to non-bscs orders
-          conn.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+          conn.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
             receiptID,
+            uniqueId,
             order.products_id,
             order.variations_id || null,
             order.quantity,
@@ -539,7 +451,7 @@ export class Order extends DatabaseModel {
                 }
   
                 // Success commiting the transaction
-                callback(null, receiptID);
+                callback(null, uniqueId, receiptID);
               });
             });
           }
@@ -640,17 +552,23 @@ export class Order extends DatabaseModel {
   /**
    * Send email upon ordering
    */
-  public static sendEmail(receiptID: string) {
-    Order.fromReceipt(receiptID, (error, order) => {
+  public static sendEmail(uniqueId: string, receiptId: string) {
+    Order.find({
+      search_column: `["${OrderColumns.UNIQUE_ID}"]`,
+      search_value: `["${uniqueId}"]`,
+      limit: "1"
+    }, (error, orders, count) => {
       if (error === ErrorTypes.DB_ERROR) {
         Log.e(`[ERROR] Can't send email: Database error`);
         return;
       }
 
       if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        Log.e(`[ERROR] Can't send email: Order #${receiptID} not found`);
+        Log.e(`[ERROR] Can't send email: Order #${receiptId} not found`);
         return;
       }
+
+      const order = orders ? orders[0] : null;
 
       // Send email if has an email address
       if (order?.email_address) {
@@ -658,8 +576,8 @@ export class Order extends DatabaseModel {
         Log.i("Sending order email to " + order?.email_address);
         // Send email
         sendEmail({
-          title: Strings.EMAIL_ORDER_TITLE.replace("{receipt}", receiptID),
-          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{receipt}", receiptID),
+          title: Strings.EMAIL_ORDER_TITLE.replace("{receipt}", receiptId),
+          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{receipt}", receiptId),
           message: Strings.EMAIL_ORDER_BODY
             .replace("{name}", `${order.first_name} ${order.last_name}`)
             .replace("{date}", getReadableDate(order.date_stamp))
@@ -671,8 +589,8 @@ export class Order extends DatabaseModel {
             price: order.product_price,
             mop: order.mode_of_payment === ModeOfPayment.WALK_IN ? 'Walk-in' : 'GCash',
             total: order.product_price * order.quantity,
-            url: Strings.DOMAIN + "/merch/receipt/" + receiptID,
-            thumbnail_url: Strings.DOMAIN + "/photos/" + order.thumbnail + "/raw"
+            url: Strings.DOMAIN + "/orders/receipt/" + uniqueId,
+            thumbnail_url: Strings.DOMAIN + "/api/photos/" + order.thumbnail + "/raw"
           }
         }, (error, info) => {
           if (error) {
