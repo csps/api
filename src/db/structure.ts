@@ -12,7 +12,7 @@ export enum Tables {
   TUTORIALS = "tutorials",
   VARIATIONS = "variations",
   NON_BSCS_ORDERS = "non_bscs_orders",
-  RECEIPTS = "receipts",
+  GCASH_UPLOADS = "gcash_uploads",
 }
 
 export enum AnnouncementColumns {
@@ -90,8 +90,9 @@ export enum PhotoColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum ReceiptColumns {
+export enum GcashUploadsColumns {
   ID = "id",
+  REFERENCE = "reference",
   NAME = "name",
   DATA = "data",
   TYPE = "type",

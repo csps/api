@@ -72,7 +72,7 @@ export class Photo extends DatabaseModel {
     const db = Database.getInstance();
 
     // Query the database
-    db.query(`SELECT * FROM ${Tables.RECEIPTS} WHERE receipt_id = ?`, [id], (error, results) => {
+    db.query(`SELECT * FROM ${Tables.GCASH_UPLOADS} WHERE receipt_id = ?`, [id], (error, results) => {
       // If has error
       if (error) {
         console.error(error);
@@ -108,7 +108,7 @@ export class Photo extends DatabaseModel {
     // If receipt
     if (photo.receipt_id) {
       // Query (receipt)
-      query = `INSERT INTO ${Tables.RECEIPTS} (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
+      query = `INSERT INTO ${Tables.GCASH_UPLOADS} (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
       data = [ photo.receipt_id, photo.name || null, photo.type, photo.data, datestamp ];
     }
 
