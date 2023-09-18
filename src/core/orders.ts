@@ -249,7 +249,7 @@ export function putOrders(request: Request, response: Response) {
   }
 
   // Update order
-  Order.update(id, key, value, (error, success) => {
+  Order.update(id, key, value, (error, dateStamp) => {
     // IF has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
@@ -281,12 +281,12 @@ export function putOrders(request: Request, response: Response) {
     }
 
     // If not success
-    if (!success) {
+    if (!dateStamp) {
       response.status(400).send(result.error(Strings.ORDER_UPDATE_ERROR));
       return;
     }
 
     // Otherwise, return success
-    response.status(200).send(result.success(Strings.ORDER_UPDATED));
+    response.status(200).send(result.success(Strings.ORDER_UPDATED, dateStamp));
   });
 }

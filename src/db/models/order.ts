@@ -466,22 +466,22 @@ export class Order extends DatabaseModel {
    * @param key Order Key
    * @param value Order Value
    */
-  public static update(id: string, key: string, value: string, callback: (error: ErrorTypes | null, success: boolean) => void) { 
+  public static update(id: string, key: string, value: string, callback: (error: ErrorTypes | null, date_stamp?: string) => void) { 
     // If order ID is not present
     if (!id) {
-      callback(ErrorTypes.REQUEST_ID, false);
+      callback(ErrorTypes.REQUEST_ID);
       return;
     }
 
     // If key is not present
     if (!key) {
-      callback(ErrorTypes.REQUEST_KEY, false);
+      callback(ErrorTypes.REQUEST_KEY);
       return;
     }
 
     // if key doesn't exists in order allowed keys
     if (!process.env.ORDERS_UPDATE_ALLOWED_KEYS?.includes(key)) {
-      callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED, false);
+      callback(ErrorTypes.REQUEST_KEY_NOT_ALLOWED);
       return;
     }
 
@@ -503,18 +503,18 @@ export class Order extends DatabaseModel {
       // If has an error
       if (error) {
         Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, false);
+        callback(ErrorTypes.DB_ERROR);
         return;
       }
 
       // If no results
       if (results.affectedRows === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, false);
+        callback(ErrorTypes.DB_EMPTY_RESULT);
         return;
       }
 
       // Otherwise, return success
-      callback(null, true);
+      callback(null, getDatestamp());
     });
   }
 
