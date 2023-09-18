@@ -97,7 +97,7 @@ app.use(routes.map(r => r.path), (request, response) => {
  */
 app.use("*", (request, response) => {
   // If requesting for favicon, return image
-  if (request.originalUrl === "/favicon.ico") {
+  if (request.originalUrl.endsWith("/favicon.ico")) {
     return response.sendFile("favicon.ico", { root: "./assets" });
   }
 
