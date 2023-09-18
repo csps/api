@@ -29,7 +29,7 @@ export function qrcode(request: Request, response: Response) {
  * @param response Express Response Object
  * @returns 
  */
-async function getQRCode(request: Request, response: Response) {
+function getQRCode(request: Request, response: Response) {
   // Get data to encode
   const { q } = request.params;
   // If dark mode
@@ -86,6 +86,8 @@ async function getQRCode(request: Request, response: Response) {
     // Convert to buffer png and respond to client
     qrCode.toBuffer("png").then(buffer => {
       response
+        .setHeader("Access-Control-Allow-Origin", "*")
+        .setHeader("Cross-Origin-Resource-Policy", "cross-origin")
         .setHeader('Content-Type', "image/png")
         .setHeader('Content-Length', buffer.length)
         .end(buffer);
