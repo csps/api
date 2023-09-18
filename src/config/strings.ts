@@ -7,7 +7,7 @@ const Strings = {
   DOMAIN: "https://ucmncsps.org",
 
   GENERAL_INVALID_REQUEST: "Invalid request!",
-  GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSPS server admin.",
+  GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSP-S server admin.",
   GENERAL_SESSION_ERROR: "Session Error! Please logout and login again.",
   GENERAL_SESSION_EXPIRED: "Session Expired! Please logout and login again.",
   GENERAL_UNAUTHORIZED: "Unauthorized!",
@@ -42,8 +42,8 @@ const Strings = {
   EMAIL_ORDER_TITLE: "Thank you for your order!",
   EMAIL_ORDER_SUBJECT: "Order confirmation #{reference}",
   EMAIL_ORDER_BODY: `Hi {name},\n\nWe have received your order on <span style="border-bottom:1px dashed #7d747d;font-weight:500">{date}</span> via <span style="border-bottom:1px dashed #7d747d;font-weight:500">{mode_of_payment}</span>. To complete your purchase, please visit our office at room 540 during our school hours at your earliest convenience. When you arrive, <span style="border-bottom:1px dashed #7d747d;font-weight:500">kindly present this email as proof of your reservation</span>. We currently accept <span style="border-bottom:1px dashed #7d747d;font-weight:500">cash</span> as payment method. Once the payment is made, <span style="border-bottom:1px dashed #7d747d;font-weight:500">you will receive a receipt via email</span> for your records. Please ensure that the item matches your selection before leaving.\n\nFor any inquiries or if you require assistance, please do not hesitate to reply to this email. We are delighted to have you as a customer and look forward to serving you. Enjoy your new merchandise from CSP-S!`,
-  EMAIL_STUDENT_ADD_TITLE: `Welcome to UC Main CSPS!`,
-  EMAIL_STUDENT_ADD: `Hi {name},\n\nWe set up an account for you on our CSPS website. Your auto-generated default password is <b>{password}</b>. Just login with your student ID and the password provided in the login page.\n\nKeep your password confidential. If you forget your password, you can easily reset it by going to the login page and clicking on the Forgot Password button.\n\nCheers,\nUC Main CSPS`,
+  EMAIL_STUDENT_ADD_TITLE: `Welcome to UC Main CSP-S!`,
+  EMAIL_STUDENT_ADD: `Hi {name},\n\nWe set up an account for you on our CSP-S website. Your auto-generated default password is <b>{password}</b>. Just login with your student ID and the password provided in the login page.\n\nKeep your password confidential. If you forget your password, you can easily reset it by going to the login page and clicking on the Forgot Password button.\n\nCheers,\nUC Main CSP-S`,
 
   COURSES_EMPTY_ID: "Empty ID.",
   COURSES_EMPTY_NAME: "Empty name.",
@@ -63,7 +63,7 @@ const Strings = {
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
   LOGIN_EMPTY_TOKEN: "Empty Token.",
   LOGIN_FAILED: "Oops! Incorrect ID or Password.",
-  LOGIN_ERROR_VALIDATING_PASSWORD: "Oops! Error validating password. Please contact the CSPS server admin.",
+  LOGIN_ERROR_VALIDATING_PASSWORD: "Oops! Error validating password. Please contact the CSP-S server admin.",
   LOGIN_SUCCESS: "Login successful",
 
   EVENTS_GET_ERROR: "Something went wrong while fetching events.",
@@ -208,7 +208,7 @@ const Strings = {
   QRCODE_GENERATED_SUCCESFULLY: "QR Code generated succesfully!",
 
   RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT: "Password Changed!",
-  RESET_PASSWORD_EMAIL_SUCCESS_BODY: `Hi {name},\n\nYour password has been reset successfully. If you didn't make this request, please contact the CSPS server admin.\n\nCheers,\nUC Main CSPS`,
+  RESET_PASSWORD_EMAIL_SUCCESS_BODY: `Hi {name},\n\nYour password has been reset successfully. If you didn't make this request, please contact the CSP-S server admin.\n\nCheers,\nUC Main CSP-S`,
 };
 
 export default Strings;
