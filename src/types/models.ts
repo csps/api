@@ -40,7 +40,7 @@ export type LoginLogModel = {
 
 export type OrderModel = {
   id: number,
-  receipt_id: string,
+  reference: string,
   unique_id: string,
   student_id: string,
   products_id: number,
@@ -57,7 +57,7 @@ export type OrderModel = {
 
 export type NonBscsOrderModel = {
   id: number,
-  receipt_id: string,
+  reference: string,
   unique_id: string,
   products_id: number,
   variations_id: number,
@@ -80,7 +80,7 @@ export type NonBscsOrderModel = {
 export type FullOrderModel = {
   id: string,
   thumbnail: number,
-  receipt_id: string,
+  reference: string,
   unique_id: string,
   products_id: number,
   product_name: string,
@@ -112,8 +112,9 @@ export type PhotoModel = {
   date_stamp: string,
 }
 
-export type ReceiptModel = {
+export type GCashUploadsModel = {
   id: number,
+  reference: string,
   name?: string,
   type: string,
   data: Buffer,

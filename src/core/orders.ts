@@ -34,7 +34,7 @@ export function orders(request: Request, response: Response) {
  */
 export function getOrders(request: Request, response: Response) {
   // Get request data from request params
-  const { id, receiptId, studentId, uniqueId } = request.params;
+  const { id, reference, studentId, uniqueId } = request.params;
 
   // If order ID is present
   if (id) {
@@ -42,12 +42,12 @@ export function getOrders(request: Request, response: Response) {
     return;
   }
 
-  // If receipt ID and is admin
-  if (receiptId && response.locals.role === AuthType.ADMIN) {
-    // Find order by receipt ID
+  // If using reference and is admin
+  if (reference && response.locals.role === AuthType.ADMIN) {
+    // Find order
     Order.find({
-      search_column: `["${OrderColumns.RECEIPT_ID}"]`,
-      search_value: `["${receiptId}"]`,
+      search_column: `["${OrderColumns.REFERENCE}"]`,
+      search_value: `["${reference}"]`,
     }, (error, orders, count) => {
         if (error === ErrorTypes.DB_ERROR) {
           response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
@@ -88,12 +88,12 @@ export function getOrders(request: Request, response: Response) {
     return;
   }
 
-  // If receipt and student ID is present
-  if (receiptId && studentId) {
-    // Find order by receipt and student ID
+  // If using reference and student ID is present
+  if (reference && studentId) {
+    // Find order
     Order.find({
-      search_column: `["${OrderColumns.RECEIPT_ID}", "${OrderColumns.STUDENT_ID}"]`,
-      search_value: `["${receiptId}", "${studentId}"]`,
+      search_column: `["${OrderColumns.REFERENCE}", "${OrderColumns.STUDENT_ID}"]`,
+      search_value: `["${reference}", "${studentId}"]`,
     }, (error, orders, count) => {
         if (error === ErrorTypes.DB_ERROR) {
           response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
@@ -206,7 +206,7 @@ export function postOrders(request: Request, response: Response) {
   }
 
   // Otherwise, insert order
-  Order.insert(response.locals.studentID, request.body, request.files || null, (error, uniqueId, receiptId) => {
+  Order.insert(response.locals.studentID, request.body, request.files || null, (error, uniqueId, reference) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
@@ -226,7 +226,7 @@ export function postOrders(request: Request, response: Response) {
     }
 
     // Send email
-    Order.sendEmail(uniqueId!, receiptId!);
+    Order.sendEmail(uniqueId!, reference!);
     // Otherwise, return the product data
     response.send(result.success(Strings.ORDER_CREATED, uniqueId));
   });

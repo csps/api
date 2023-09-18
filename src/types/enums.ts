@@ -54,7 +54,7 @@ export enum ModeOfPayment {
 export enum FullOrderEnum {
   id = "id",
   thumbnail = "thumbnail",
-  receipt_id = "receipt_id",
+  reference = "reference",
   unique_id = "unique_id",
   products_id = "products_id",
   product_name = "product_name",

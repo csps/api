@@ -63,16 +63,16 @@ export class Photo extends DatabaseModel {
   }
 
   /**
-   * Get receipt from the database using receipt ID
+   * Get user gcash proof uploads from the database using reference number
    * @param id Recept ID
    * @param callback Callback function
    */
-  public static fromReceipt(id: string, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
+  public static fromReference(id: string, callback: (error: ErrorTypes | null, photo: Photo | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
     // Query the database
-    db.query(`SELECT * FROM ${Tables.GCASH_UPLOADS} WHERE receipt_id = ?`, [id], (error, results) => {
+    db.query(`SELECT * FROM ${Tables.GCASH_UPLOADS} WHERE reference = ?`, [id], (error, results) => {
       // If has error
       if (error) {
         console.error(error);
@@ -105,11 +105,10 @@ export class Photo extends DatabaseModel {
     let query = `INSERT INTO ${Tables.PHOTOS} (name, type, data, date_stamp) VALUES (?, ?, ?, ?)`;
     let data = [ photo.name || null, photo.type, photo.data, datestamp ];
 
-    // If receipt
-    if (photo.receipt_id) {
-      // Query (receipt)
-      query = `INSERT INTO ${Tables.GCASH_UPLOADS} (receipt_id, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
-      data = [ photo.receipt_id, photo.name || null, photo.type, photo.data, datestamp ];
+    if (photo.reference) {
+      // Query (reference)
+      query = `INSERT INTO ${Tables.GCASH_UPLOADS} (reference, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?)`;
+      data = [ photo.reference, photo.name || null, photo.type, photo.data, datestamp ];
     }
 
     // Query the database

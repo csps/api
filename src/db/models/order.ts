@@ -2,7 +2,7 @@ import type { FullOrderModel, OrderModel } from "../../types/models";
 import type { FileArray } from "express-fileupload";
 import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { getDatestamp, getLocalDate, getReadableDate } from "../../utils/date";
-import { generateReceiptID, generateToken, sanitize } from "../../utils/security";
+import { generateReference, generateToken, sanitize } from "../../utils/security";
 import { OrderRequest, PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import { OrderColumns, ProductColumns, Tables } from "../structure";
@@ -37,7 +37,7 @@ export class Order extends DatabaseModel {
     // TODO: Refactor this query
   private static _fullOrderQuery = `
     (
-      SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.unique_id, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
+      SELECT CONCAT("B-", o.id) AS id, p.thumbnail, o.unique_id, o.reference, o.products_id, p.name AS product_name, p.price AS product_price,
         o.variations_id, pv.photos_id AS variations_photo_id, v.name AS variations_name, o.quantity, o.mode_of_payment, s.student_id,
         s.first_name, s.last_name, s.email_address, 0 AS course, s.year_level, o.status, o.user_remarks,
         o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
@@ -47,7 +47,7 @@ export class Order extends DatabaseModel {
       LEFT JOIN product_variations pv ON pv.id = o.variations_id
       LEFT JOIN variations v ON v.id = pv.variations_id
     ) UNION (
-      SELECT CONCAT("N-", o.id), p.thumbnail, o.unique_id, o.receipt_id, o.products_id, p.name AS product_name, p.price AS product_price,
+      SELECT CONCAT("N-", o.id), p.thumbnail, o.unique_id, o.reference, o.products_id, p.name AS product_name, p.price AS product_price,
         o.variations_id, pv.photos_id AS variations_photo_id, v.name AS variations_name, o.quantity, o.mode_of_payment, o.student_id,
         o.first_name, o.last_name, o.email_address, o.course, o.year_level, o.status, o.user_remarks, o.admin_remarks, o.status_updated, o.edit_date, o.date_stamp
       FROM non_bscs_orders o
@@ -218,7 +218,7 @@ export class Order extends DatabaseModel {
    * @param order Order Data
    * @param callback Callback Function
    */
-  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, uniqueId: string | null, receiptId?: string | null) => void) {
+  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, uniqueId: string | null, reference?: string | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     const datestamp = getDatestamp();
@@ -256,8 +256,8 @@ export class Order extends DatabaseModel {
       }
 
       Order.getOrdersCountFromDate(new Date(), (count) => {
-        // Generate receipt ID
-        const receiptID = generateReceiptID(count + 1);
+        // Generate reference number
+        const generatedReference = generateReference(count + 1);
   
         Database.getConnection((error, conn) => {
           if (error) {
@@ -273,7 +273,7 @@ export class Order extends DatabaseModel {
           if (isLoggedIn) {
             // Query the Database
             conn.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-              receiptID,
+              generatedReference,
               uniqueId,
               studentID,
               order.products_id,
@@ -297,7 +297,7 @@ export class Order extends DatabaseModel {
   
           // Otherwise, insert to non-bscs orders
           conn.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-            receiptID,
+            generatedReference,
             uniqueId,
             order.products_id,
             order.variations_id || null,
@@ -346,7 +346,7 @@ export class Order extends DatabaseModel {
               }
   
               // Insert the photo
-              Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, receipt_id: receiptID }, (error, photo) => {
+              Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, reference: generatedReference }, (error, photo) => {
                 if (error === ErrorTypes.DB_ERROR) {
                   Log.e(`Student #${studentID || order.student_id}: Error inserting screenshot/proof`);
   
@@ -376,7 +376,7 @@ export class Order extends DatabaseModel {
                   }
   
                   // Log order 
-                  Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by GCash`);
+                  Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by GCash`);
                   // Decrement stock
                   decrementStock();
                 });
@@ -385,7 +385,7 @@ export class Order extends DatabaseModel {
               return;
             }
   
-            // Otherwise, commit the transaction and return the receipt ID
+            // Otherwise, commit transaction
             conn.commit((error) => {
               if (error) {
                 Log.e(error.message);
@@ -400,7 +400,7 @@ export class Order extends DatabaseModel {
               }
   
               // Log order 
-              Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with receipt ID ${receiptID} by Walk-in`);
+              Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by Walk-in`);
               // Decrement stock
               decrementStock();
             });
@@ -451,7 +451,7 @@ export class Order extends DatabaseModel {
                 }
   
                 // Success commiting the transaction
-                callback(null, uniqueId, receiptID);
+                callback(null, uniqueId, generatedReference);
               });
             });
           }
@@ -552,7 +552,7 @@ export class Order extends DatabaseModel {
   /**
    * Send email upon ordering
    */
-  public static sendEmail(uniqueId: string, receiptId: string) {
+  public static sendEmail(uniqueId: string, reference: string) {
     Order.find({
       search_column: `["${OrderColumns.UNIQUE_ID}"]`,
       search_value: `["${uniqueId}"]`,
@@ -564,7 +564,7 @@ export class Order extends DatabaseModel {
       }
 
       if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        Log.e(`[ERROR] Can't send email: Order #${receiptId} not found`);
+        Log.e(`[ERROR] Can't send email: Order #${reference} not found`);
         return;
       }
 
@@ -577,7 +577,7 @@ export class Order extends DatabaseModel {
         // Send email
         sendEmail({
           title: Strings.EMAIL_ORDER_TITLE,
-          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{receipt}", receiptId),
+          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{reference}", reference),
           message: Strings.EMAIL_ORDER_BODY
             .replace("{name}", `${order.first_name} ${order.last_name}`)
             .replace("{date}", getReadableDate(order.date_stamp))
@@ -591,7 +591,7 @@ export class Order extends DatabaseModel {
             mop: order.mode_of_payment === ModeOfPayment.WALK_IN ? 'Walk-in' : 'GCash',
             total: order.product_price * order.quantity,
             url: Strings.DOMAIN + "/merch/" + order.products_id,
-            reference: receiptId,
+            reference: reference,
             mode_of_payment: order.mode_of_payment === ModeOfPayment.WALK_IN ? "Cash" : "GCash",
             thumbnail_url: Strings.DOMAIN + "/api/photos/" + order.thumbnail + "/raw"
           }

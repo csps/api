@@ -68,16 +68,16 @@ export const routes: AppRoutes[] = [
   { path: "/tutorials", methods: ["GET", "POST"], handler: tutorials, auth: { "POST": AuthType.ADMIN }},
 
   // Photos
-  { path: "/photos/:id/receipt/raw", methods: ["GET"], handler: photos },
-  { path: "/photos/:id/receipt", methods: ["GET"], handler: photos },
+  { path: "/photos/:id/reference/raw", methods: ["GET"], handler: photos },
+  { path: "/photos/:id/reference", methods: ["GET"], handler: photos },
   { path: "/photos/:id/raw", methods: ["GET"], handler: photos },
   { path: "/photos/:id", methods: ["GET"], handler: photos },
   { path: "/photos", methods: ["POST"], handler: photos, auth: { "POST": AuthType.ADMIN }},
 
   // Orders
-  { path: "/orders/receipt/:receipt/student/:studentId", methods: ["GET"], handler: orders, auth: { "GET": AuthType.ADMIN }},
+  { path: "/orders/reference/:reference/student/:studentId", methods: ["GET"], handler: orders, auth: { "GET": AuthType.ADMIN }},
   { path: "/orders/unique/:uniqueId", methods: ["GET"], handler: orders },
-  { path: "/orders/receipt/:receiptId", methods: ["GET"], handler: orders, auth: { "GET": AuthType.ADMIN }},
+  { path: "/orders/reference/:reference", methods: ["GET"], handler: orders, auth: { "GET": AuthType.ADMIN }},
   { path: "/orders/:id/:key", methods: ["PUT"], handler: orders, auth: { "PUT": AuthType.ADMIN }},
   { path: "/orders/:id", methods: ["GET"], handler: orders },
   { path: "/orders", methods: ["GET", "POST"], handler: orders },

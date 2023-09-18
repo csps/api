@@ -62,10 +62,10 @@ export function generateToken(length = 16) {
 }
 
 /**
- * Generate Receipt ID
+ * Generate reference number
  * @param start Starting number
  */
-export function generateReceiptID(start: number) {
+export function generateReference(start: number) {
   // Get date
   const date = new Date();
   // Get year, month, date
@@ -73,6 +73,5 @@ export function generateReceiptID(start: number) {
   const month = date.getMonth() + 1;
   const day = date.getDate();
 
-  // Return receipt ID
   return `CSPS${year}${month < 10 ? '0' + month : month}${day < 10 ? '0' + day : day}${Math.abs(start).toString().padStart(3, '0')}`;
 }

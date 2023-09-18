@@ -34,7 +34,7 @@ export type PhotoRequest = {
   type: string;
   data: Buffer;
   name?: string;
-  receipt_id?: string;
+  reference?: string;
 }
 
 export type PaginationRequest = {

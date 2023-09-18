@@ -33,11 +33,11 @@ export function photos(request: Request, response: Response) {
 function getPhotos(request: Request, response: Response) {
   // Get id from request parameters
   const { id } = request.params;
-  // Is receipt?
-  const isReceipt = request.originalUrl.includes("receipt");
+  // If using reference
+  const isReference = request.originalUrl.includes("reference");
 
   // If {id} is not a number
-  if (!isNumber(id) && !isReceipt) {
+  if (!isNumber(id) && !isReference) {
     response.status(400).send(result.error(Strings.PHOTO_INVALID_ID));
     return;
   }
@@ -57,11 +57,11 @@ function getPhoto(request: Request, response: Response) {
   const { id } = request.params;
   // Is raw?
   const isRaw = request.originalUrl.endsWith("raw");
-  // Is receipt?
-  const isReceipt = request.originalUrl.includes("receipt");
+  // Is reference?
+  const isReference = request.originalUrl.includes("reference");
 
   // If {id} is not a number
-  if (!isNumber(id) && !isReceipt) {
+  if (!isNumber(id) && !isReference) {
     response.status(400).send(result.error(Strings.PHOTO_INVALID_ID));
     return;
   }
@@ -99,9 +99,8 @@ function getPhoto(request: Request, response: Response) {
     }));
   };
 
-  // If is receipt
-  if (isReceipt) {
-    Photo.fromReceipt(id, callback);
+  if (isReference) {
+    Photo.fromReference(id, callback);
     return;
   }
 
