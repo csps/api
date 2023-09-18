@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 
 import { result } from "../utils/response";
-import { AuthType, ErrorTypes } from "../types/enums";
+import { AuthType, ErrorTypes, OrderStatus } from "../types/enums";
 import { Order } from "../db/models/order";
 import { OrderColumns } from "../db/structure";
 import { isObjectEmpty } from "../utils/string";
@@ -206,7 +206,7 @@ export function postOrders(request: Request, response: Response) {
   }
 
   // Otherwise, insert order
-  Order.insert(response.locals.studentID, request.body, request.files || null, (error, uniqueId, reference) => {
+  Order.insert(response.locals.studentID, request.body, request.files || null, (error, uniqueId) => {
     // If has an error
     if (error === ErrorTypes.DB_ERROR) {
       response.status(500).send(result.error(Strings.ORDER_POST_ERROR));
@@ -226,7 +226,7 @@ export function postOrders(request: Request, response: Response) {
     }
 
     // Send email
-    Order.sendEmail(uniqueId!, reference!);
+    Order.sendEmail(uniqueId!);
     // Otherwise, return the product data
     response.send(result.success(Strings.ORDER_CREATED, uniqueId));
   });
@@ -284,6 +284,12 @@ export function putOrders(request: Request, response: Response) {
     if (!dateStamp) {
       response.status(400).send(result.error(Strings.ORDER_UPDATE_ERROR));
       return;
+    }
+
+    // If status is completed
+    if (key === OrderColumns.STATUS && value == OrderStatus.COMPLETED) {
+      // Send email
+      Order.sendEmail(id, true);
     }
 
     // Otherwise, return success

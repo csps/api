@@ -62,9 +62,9 @@ export function getLocalDate(date: Date) {
  * Convert date to readable format
  * @param date YYYY-MM-DD HH:MM:SS format
  */
-export function getReadableDate(date: string) {
+export function getReadableDate(date: string, isMonthShort?: boolean) {
   const dateObj = new Date(date);
-  const month = dateObj.toLocaleString('default', { month: 'long' });
+  const month = dateObj.toLocaleString('default', { month: isMonthShort ? 'short' : 'long' });
   const day = dateObj.getDate();
   const year = dateObj.getFullYear();
   const time = dateObj.toLocaleString('default', { hour: 'numeric', minute: 'numeric', hour12: true });

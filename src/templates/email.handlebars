@@ -106,8 +106,8 @@
             style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;">
             <tr>
               <td class="align-center" width="100%"
-                style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top; text-align: center;" valign="top"
-                align="center">
+                style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top; text-align: center;"
+                valign="top" align="center">
                 <a href="https://ucmncsps.org" style="color: #7f4894; text-decoration: underline;"><img
                     src="https://ucmncsps.org/header.png" height="150"
                     style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;"></a>
@@ -139,13 +139,15 @@
                   {{/title}}
                   <tr>
                     <td style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top;" valign="top">
-                      <p style="font-family: Roboto, sans-serif; font-size: 14px; margin: 0; color:#4c444d; text-align: justify; line-height: 175%">
+                      <p
+                        style="font-family: Roboto, sans-serif; font-size: 14px; margin: 0; color:#4c444d; text-align: justify; line-height: 175%">
                         {{{ message }}}
                       </p>
 
                       {{#order}}
                       <div style="border-bottom:0px none; margin: 20px 0 20px 0;">
-                        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-position:center center;background-size:contain;background-repeat:no-repeat;width:100%;">
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                          style="background-position:center center;background-size:contain;background-repeat:no-repeat;width:100%;">
                           <tbody>
                             <tr>
                               <td align="left" valign="top" style="direction:ltr">
@@ -157,16 +159,15 @@
                                     </tr>
                                     <tr>
                                       <td style="width:30%;border-bottom:1px dashed #cec3cd;">
-                                        <a href="{{ url }}"
-                                          target="_blank"
-                                          data-saferedirecturl="{{ url }}"
-                                        >
-                                          <img height="150px" src="{{ thumbnail_url }}" style="max-width:160px" data-bit="iit">
+                                        <a href="{{ url }}" target="_blank" data-saferedirecturl="{{ url }}">
+                                          <img height="150px" src="{{ thumbnail_url }}" style="max-width:160px"
+                                            data-bit="iit">
                                         </a>
                                       </td>
                                       <td
                                         style="width:50%;color:#131313;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:16px;font-weight:400;line-height:24px;padding:16px 0;border-bottom:1px dashed #cec3cd;vertical-align:top">
-                                        <strong style="color:#7f4894">{{ name }}</strong> <br> <span style="font-size:14px;color:#7d747d">{{ variation }}</span>
+                                        <strong style="color:#7f4894">{{ name }}</strong> <br> <span
+                                          style="font-size:14px;color:#7d747d">{{ variation }}</span>
                                       </td>
                                       <td
                                         style="width:20%;color:#131313;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:16px 0;border-bottom:1px dashed #cec3cd;vertical-align:top;text-align:right">
@@ -180,22 +181,21 @@
                                   <tbody>
                                     <tr>
                                       <td
-                                        style="width:65%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:16px; vertical-align:top;border:0">
+                                        style="width:65%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:8px; vertical-align:top;border:0">
                                         Payment Method
                                       </td>
                                       <td
-                                        style="width:35%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:16px;vertical-align:top;text-align:right;border:0">
+                                        style="width:35%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:8px;vertical-align:top;text-align:right;border:0">
                                         {{ mode_of_payment }}
                                       </td>
                                     </tr>
                                     <tr>
                                       <td
-                                        style="width:65%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:16px 0; vertical-align:top;border:0">
-                                        
+                                        style="width:65%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:8px 0; vertical-align:top;border:0">
                                         Reference No.
                                       </td>
                                       <td
-                                        style="width:35%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:16px 0; vertical-align:top;text-align:right;border:0">
+                                        style="width:35%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:8px 0; vertical-align:top;text-align:right;border:0">
                                         {{ reference }}
                                       </td>
                                     </tr>
@@ -221,60 +221,185 @@
                       </div>
                       {{/order}}
 
-                      {{#button}}
-                        {{ url }}
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary"
-                          style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; box-sizing: border-box; width: 100%;"
-                          width="100%">
+                      {{#receipt}}
+                      <table style="width:100%;border-bottom:1px dashed #cec3cd;">
+                        <tbody>
+                          <tr>
+                            <td align="center" colspan="2">
+                              <a href="{{ qr_code_redirect_url }}">
+                                <img width="275px" src="{{ qr_code_url }}" />
+                              </a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px; vertical-align:top;border:0">
+                              Reference No.
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px; vertical-align:top;text-align:right;border:0">
+                              {{ reference }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px; vertical-align:top;border:0">
+                              Name
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px; vertical-align:top;text-align:right;border:0">
+                              {{ name }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;border:0">
+                              Merch
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;text-align:right;border:0">
+                              {{ merch }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;border:0">
+                              Variation
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;text-align:right;border:0">
+                              {{ variation }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;border:0">
+                              Price
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;text-align:right;border:0">
+                              ₱ {{ price }}.00
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;border:0">
+                              Quantity
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;text-align:right;border:0">
+                              {{ quantity }}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px; vertical-align:top;border:0">
+                              Payment method
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;text-align:right;border:0">
+                              {{ mode_of_payment }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px; vertical-align:top;border:0">
+                              Order Placed Date
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding-top:6px;vertical-align:top;text-align:right;border:0">
+                              {{ order_placed_date }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:6px 0; vertical-align:top;border:0">
+                              Order Completed Date
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:14px;font-weight:400;line-height:24px;padding:6px 0;vertical-align:top;text-align:right;border:0">
+                              {{ order_completed_date }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="border-top:1px dashed #cec3cd" colspan="2"></td>
+                          </tr>
+                          <tr>
+                            <td
+                              style="width:40%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:16px;font-weight:400;line-height:24px;padding:16px 0;vertical-align:top;border:0">
+                              <strong>Total</strong><br>
+                            </td>
+                            <td
+                              style="width:60%;color:#4c444d;font-family:Roboto,Arial,Helvetica,Roboto, sans-serif;font-size:16px;font-weight:400;line-height:24px;padding:16px 0;border-top:1px dashed #cec3cd;ertical-align:top;text-align:right;border:0">
+                              <strong>₱ {{ total }}</strong>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/receipt}}
+                    </td>
+                  </tr>
+                </table>
+
+                {{#button}}
+                {{ url }}
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary"
+                  style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; box-sizing: border-box; width: 100%;"
+                  width="100%">
+                  <tbody>
+                    <tr>
+                      <td align="center"
+                        style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top; padding-top: 20px"
+                        valign="top">
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0"
+                          style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;">
                           <tbody>
                             <tr>
-                              <td align="center"
-                                style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top; padding-top: 20px"
-                                valign="top">
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                  style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;">
-                                  <tbody>
-                                    <tr>
-                                      <td
-                                        style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #7f4894;"
-                                        valign="top" align="center" bgcolor="#7f4894">
-                                        
-                                        <a  target="_blank"
-                                          style="border: dashed 1px #7f4894; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #7f4894; border-color: #7f4894; color: #ffffff;">
-                                          {{ label }}
-                                        </a>
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
+                              <td
+                                style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #7f4894;"
+                                valign="top" align="center" bgcolor="#7f4894">
+
+                                <a target="_blank"
+                                  style="border: dashed 1px #7f4894; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #7f4894; border-color: #7f4894; color: #ffffff;">
+                                  {{ label }}
+                                </a>
                               </td>
                             </tr>
                           </tbody>
                         </table>
-                      {{/button}}
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
+                {{/button}}
               </td>
             </tr>
           </table>
-          <div class="footer" style="clear: both; Margin-top: 10px; text-align: center; width: 100%;">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-              style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;"
-              width="100%">
-              <tr>
-                <td class="content-block"
-                  style="font-family: Roboto, sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; color: #4c444d; font-size: 12px; text-align: center;"
-                  valign="top" align="center">
-                  © {{ year }} UC Main Computing Society of the Philippines - Students
-                </td>
-              </tr>
-            </table>
-          </div>
         </div>
       </td>
-      <td style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
     </tr>
+  </table>
+  </td>
+  </tr>
+  </table>
+  <div class="footer" style="clear: both; Margin-top: 10px; text-align: center; width: 100%;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0"
+      style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;"
+      width="100%">
+      <tr>
+        <td class="content-block"
+          style="font-family: Roboto, sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; color: #4c444d; font-size: 12px; text-align: center;"
+          valign="top" align="center">
+          © {{ year }} UC Main Computing Society of the Philippines - Students
+        </td>
+      </tr>
+    </table>
+  </div>
+  </div>
+  </td>
+  <td style="font-family: Roboto, sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+  </tr>
   </table>
 </body>
 

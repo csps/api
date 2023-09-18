@@ -52,6 +52,21 @@ declare global {
       reference: string
       thumbnail_url: string
     },
+
+    receipt?: {
+      reference: string,
+      name: string,
+      merch: string,
+      variation: string,
+      price: number,
+      quantity: number,
+      mode_of_payment: string,
+      order_placed_date: string,
+      order_completed_date: string,
+      qr_code_url: string,
+      qr_code_redirect_url: string,
+      total: number,
+    }
   }
 
   namespace NodeJS {

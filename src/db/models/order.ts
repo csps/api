@@ -218,7 +218,7 @@ export class Order extends DatabaseModel {
    * @param order Order Data
    * @param callback Callback Function
    */
-  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, uniqueId: string | null, reference?: string | null) => void) {
+  public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, uniqueId: string | null) => void) {
     // Get database instance
     const db = Database.getInstance();
     const datestamp = getDatestamp();
@@ -451,7 +451,7 @@ export class Order extends DatabaseModel {
                 }
   
                 // Success commiting the transaction
-                callback(null, uniqueId, generatedReference);
+                callback(null, uniqueId);
               });
             });
           }
@@ -552,10 +552,10 @@ export class Order extends DatabaseModel {
   /**
    * Send email upon ordering
    */
-  public static sendEmail(uniqueId: string, reference: string) {
+  public static sendEmail(id: string, isStatusComplete?: boolean) {
     Order.find({
-      search_column: `["${OrderColumns.UNIQUE_ID}"]`,
-      search_value: `["${uniqueId}"]`,
+      search_column: `["${isStatusComplete ? OrderColumns.ID : OrderColumns.UNIQUE_ID}"]`,
+      search_value: `["${id}"]`,
       limit: "1"
     }, (error, orders, count) => {
       if (error === ErrorTypes.DB_ERROR) {
@@ -564,20 +564,56 @@ export class Order extends DatabaseModel {
       }
 
       if (error === ErrorTypes.DB_EMPTY_RESULT) {
-        Log.e(`[ERROR] Can't send email: Order #${reference} not found`);
+        Log.e(`[ERROR] Can't send email: Order with${isStatusComplete ? '' : ' unique'} ID #${id} not found`);
         return;
       }
-
+      // Get order
       const order = orders ? orders[0] : null;
 
       // Send email if has an email address
       if (order?.email_address) {
+        // If status is complete
+        if (isStatusComplete) {
+          // Log email sending
+          Log.i("Sending order receipt to " + order?.email_address);
+          // Send email
+          sendEmail({
+            subject: Strings.EMAIL_ORDER_COMPLETED_SUBJECT.replace("{reference}", order.reference),
+            message: "",
+            to: order?.email_address,
+            receipt: {
+              name: `${order.first_name} ${order.last_name}`,
+              merch: order.product_name,
+              variation: order.variations_name || "Standard",
+              mode_of_payment: order.mode_of_payment === ModeOfPayment.WALK_IN ? "Cash" : "GCash",
+              order_completed_date: getReadableDate(order.status_updated, true),
+              order_placed_date: getReadableDate(order.date_stamp, true),
+              price: order.product_price,
+              quantity: order.quantity,
+              reference: order.reference,
+              total: order.product_price * order.quantity,
+              qr_code_url: Strings.DOMAIN + "/api/qrcode/" + encodeURIComponent(Strings.DOMAIN + "/orders/" + order.unique_id),
+              qr_code_redirect_url: Strings.DOMAIN + "/orders/" + order.unique_id,
+            }
+          }, (error, info) => {
+            if (error) {
+              Log.e(`[ERROR] Can't send email: ${error.message}`);
+              return;
+            }
+
+            Log.i(`Order Receipt sent to ${order?.email_address}`);
+          });
+
+          return;
+        }
+
         // Log email sending
         Log.i("Sending order email to " + order?.email_address);
+
         // Send email
         sendEmail({
           title: Strings.EMAIL_ORDER_TITLE,
-          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{reference}", reference),
+          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{reference}", order.reference),
           message: Strings.EMAIL_ORDER_BODY
             .replace("{name}", `${order.first_name} ${order.last_name}`)
             .replace("{date}", getReadableDate(order.date_stamp))
@@ -591,7 +627,7 @@ export class Order extends DatabaseModel {
             mop: order.mode_of_payment === ModeOfPayment.WALK_IN ? 'Walk-in' : 'GCash',
             total: order.product_price * order.quantity,
             url: Strings.DOMAIN + "/merch/" + order.products_id,
-            reference: reference,
+            reference: order.reference,
             mode_of_payment: order.mode_of_payment === ModeOfPayment.WALK_IN ? "Cash" : "GCash",
             thumbnail_url: Strings.DOMAIN + "/api/photos/" + order.thumbnail + "/raw"
           }
