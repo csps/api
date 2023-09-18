@@ -53,7 +53,7 @@ function getQRCode(request: Request, response: Response) {
     const qrCode = new QRCodeCanvas({
       width: 1024,
       height: 1024,
-      data: q.replace(/s/g, ""),
+      data: q.replace(/\s/g, ""),
       image: logo,
       margin: 16,
       qrOptions: {
