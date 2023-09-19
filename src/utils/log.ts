@@ -4,9 +4,8 @@ import { getDatestamp } from "./date";
 import { Request, Response } from "express";
 import { parseText } from "./string";
 import { LoginLogModel } from "../types/models";
-import Database from "../db/database";
 import { Tables } from "../db/structure";
-import { result } from "./response";
+import Database from "../db/database";
 
 /**
  * Custom logging event for CSPS Web App API
@@ -16,32 +15,56 @@ export class Log {
   /**
    * Show error log
    * @param message Error message to log
+   * @param highlight Highlight the log
    */
-  static e(message: string) {
+  static e(message: string, highlight?: boolean) {
+    if (highlight) {
+      console.log(chalk.bgRed("[-] " + message));
+      return;
+    }
+
     console.log(chalk.bgRed("[-]") + " " + chalk.red(message));
   }
 
   /**
    * Show success log
    * @param message Success message to log
+   * @param highlight Highlight the log
    */
-  static s(message: string) {
+  static s(message: string, highlight?: boolean) {
+    if (highlight) {
+      console.log(chalk.bgGreen("[+] " + message));
+      return;
+    }
+
     console.log(chalk.bgGreen("[+]") + " " + chalk.green(message));
   }
 
   /**
    * Show warning log
    * @param message Warning message to log
+   * @param highlight Highlight the log
    */
-  static w(message: string) {
+  static w(message: string, highlight?: boolean) {
+    if (highlight) {
+      console.log(chalk.bgYellow("[!] " + message));
+      return;
+    }
+
     console.log(chalk.bgYellow("[!]") + " " + chalk.yellow(message));
   }
 
   /**
    * Show info log
    * @param message Info message to log
+   * @param highlight Highlight the log
    */
-  static i(message: string) {
+  static i(message: string, highlight?: boolean) {
+    if (highlight) {
+      console.log(chalk.bgBlue("[*] " + message));
+      return;
+    }
+
     console.log(chalk.bgBlue("[*]") + " " + chalk.blue(message));
   }
 
@@ -155,7 +178,7 @@ export class Log {
         return;
       }
 
-      Log.s("New login detected [" + (data.type === 0 ? 'STUDENT' : 'ADMIN') + "]: " + data.name + " #" + data.students_id + " (" + data.student_id + ")");
+      Log.s("New login detected [" + (data.type === 0 ? 'STUDENT' : 'ADMIN') + "]: " + data.name + " #" + data.students_id + " (" + data.student_id + ")", true);
     });
   }
 }
