@@ -1,3 +1,5 @@
+import { OrderStatus } from "../types/enums";
+
 // Months with 31 days
 const months31 = [1, 3, 5, 7, 8, 10, 12];
 // Months with 30 days
@@ -93,5 +95,28 @@ export function parseText(text: string): object | null {
     return JSON.parse(text);
   } catch (error) {
     return null;
+  }
+}
+
+ /* 
+ * Convert order status to label
+ * @param status Generic status
+ */
+ export function mapOrderStatusLabel(status: OrderStatus): string {
+  switch (status) {
+    case OrderStatus.PENDING_PAYMENT:
+      return "Pending Payment";
+    case OrderStatus.COMPLETED:
+      return "Completed";
+    case OrderStatus.CANCELLED_BY_USER:
+      return "Cancelled by user";
+    case OrderStatus.CANCELLED_BY_ADMIN:
+      return "Cancelled by admin";
+    case OrderStatus.REMOVED:
+      return "Removed";
+    case OrderStatus.REJECTED:
+      return "Rejected";
+    default:
+      return "Unknown";
   }
 }

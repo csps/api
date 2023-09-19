@@ -280,6 +280,11 @@ export function putOrders(request: Request, response: Response) {
       return;
     }
 
+    if (error === ErrorTypes.DB_PRODUCT_NO_STOCK) {
+      response.status(400).send(result.error(Strings.ORDER_UPDATE_STATUS_NO_STOCK));
+      return;
+    }
+
     // If not success
     if (!dateStamp) {
       response.status(400).send(result.error(Strings.ORDER_UPDATE_ERROR));

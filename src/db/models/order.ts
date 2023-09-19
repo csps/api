@@ -6,6 +6,7 @@ import { generateReference, generateToken, sanitize } from "../../utils/security
 import { OrderRequest, PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import { OrderColumns, ProductColumns, Tables } from "../structure";
+import { mapOrderStatusLabel } from "../../utils/string";
 import { sendEmail } from "../../utils/smtp";
 import { getFile } from "../../utils/file";
 import { Log } from "../../utils/log";
@@ -407,7 +408,7 @@ export class Order extends DatabaseModel {
           }
   
           function decrementStock() {
-            Order.decrementStock(order.products_id, order.variations_id || null, error => {
+            Order.updateStock(false, order.products_id, order.variations_id || null, error => {
               if (error === ErrorTypes.DB_ERROR) {
                 Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
   
@@ -489,33 +490,142 @@ export class Order extends DatabaseModel {
     const db = Database.getInstance();
     // Default data to set
     let data = `${sanitize(key)} = ?`
-
-    // If key is status_id
-    if (key === OrderColumns.STATUS) {
-      data = `${OrderColumns.STATUS} = ?, ${OrderColumns.STATUS_UPDATED} = NOW()`;
-    }
-
+    
     // Split id (B and N)
     const [ TYPE, ID ] = id.split("-");
+    
+    // If updating status 
+    if (key === OrderColumns.STATUS) {
+      data = `${OrderColumns.STATUS} = ?, ${OrderColumns.STATUS_UPDATED} = NOW()`;
 
-    // Query the database
-    db.query(`UPDATE ${TYPE === 'B' ? Tables.ORDERS : Tables.NON_BSCS_ORDERS } SET ${data}, ${OrderColumns.EDIT_DATE} = NOW() WHERE id = ?`, [value, ID], (error, results) => {
-      // If has an error
-      if (error) {
-        Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR);
-        return;
-      }
+      // Find order
+      Order.find({
+        search_column: `["${OrderColumns.ID}"]`,
+        search_value: `["${ID}"]`,
+        limit: "1"
+      }, (error, orders) => {
+        // Get order
+        const order = orders && orders?.length > 0 ? orders[0] : null;
 
-      // If no results
-      if (results.affectedRows === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT);
-        return;
-      }
+        // If has an error
+        if (error === ErrorTypes.DB_ERROR) {
+          Log.e(`Student #${order?.student_id}: Error getting order while updating stock number`, true);
+          update();
+          return;
+        }
 
-      // Otherwise, return success
-      callback(null, getDatestamp());
-    });
+        // If no results
+        if (error === ErrorTypes.DB_EMPTY_RESULT) {
+          Log.e(`Student #${order?.student_id}: Error getting order while updating stock number because order #${id} not found!`, true);
+          update();
+          return;
+        }
+
+        const isFromPendingOrComplete = order?.status == OrderStatus.PENDING_PAYMENT || order?.status == OrderStatus.COMPLETED;
+        // If status is to cancelled, removed, rejected
+        const toIncrement = [OrderStatus.CANCELLED_BY_ADMIN, OrderStatus.CANCELLED_BY_USER, OrderStatus.REJECTED, OrderStatus.REMOVED].includes(parseInt(value));
+
+        // Log message
+        Log.i("Order #" + id + " is " + mapOrderStatusLabel(parseInt(value)).toLowerCase());
+
+        // INCREMENT
+        if (isFromPendingOrComplete && toIncrement) {
+          // Log message
+          Log.i("Incrementing stock of order #" + id, true);
+          // Increment stock
+          Order.updateStock(true, order?.products_id || 0, order?.variations_id || null, error => {
+            if (error === ErrorTypes.DB_ERROR) {
+              Log.e(`Student #${order?.student_id}: Error incrementing stock`, true);
+            }
+
+            // If no results
+            if (error === ErrorTypes.DB_EMPTY_RESULT) {
+              Log.e(`Student #${order?.student_id}: Error incrementing stock`, true);
+            }
+
+            update();
+          });
+
+          return;
+        }
+
+        // DECREMENT
+        if (!isFromPendingOrComplete && !toIncrement) {
+          // Check if product has stock
+          Product.fromId(order?.products_id || 0, (error, product) => {
+            if (error === ErrorTypes.DB_ERROR) {
+              Log.e(`Student #${order?.student_id}: Error getting product`, true);
+              update();
+              return;
+            }
+
+            // If no results
+            if (error === ErrorTypes.DB_EMPTY_RESULT) {
+              Log.e(`Student #${order?.student_id}: Product not found while decrementing stock`, true);
+              update();
+              return;
+            }
+
+            // If product has stock
+            if (product && product.getStock() > 0) {
+              // Log message
+              Log.i("Decrementing stock of order #" + id, true);
+              // Decrement stock
+              Order.updateStock(false, order?.products_id || 0, order?.variations_id || null, error => {
+                if (error === ErrorTypes.DB_ERROR) {
+                  Log.e(`Student #${order?.student_id}: Error decrementing stock`, true);
+                }
+    
+                // If no results
+                if (error === ErrorTypes.DB_EMPTY_RESULT) {
+                  Log.e(`Student #${order?.student_id}: Error decrementing stock`, true);
+                }
+    
+                update();
+              });
+
+              return;
+            }
+
+            // Log message
+            Log.w(`Student #${order?.student_id}: Product has no stock while decrementing stock`, true);
+            // Callback error
+            callback(ErrorTypes.DB_PRODUCT_NO_STOCK);
+          });
+
+          return;
+        }
+
+        // Otherwise, just return success
+        update();
+      });
+
+      return;
+    }
+
+    function update() {
+      // Query the database
+      db.query(`UPDATE ${TYPE === 'B' ? Tables.ORDERS : Tables.NON_BSCS_ORDERS } SET ${data}, ${OrderColumns.EDIT_DATE} = NOW() WHERE id = ?`, [value, ID], (error, results) => {
+        // If has an error
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR);
+          return;
+        }
+  
+        // If no results
+        if (results.affectedRows === 0) {
+          callback(ErrorTypes.DB_EMPTY_RESULT);
+          return;
+        }
+  
+        // Otherwise, return success
+        callback(null, getDatestamp());
+      });
+    }
+
+    // Otherwise, call update
+    update();
   }
 
   /**
@@ -648,14 +758,14 @@ export class Order extends DatabaseModel {
   }
 
   /**
-   * Decrement stock number
+   * Update stock number
    */
-  private static decrementStock(products_id: number, variations_id: number | null, callback: (error: ErrorTypes | null) => void) {
+  private static updateStock(isIncrement: boolean, products_id: number, variations_id: number | null, callback: (error: ErrorTypes | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
     // Query the database
-    db.query(`UPDATE ${variations_id === null ? 'products' : 'product_variations'} SET stock = stock - 1 WHERE ${variations_id === null ? 'id' : 'products_id'} = ? ${variations_id === null ? '' : 'AND variations_id = ?'}`, [products_id, variations_id], (error, results) => {
+    db.query(`UPDATE ${variations_id === null ? 'products' : 'product_variations'} SET stock = stock ${isIncrement ? '+' : '-'} 1 WHERE ${variations_id === null ? 'id' : 'products_id'} = ? ${variations_id === null ? '' : 'AND variations_id = ?'}`, [products_id, variations_id], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);
