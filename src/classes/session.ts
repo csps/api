@@ -1,5 +1,5 @@
 import type { Request } from "express";
-import { jwtVerify } from "jose";;
+import { SignJWT, jwtVerify } from "jose";;
 import { ErrorTypes, AuthType } from "../types/enums";
 import { Log } from "../utils/log";
 
@@ -11,7 +11,7 @@ export class Session {
   /**
    * Get student ID from jwt session
    */
-  static async getSession(request: Request | string, callback: (error: ErrorTypes | null, data: SessionData | null) => void) {
+  static async getSession(request: Request | string, callback: (error: ErrorTypes | null, data: SessionData | null, newToken?: string) => void) {
     // Default token
     let token = typeof request === 'string' ? request : '';
 
@@ -39,17 +39,39 @@ export class Session {
 
     // Decode secret key
     const secret = new TextEncoder().encode(process.env.SECRET_KEY);
+    // New token
+    let newToken: string | undefined;
 
     try {
       // Verify and Get data
-      const id = (await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload.id as string;
+      const payload = (await jwtVerify(token, secret, { algorithms: ['HS256'] })).payload;
+      // Get ID
+      const id = payload.id as string;
+
+      if (payload.exp) {
+        const now = new Date();
+        const exp = new Date(Number(payload.exp + "000"));
+        const hoursLeft = Math.floor((exp.getTime() - now.getTime()) / 1000 / 60 / 60);
+
+        // If token is halfway to be expired
+        if (hoursLeft <= 12) {
+          // Generate new token to refresh the session
+          newToken = await new SignJWT({ id })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setExpirationTime('1d')
+            .sign(secret);
+
+          Log.i("New token generated for student #" + id,  true);
+        }
+      }
+
       // Get role
       const role = id.startsWith("S") ? AuthType.STUDENT : id.startsWith("A") ? AuthType.ADMIN : undefined;
       // Verify token
-      callback(null, { id: id.split("-")[1], role });
-    } catch (e) {
+      callback(null, { id: id.split("-")[1], role }, newToken);
+    } catch (e: any) {
       // Log error
-      console.error(e);
+      console.error(e.code);
       // If session expired
       callback(ErrorTypes.DB_EXPIRED, null);
     }
