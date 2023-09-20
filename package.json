@@ -58,6 +58,7 @@
     "helmet": "^7.0.0",
     "jose": "^4.14.6",
     "mysql": "^2.18.1",
+    "nocache": "^4.0.0",
     "nodemailer": "^6.9.5"
   },
   "overrides": {

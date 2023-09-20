@@ -2,6 +2,7 @@ import fileUpload from "express-fileupload";
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
+import nocache from "nocache";
 import cors from "cors";
 
 import { getPattern } from "./utils/route";
@@ -35,12 +36,14 @@ app.use(helmet({
   }
 }));
 
-// Use text/plain request body
+// Use form url encoded request body
 app.use(express.urlencoded({ extended: true }));
 // Use file upload plugin
 app.use(fileUpload());
 // Use custom logger
 app.use(Log.getMiddleware());
+// Disable caching
+app.use(nocache())
 
 /**
  * Handle requests specified in routes
@@ -66,7 +69,7 @@ app.use(routes.map(r => r.path), (request, response) => {
       }
 
       // Get session data
-      Session.getSession(request, (error, data) => {
+      Session.getSession(request, (error, data, newToken) => {
         // If has authentication token and is expired
         if (error === ErrorTypes.DB_EXPIRED || data === null) {
           Log.w("Session expired for ID: " + data?.id);
@@ -78,6 +81,13 @@ app.use(routes.map(r => r.path), (request, response) => {
         if (route.auth && route.auth[request.method as HttpMethod] && (data.role !== route.auth[request.method as HttpMethod] || !data.role)) {
           response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
           return;
+        }
+
+        // If has new token is generated
+        if (newToken) {
+          // Set authorization header
+          response.setHeader("X-Authorization", `Bearer ${newToken}`);
+          response.setHeader("Access-Control-Expose-Headers", "X-Authorization");
         }
         
         // Add ID to response locals
