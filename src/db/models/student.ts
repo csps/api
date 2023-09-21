@@ -516,42 +516,6 @@ class Student extends DatabaseModel {
   }
 
   /**
-   * Is password match
-   */
-  public static isPasswordMatch(studentID: string, password: string, callback: (error: ErrorTypes | null, isMatch: boolean) => void) {
-    // Get database instance
-    const db = Database.getInstance();
-
-    // Query the database
-    db.query("SELECT password FROM students WHERE student_id = ?", [studentID], (error, results) => {
-      if (error) {
-        Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, false);
-        return;
-      }
-
-      // If no results
-      if (results.length === 0) {
-        callback(ErrorTypes.DB_EMPTY_RESULT, false);
-        return;
-      }
-
-      // Compare password
-      bcrypt.compare(password, results[0].password, (error, isMatch) => {
-        // If has an error
-        if (error) {
-          Log.e(error.message);
-          callback(ErrorTypes.DB_ERROR, false);
-          return;
-        }
-
-        // Return result
-        callback(null, isMatch);
-      });
-    });
-  }
-
-  /**
    * Send new account email
    */
   public sendNewAccountEmail(plainPassword: string) {

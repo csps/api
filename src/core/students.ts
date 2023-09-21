@@ -220,13 +220,7 @@ function putStudents(request: Request, response: Response) {
   // If changing password
   if (key === StudentColumns.PASSWORD) {
     // Get inputs
-    const { oldpass, newpass, cnfpass } = request.body;
-
-    // If old password is empty
-    if (!oldpass) {
-      response.status(400).send(result.error(Strings.STUDENT_EMPTY_OLD_PASS));
-      return;
-    }
+    const { newpass, cnfpass } = request.body;
 
     // If new password is empty or less than 8 characters
     if (!newpass || newpass.length < 8) {
@@ -248,44 +242,22 @@ function putStudents(request: Request, response: Response) {
         return;
       }
 
-      // Compare old password if correct
-      Student.isPasswordMatch(response.locals.studentID, oldpass, (error, isMatch) => {
+      // Hash password
+      bcrypt.hash(newpass, 10, (error, hash) => {
         // If error
-        if (error === ErrorTypes.DB_ERROR) {
+        if (error) {
+          Log.e("[Students] Error hashing password!");
           response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
           return;
         }
 
-        // If no result
-        if (error === ErrorTypes.DB_EMPTY_RESULT) {
-          response.status(500).send(result.error(Strings.STUDENT_NOT_FOUND));
-          return;
-        }
-
-        // If incorrect old password
-        if (!isMatch) {
-          response.status(400).send(result.error(Strings.STUDENT_INCORRECT_OLD_PASS));
-          return;
-        }
-
-        // Hash password
-        bcrypt.hash(newpass, 10, (error, hash) => {
-          // If error
-          if (error) {
-            Log.e("[Students] Error hashing password!");
-            response.status(500).send(result.error(Strings.GENERAL_SYSTEM_ERROR));
-            return;
-          }
-
-          // Update password
-          Student.update(response.locals.studentID!, false, key, hash, error => {
-            // If has errors
-            if (_checkUpdateError(error, response)) return;
-            // Show success
-            response.send(result.success(Strings.STUDENT_UPDATED));
-          });
+        // Update password
+        Student.update(response.locals.studentID!, false, key, hash, error => {
+          // If has errors
+          if (_checkUpdateError(error, response)) return;
+          // Show success
+          response.send(result.success(Strings.STUDENT_UPDATED));
         });
-
       });
 
       return;
