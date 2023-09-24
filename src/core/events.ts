@@ -32,6 +32,12 @@ function getEvents(request: Request, response: Response) {
   // Get {id} from request parameters
   const { id } = request.params;
 
+  // if ends with /next, call `getNextEvent` function instead
+  if (request.originalUrl.endsWith("/next")) {
+    getNextEvent(request, response);
+    return;
+  }
+
   // If has an id, call `getEvent` function instead
   if (id) {
     getEvent(request, response);
@@ -57,6 +63,31 @@ function getEvents(request: Request, response: Response) {
 
     response.status(200).send(result.success(Strings.EVENTS_FOUND, events, count));
   });
+}
+
+/**
+ * GET /events/next
+ * @param request Express request object
+ * @param response Express response object
+ */
+function getNextEvent(request: Request, response: Response) {
+  // Get the next event
+  Event.next((error, event) => {
+    // If has an error
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.EVENT_GET_ERROR));
+      return;
+    }
+    
+    // If no results
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(Strings.EVENT_NOT_FOUND));
+      return;
+    }
+
+    // Return the event
+    response.send(result.success(Strings.EVENT_FOUND, event))
+  })
 }
 
 /**

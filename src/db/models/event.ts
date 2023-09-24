@@ -259,6 +259,31 @@ class Event extends DatabaseModel {
   }
 
   /**
+   * Get the next event
+   */
+  public static next(callback: (error: ErrorTypes | null, event: EventModel | null) => void) {
+    // Get database instance
+    const db = Database.getInstance();
+
+    // Get the next event from the database
+    db.query(`SELECT * FROM ${Tables.EVENTS} WHERE date > NOW() ORDER BY date ASC LIMIT 1`, [], (error, results) => {
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, null);
+        return;
+      }
+
+      // If no event was found, return null
+      if (results.length === 0) {
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Return the event
+      callback(null, results[0]);
+    });
+  }
+  /**
    * Validate Event Data
    * @param data Raw Event Data
    */
