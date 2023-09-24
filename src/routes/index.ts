@@ -83,6 +83,8 @@ export const routes: AppRoutes[] = [
   { path: "/orders", methods: ["GET", "POST"], handler: orders },
 
   // QR Code
+  { path: "/qrcode/:size/:q/dark" , methods: ['GET'], handler: qrcode },
+  { path: "/qrcode/:size/:q" , methods: ['GET'], handler: qrcode },
   { path: "/qrcode/:q/dark" , methods: ['GET'], handler: qrcode },
   { path: "/qrcode/:q" , methods: ['GET'], handler: qrcode },
  

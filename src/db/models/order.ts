@@ -702,7 +702,7 @@ export class Order extends DatabaseModel {
               quantity: order.quantity,
               reference: order.reference,
               total: order.product_price * order.quantity,
-              qr_code_url: Strings.DOMAIN + "/api/qrcode/" + encodeURIComponent(Strings.DOMAIN + "/orders/" + order.unique_id),
+              qr_code_url: Strings.DOMAIN + "/api/qrcode/512/" + encodeURIComponent(Strings.DOMAIN + "/orders/" + order.unique_id),
               qr_code_redirect_url: Strings.DOMAIN + "/orders/" + order.unique_id,
             }
           }, (error, info) => {

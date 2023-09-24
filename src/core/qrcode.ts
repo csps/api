@@ -31,7 +31,7 @@ export function qrcode(request: Request, response: Response) {
  */
 function getQRCode(request: Request, response: Response) {
   // Get data to encode
-  const { q } = request.params;
+  const { size, q } = request.params;
   // If dark mode
   const isDark = request.originalUrl.endsWith("/dark");
 
@@ -51,8 +51,8 @@ function getQRCode(request: Request, response: Response) {
 
     // Create QRCode
     const qrCode = new QRCodeCanvas({
-      width: 1024,
-      height: 1024,
+      width: size ? parseInt(size) : 1024,
+      height: size ? parseInt(size) : 1024,
       data: q.replace(/\s/g, ""),
       image: logo,
       margin: 16,
