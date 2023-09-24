@@ -1,6 +1,7 @@
 import type { Request } from "express";
 import { SignJWT, jwtVerify } from "jose";;
 import { ErrorTypes, AuthType } from "../types/enums";
+import { generateToken } from "../utils/security";
 import { Log } from "../utils/log";
 
 /**
@@ -56,8 +57,8 @@ export class Session {
         // If token is halfway to be expired
         if (hoursLeft <= 12) {
           // Generate new token to refresh the session
-          newToken = await new SignJWT({ id })
-            .setProtectedHeader({ alg: 'HS256' })
+          newToken = await new SignJWT({ id, jti: generateToken(6) })
+            .setProtectedHeader({ alg: 'HS256', typ: "JWT" })
             .setExpirationTime('1d')
             .sign(secret);
 
