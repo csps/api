@@ -221,7 +221,6 @@ export class Order extends DatabaseModel {
    */
   public static insert(studentID: string | undefined, order: OrderRequest, files: FileArray | null, callback: (error: ErrorTypes | null, uniqueId: string | null) => void) {
     // Get database instance
-    const db = Database.getInstance();
     const datestamp = getDatestamp();
     const isLoggedIn = !!studentID;
 
@@ -239,8 +238,8 @@ export class Order extends DatabaseModel {
 
     // Find product
     Product.find({
-      search_column: `["${ProductColumns.ID}", "${ProductColumns.IS_AVAILABLE}"]`,
-      search_value: `[${order.products_id}, 0]`,
+      search_column: `["${ProductColumns.ID}"]`,
+      search_value: `[${order.products_id}]`,
     }, (error, products, count) => {
       // If has an error
       if (error === ErrorTypes.DB_ERROR) {
@@ -249,8 +248,18 @@ export class Order extends DatabaseModel {
         return;
       }
 
+      // If no results
+      if (error === ErrorTypes.DB_EMPTY_RESULT) {
+        Log.e(`Order: Product #${order.products_id} not found`);
+        callback(ErrorTypes.DB_EMPTY_RESULT, null);
+        return;
+      }
+
+      // Product 
+      const product = products![0];
+
       // If has result
-      if ((count || 0) > 0) {
+      if ((count || 0) > 0 && !product.is_available) {
         Log.e(`Student #${studentID || order.student_id} is ordering an unavailable product #${order.products_id}`);
         callback(ErrorTypes.UNAVAILABLE, null);
         return;
@@ -267,17 +276,17 @@ export class Order extends DatabaseModel {
             return;
           }
 
-          // Start database transaction
+          // Start transaction
           conn.beginTransaction(error => {
             if (error) {
               Log.e(error.message);
               callback(ErrorTypes.DB_ERROR, null);
               return;
             }
-
+            
             // Generate unique ID
             const uniqueId = generateToken(20);
-    
+
             // If logged in
             if (isLoggedIn) {
               // Query the Database
@@ -369,54 +378,36 @@ export class Order extends DatabaseModel {
                     return;
                   }
     
-                  // Commit the transaction
-                  conn.commit((error) => {
-                    if (error) {
-                      Log.e(error.message);
-    
-                      // Rollback the transaction
-                      conn.rollback(error => {
-                        if (error) Log.e(error.message);
-                        callback(ErrorTypes.DB_ERROR, null);
-                        return;
-                      });
-    
-                      return;
-                    }
-    
-                    // Log order 
-                    Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by GCash`);
-                    // Decrement stock
-                    decrementStock();
-                  });
+                  // Log order 
+                  Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by GCash`);
+                  // Decrement stock
+                  decrementStock();
                 });
     
                 return;
               }
     
-              // Otherwise, commit transaction
-              conn.commit((error) => {
-                if (error) {
-                  Log.e(error.message);
-    
-                  conn.rollback(error => {
-                    if (error) Log.e(error.message);
-                    callback(ErrorTypes.DB_ERROR, null);
-                    return;
-                  });
-    
-                  return;
-                }
-    
-                // Log order 
-                Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by Walk-in`);
-                // Decrement stock
-                decrementStock();
-              });
+              Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by Walk-in`);
+              // Decrement stock
+              decrementStock();
             }
     
             function decrementStock() {
-              Order.updateStock(false, order.products_id, order.variations_id || null, error => {
+              // If has no sufficient stock
+              if (product.stock < order.quantity) {
+                Log.e(`Student #${studentID || order.student_id}: Product has insufficient stock`);
+    
+                // Rollback the transaction
+                conn.rollback(error => {
+                  if (error) Log.e(error.message);
+                  callback(ErrorTypes.DB_PRODUCT_NO_STOCK, null);
+                  return;
+                });
+    
+                return;
+              }
+  
+              Order.updateStock(-order.quantity, order.products_id, order.variations_id || null, error => {
                 if (error === ErrorTypes.DB_ERROR) {
                   Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
     
@@ -540,9 +531,9 @@ export class Order extends DatabaseModel {
         // INCREMENT
         if (isFromPendingOrComplete && toIncrement) {
           // Log message
-          Log.i("Incrementing stock of order #" + id, true);
+          Log.i(`Incrementing stock by ${order.quantity} of order #` + id, true);
           // Increment stock
-          Order.updateStock(true, order?.products_id || 0, order?.variations_id || null, error => {
+          Order.updateStock(order.quantity, order?.products_id || 0, order?.variations_id || null, error => {
             if (error === ErrorTypes.DB_ERROR) {
               Log.e(`Student #${order?.student_id}: Error incrementing stock`, true);
             }
@@ -576,11 +567,11 @@ export class Order extends DatabaseModel {
             }
 
             // If product has stock
-            if (product && product.getStock() > 0) {
+            if (product && product.getStock() > order?.quantity!) {
               // Log message
-              Log.i("Decrementing stock of order #" + id, true);
+              Log.i(`Decrementing stock by ${order?.quantity} of order #` + id, true);
               // Decrement stock
-              Order.updateStock(false, order?.products_id || 0, order?.variations_id || null, error => {
+              Order.updateStock(-order?.quantity!, order?.products_id || 0, order?.variations_id || null, error => {
                 if (error === ErrorTypes.DB_ERROR) {
                   Log.e(`Student #${order?.student_id}: Error decrementing stock`, true);
                 }
@@ -597,7 +588,7 @@ export class Order extends DatabaseModel {
             }
 
             // Log message
-            Log.w(`Student #${order?.student_id}: Product has no stock while decrementing stock`, true);
+            Log.w(`Student #${order?.student_id}: Product has no sufficient stock while decrementing stock`, true);
             // Callback error
             callback(ErrorTypes.DB_PRODUCT_NO_STOCK);
           });
@@ -769,12 +760,12 @@ export class Order extends DatabaseModel {
   /**
    * Update stock number
    */
-  private static updateStock(isIncrement: boolean, products_id: number, variations_id: number | null, callback: (error: ErrorTypes | null) => void) {
+  private static updateStock(delta: number, products_id: number, variations_id: number | null, callback: (error: ErrorTypes | null) => void) {
     // Get database instance
     const db = Database.getInstance();
 
     // Query the database
-    db.query(`UPDATE ${variations_id === null ? 'products' : 'product_variations'} SET stock = stock ${isIncrement ? '+' : '-'} 1 WHERE ${variations_id === null ? 'id' : 'products_id'} = ? ${variations_id === null ? '' : 'AND variations_id = ?'}`, [products_id, variations_id], (error, results) => {
+    db.query(`UPDATE ${variations_id === null ? 'products' : 'product_variations'} SET stock = stock ${delta < 0 ? delta.toString() : '+ ' + delta} WHERE ${variations_id === null ? 'id' : 'products_id'} = ? ${variations_id === null ? '' : 'AND variations_id = ?'}`, [products_id, variations_id], (error, results) => {
       // If has an error
       if (error) {
         Log.e(error.message);

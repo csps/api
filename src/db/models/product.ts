@@ -115,7 +115,7 @@ class Product extends DatabaseModel {
    * Find products
    * @param param PaginationRequest
    */
-  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, products: Product[] | null, count?: number) => void) {
+  public static find(param: PaginationRequest, callback: (error: ErrorTypes | null, products: ProductModel[] | null, count?: number) => void) {
     // Get database instance
     const db = Database.getInstance();
     // Data

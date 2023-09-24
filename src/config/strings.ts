@@ -181,6 +181,7 @@ const Strings = {
   ORDER_UPDATE_ERROR: "Something went wrong while updating order.",
   ORDER_UNAVAILABLE: "Product is unavailable!",
   ORDER_UPDATE_STATUS_NO_STOCK: "Order status cannot be updated, product is out of stock!",
+  ORDER_ADD_NO_STOCK: "Product has insufficient stock!",
   ORDER_EMPTY_PRODUCT_ID: "Product ID is empty!",
   ORDER_EMPTY_STUDENT_ID: "Student ID is empty!",
   ORDER_EMPTY_STUDENT_FIRST_NAME: "Student first name is empty!",

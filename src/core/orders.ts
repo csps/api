@@ -225,6 +225,12 @@ export function postOrders(request: Request, response: Response) {
       return;
     }
 
+    // If product is out of stock
+    if (error === ErrorTypes.DB_PRODUCT_NO_STOCK) {
+      response.status(400).send(result.error(Strings.ORDER_ADD_NO_STOCK));
+      return;
+    }
+
     // Send email
     Order.sendEmail(uniqueId!);
     // Otherwise, return the product data
@@ -280,6 +286,7 @@ export function putOrders(request: Request, response: Response) {
       return;
     }
 
+    // If product is out of stock
     if (error === ErrorTypes.DB_PRODUCT_NO_STOCK) {
       response.status(400).send(result.error(Strings.ORDER_UPDATE_STATUS_NO_STOCK));
       return;
