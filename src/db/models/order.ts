@@ -267,195 +267,204 @@ export class Order extends DatabaseModel {
             return;
           }
 
-          // Generate unique ID
-          const uniqueId = generateToken(20);
-  
-          // If logged in
-          if (isLoggedIn) {
-            // Query the Database
-            conn.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+          // Start database transaction
+          conn.beginTransaction(error => {
+            if (error) {
+              Log.e(error.message);
+              callback(ErrorTypes.DB_ERROR, null);
+              return;
+            }
+
+            // Generate unique ID
+            const uniqueId = generateToken(20);
+    
+            // If logged in
+            if (isLoggedIn) {
+              // Query the Database
+              conn.query("INSERT INTO orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+                generatedReference,
+                uniqueId,
+                studentID,
+                order.products_id,
+                order.variations_id || null,
+                order.quantity,
+                order.mode_of_payment,
+                OrderStatus.PENDING_PAYMENT,
+                "", "", null, null, datestamp
+              ], (error, results) => {
+                if (error) {
+                  Log.e(error.message);
+                  callback(ErrorTypes.DB_ERROR, null);
+                  return;
+                }
+                
+                insertProof();
+              });
+    
+              return;
+            }
+    
+            // Otherwise, insert to non-bscs orders
+            conn.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
               generatedReference,
               uniqueId,
-              studentID,
               order.products_id,
               order.variations_id || null,
               order.quantity,
               order.mode_of_payment,
+              order.student_id,
+              order.student_first_name,
+              order.student_last_name,
+              order.student_email,
+              order.student_course,
+              order.student_year,
               OrderStatus.PENDING_PAYMENT,
               "", "", null, null, datestamp
             ], (error, results) => {
+              // If has an error
               if (error) {
                 Log.e(error.message);
-                callback(ErrorTypes.DB_ERROR, null);
-                return;
-              }
-              
-              insertProof();
-            });
-  
-            return;
-          }
-  
-          // Otherwise, insert to non-bscs orders
-          conn.query("INSERT INTO non_bscs_orders VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-            generatedReference,
-            uniqueId,
-            order.products_id,
-            order.variations_id || null,
-            order.quantity,
-            order.mode_of_payment,
-            order.student_id,
-            order.student_first_name,
-            order.student_last_name,
-            order.student_email,
-            order.student_course,
-            order.student_year,
-            OrderStatus.PENDING_PAYMENT,
-            "", "", null, null, datestamp
-          ], (error, results) => {
-            // If has an error
-            if (error) {
-              Log.e(error.message);
-  
-              // Rollback the transaction
-              conn.rollback(() => {
-                callback(ErrorTypes.DB_ERROR, null);
-                return;
-              });
-  
-              return;
-            }
-  
-            insertProof();
-          });
-  
-          function insertProof() {
-            // If mode of payment is GCash
-            if (order.mode_of_payment == ModeOfPayment.GCASH) {
-              // Get screenshot/proof
-              const photo = getFile(files, "proof");
-  
-              if (!photo) {
+    
                 // Rollback the transaction
-                conn.rollback(error => {
-                  if (error) Log.e(error.message);
-                  callback(ErrorTypes.REQUEST_FILE, null);
+                conn.rollback(() => {
+                  callback(ErrorTypes.DB_ERROR, null);
                   return;
                 });
-  
+    
                 return;
               }
-  
-              // Insert the photo
-              Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, reference: generatedReference }, (error, photo) => {
-                if (error === ErrorTypes.DB_ERROR) {
-                  Log.e(`Student #${studentID || order.student_id}: Error inserting screenshot/proof`);
-  
+    
+              insertProof();
+            });
+    
+            function insertProof() {
+              // If mode of payment is GCash
+              if (order.mode_of_payment == ModeOfPayment.GCASH) {
+                // Get screenshot/proof
+                const photo = getFile(files, "proof");
+    
+                if (!photo) {
                   // Rollback the transaction
                   conn.rollback(error => {
                     if (error) Log.e(error.message);
-                    callback(ErrorTypes.DB_ERROR, null);
+                    callback(ErrorTypes.REQUEST_FILE, null);
                     return;
                   });
-  
+    
                   return;
                 }
-  
-                // Commit the transaction
-                conn.commit((error) => {
-                  if (error) {
-                    Log.e(error.message);
-  
+    
+                // Insert the photo
+                Photo.insert({ data: photo.data, type: photo.mimetype, name: photo.name, reference: generatedReference }, (error, photo) => {
+                  if (error === ErrorTypes.DB_ERROR) {
+                    Log.e(`Student #${studentID || order.student_id}: Error inserting screenshot/proof`);
+    
                     // Rollback the transaction
                     conn.rollback(error => {
                       if (error) Log.e(error.message);
                       callback(ErrorTypes.DB_ERROR, null);
                       return;
                     });
-  
+    
                     return;
                   }
-  
-                  // Log order 
-                  Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by GCash`);
-                  // Decrement stock
-                  decrementStock();
+    
+                  // Commit the transaction
+                  conn.commit((error) => {
+                    if (error) {
+                      Log.e(error.message);
+    
+                      // Rollback the transaction
+                      conn.rollback(error => {
+                        if (error) Log.e(error.message);
+                        callback(ErrorTypes.DB_ERROR, null);
+                        return;
+                      });
+    
+                      return;
+                    }
+    
+                    // Log order 
+                    Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by GCash`);
+                    // Decrement stock
+                    decrementStock();
+                  });
                 });
-              });
-  
-              return;
-            }
-  
-            // Otherwise, commit transaction
-            conn.commit((error) => {
-              if (error) {
-                Log.e(error.message);
-  
-                conn.rollback(error => {
-                  if (error) Log.e(error.message);
-                  callback(ErrorTypes.DB_ERROR, null);
-                  return;
-                });
-  
+    
                 return;
               }
-  
-              // Log order 
-              Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by Walk-in`);
-              // Decrement stock
-              decrementStock();
-            });
-          }
-  
-          function decrementStock() {
-            Order.updateStock(false, order.products_id, order.variations_id || null, error => {
-              if (error === ErrorTypes.DB_ERROR) {
-                Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
-  
-                // Rollback the transaction
-                conn.rollback(error => {
-                  if (error) Log.e(error.message);
-                  callback(ErrorTypes.DB_ERROR, null);
-                  return;
-                });
-  
-                return;
-              }
-  
-              // If no results
-              if (error === ErrorTypes.DB_EMPTY_RESULT) {
-                Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
-  
-                // Rollback the transaction
-                conn.rollback(error => {
-                  if (error) Log.e(error.message);
-                  callback(ErrorTypes.DB_EMPTY_RESULT, null);
-                  return;
-                });
-  
-                return;
-              }
-  
-              // Commit the transaction
+    
+              // Otherwise, commit transaction
               conn.commit((error) => {
                 if (error) {
                   Log.e(error.message);
-  
+    
+                  conn.rollback(error => {
+                    if (error) Log.e(error.message);
+                    callback(ErrorTypes.DB_ERROR, null);
+                    return;
+                  });
+    
+                  return;
+                }
+    
+                // Log order 
+                Log.i(`Student #${studentID || order.student_id} is ordering the product #${order.products_id} with reference #${generatedReference} by Walk-in`);
+                // Decrement stock
+                decrementStock();
+              });
+            }
+    
+            function decrementStock() {
+              Order.updateStock(false, order.products_id, order.variations_id || null, error => {
+                if (error === ErrorTypes.DB_ERROR) {
+                  Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
+    
                   // Rollback the transaction
                   conn.rollback(error => {
                     if (error) Log.e(error.message);
                     callback(ErrorTypes.DB_ERROR, null);
                     return;
                   });
-  
+    
                   return;
                 }
-  
-                // Success commiting the transaction
-                callback(null, uniqueId);
+    
+                // If no results
+                if (error === ErrorTypes.DB_EMPTY_RESULT) {
+                  Log.e(`Student #${studentID || order.student_id}: Error decrementing stock`);
+    
+                  // Rollback the transaction
+                  conn.rollback(error => {
+                    if (error) Log.e(error.message);
+                    callback(ErrorTypes.DB_EMPTY_RESULT, null);
+                    return;
+                  });
+    
+                  return;
+                }
+    
+                // Commit the transaction
+                conn.commit((error) => {
+                  if (error) {
+                    Log.e(error.message);
+    
+                    // Rollback the transaction
+                    conn.rollback(error => {
+                      if (error) Log.e(error.message);
+                      callback(ErrorTypes.DB_ERROR, null);
+                      return;
+                    });
+    
+                    return;
+                  }
+    
+                  // Success commiting the transaction
+                  callback(null, uniqueId);
+                });
               });
-            });
-          }
+            }
+          });
         });
       });
     });
