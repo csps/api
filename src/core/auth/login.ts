@@ -6,6 +6,7 @@ import Student from "../../db/models/student"
 import Strings from "../../config/strings";
 import bcrypt from 'bcrypt';
 import { Log } from "../../utils/log";
+import { generateToken } from "../../utils/security";
 
 /**
  * Login API
@@ -123,8 +124,8 @@ function postLogin(request: Request, response: Response) {
         // Encode secret key
         const secret = new TextEncoder().encode(process.env.SECRET_KEY);
         // Generate token
-        const token = await new SignJWT({ id: "S-" + student!.getStudentId() })
-          .setProtectedHeader({ alg: 'HS256' })
+        const token = await new SignJWT({ id: "S-" + student!.getStudentId(), jti: generateToken(6) })
+          .setProtectedHeader({ alg: 'HS256', typ: "JWT" })
           .setExpirationTime('1d')
           .sign(secret);
 

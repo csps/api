@@ -17,9 +17,12 @@ const Strings = {
 
   ANNOUNCEMENT_POST_ERROR: "Something went wrong while adding announcement.",
   ANNOUNCEMENT_POST_SUCCESS: "Announcement succesfully added!",
+  ANNOUNCEMENT_UPDATE_ERROR: "Something went wrong while updating announcement.",
   ANNOUNCEMENTS_GET_ERROR: "Something went wrong while getting announcements.",
   ANNOUNCEMENTS_NOT_FOUND: "There are currently no announcements available.",
   ANNOUNCEMENTS_FOUND: "Announcements found",
+  ANNOUNCEMENT_NOT_FOUND: "Announcement does not exist!",
+  ANNOUNCEMENT_UPDATE_SUCCESS: "Announcement succesfully updated!",
   ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR: "Invalid academic year!",
   ANNOUNCEMENTS_INVALID_TITLE: "Invalid title!",
   ANNOUNCEMENTS_INVALID_CONTENT: "Invalid content!",

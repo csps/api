@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { AuthType, ErrorTypes } from "../types/enums";
+import { ErrorTypes } from "../types/enums";
 import { result } from "../utils/response";
 import { isNumber } from "../utils/string";
 import Strings from "../config/strings";
@@ -121,19 +121,38 @@ export function addAnnouncement(request: Request, response: Response) {
   });
 }
 
+/**
+ * PUT /announcements/:id 
+ */
 export function updateAnnouncement(request: Request, response: Response) {
-  const { id } = request.params
-  const photo = request.body.photo
-  Announcement.update(request.body, photo, (error, success) => {
-    if (success) {
-      response.send(result.success("Success"))
-      return
+  // Get announcement ID
+  const { id } = request.params;
+
+  // If id is not a number
+  if (!isNumber(id)) {
+    response.status(404).send(result.error(Strings.GENERAL_INVALID_REQUEST));
+    return;
+  }
+
+  // Update announcement
+  Announcement.update(parseInt(id), request.body, request.files, error => {
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.ANNOUNCEMENT_UPDATE_ERROR));
+      return;
     }
 
-    response.send(result.error("Failed"))
+    if (error === ErrorTypes.DB_EMPTY_RESULT) {
+      response.status(404).send(result.error(Strings.ANNOUNCEMENT_NOT_FOUND));
+      return;
+    }
+
+    response.send(result.success(Strings.ANNOUNCEMENT_UPDATE_SUCCESS));
   })
 }
 
+/**
+ * DELETE /announcements/:id 
+ */
 export function deleteAnnouncement(request: Request, response: Response) {
   const { academic_year } = request.params;
   if (!isNumber(academic_year)) {

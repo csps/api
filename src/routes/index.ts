@@ -59,6 +59,7 @@ export const routes: AppRoutes[] = [
   { path: "/students", methods: ["GET", "POST"], handler: students, auth: { "POST": AuthType.ADMIN }},
 
   // Events
+  { path: "/events/next", methods: ["GET"], handler: events },
   { path: "/events/:id", methods: ["GET", "PUT"], handler: events },
   { path: "/events", methods: ["GET", "POST"], handler: events, auth: { "POST": AuthType.ADMIN }},
 
@@ -89,7 +90,6 @@ export const routes: AppRoutes[] = [
   { path: "/qrcode/:q" , methods: ['GET'], handler: qrcode },
  
   // Announcements
-  { path: "/announcements/:academic_year", methods: ["GET"], handler: announcements },
   { path: "/announcements/:id", methods: ["PUT"], handler: announcements, auth: { "PUT": AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.STUDENT }}
 ];

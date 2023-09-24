@@ -463,9 +463,6 @@ class Product extends DatabaseModel {
    * @param callback Callback Function
    */
   public static update(id: number, product: ProductRequest, files: FileArray | null | undefined, callback: (error: ErrorTypes | null) => void) {
-    // Get the current date
-    const datestamp = getDatestamp();
-
     // Get database connection
     Database.getConnection((error, conn) => {
       if (error) {
@@ -486,6 +483,7 @@ class Product extends DatabaseModel {
         // Get thumbnail
         const thumbnail = getFile(files, "thumbnail");
 
+        // If has thumbnail uploaded
         if (thumbnail) {
           // Insert thumbnail
           Photo.insert({ data: thumbnail.data, type: thumbnail.mimetype }, (error, photoId) => {
@@ -518,8 +516,16 @@ class Product extends DatabaseModel {
           // Query the Database
           conn.query("UPDATE products SET name = ?, thumbnail = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE id = ?", data, (error, results) => {
             if (error) {
-              Log.e(error.message);
-              callback(ErrorTypes.DB_ERROR);
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) {
+                  Log.e(error.message);
+                  Log.e("[Products] Error updating product: " + error.message);
+                }
+
+                callback(ErrorTypes.DB_ERROR);
+              });
+
               return;
             }
     
@@ -527,12 +533,20 @@ class Product extends DatabaseModel {
             conn.commit((error) => {
               // If has an error
               if (error) {
-                Log.e(error.message);
-                callback(ErrorTypes.DB_ERROR);
+                // Rollback the transaction
+                conn.rollback(error => {
+                  if (error) {
+                    Log.e(error.message)
+                    Log.e("[Products] Error committing transaction: " + error.message);
+                  }
+                  
+                  callback(ErrorTypes.DB_ERROR);
+                });
+
                 return;
               }
     
-              // Return the product
+              // Return success
               callback(null);
             });
           });

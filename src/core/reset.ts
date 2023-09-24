@@ -184,8 +184,8 @@ export function postResetPassword(request: Request, response: Response) {
         message: Strings.RESET_PASSWORD_EMAIL_SUCCESS_BODY.replace("{name}", student!.getFullname())
       }, (error, info) => {
         // If has error
-        if (error !== null) {
-          console.log(error);
+        if (error) {
+          Log.e(error.message);
           Log.e(`Error sending success reset password email to ${student!.getEmailCredential()}: ${error.message}`);
           return;
         }
