@@ -86,8 +86,8 @@ app.use(routes.map(r => r.path), (request, response) => {
         // If has new token is generated
         if (newToken) {
           // Set authorization header
-          response.setHeader("X-Authorization", `Bearer ${newToken}`);
-          response.setHeader("Access-Control-Expose-Headers", "X-Authorization");
+          response.setHeader("x-" + (data.role === AuthType.ADMIN ? 'adm' : 'std') + "-authorization", `Bearer ${newToken}`);
+          response.setHeader("Access-Control-Expose-Headers", "x-std-authorization, x-adm-authorization");
         }
         
         // Add ID to response locals
