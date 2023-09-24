@@ -24,10 +24,11 @@ export type OrderRequest = {
 };
 
 export type AnnouncementRequest = {
+  id?: number,
   title: string,
   content: string,
-  photo_data?: string;
-  photo_type?: string;
+  photo?: File,
+  preservePhoto: string,
 };
 
 export type PhotoRequest = {

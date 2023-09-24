@@ -245,27 +245,144 @@ class Announcement extends DatabaseModel{
     insert();
   }
 
-  public static update(announcement: AnnouncementModel, photo: PhotoModel, callback: (error: ErrorTypes | null, announcement: Announcement | null) => void) {
+  public static update(id: number, announcement: AnnouncementRequest, files: FileArray | null | undefined, callback: (error: ErrorTypes | null) => void) {
     // Get database instance
-    const db = Database.getInstance();
-
-    db.query("UPDATE announcements SET title = ?, content = ?, photos_id = ? WHERE id  = ?", [
-      announcement.title,
-      announcement.content,
-      announcement.photos_id,
-      announcement.id
-    ], (error, results) => {
-      // If has an error
+    Database.getConnection((error, conn) => {
       if (error) {
         Log.e(error.message);
-        callback(ErrorTypes.DB_ERROR, null);
+        callback(ErrorTypes.DB_ERROR);
         return;
       }
 
-      // Return the student
-      callback(null, new Announcement(announcement));
-    });
+      // Begin transaction
+      conn.beginTransaction(error => {
+        if (error) {
+          Log.e(error.message);
+          callback(ErrorTypes.DB_ERROR);
+          return;
+        }
 
+        // Get photo
+        const preservePhoto = announcement.preservePhoto === "true";
+
+        // If preserve photo
+        if (preservePhoto) {
+          // Update without photo changes
+          update();
+          return;
+        }
+        
+        // Get photo
+        const photo = getFile(files, "photo");
+
+
+        // If has photo uploaded
+        if (photo) {
+          // Insert the photo
+          Photo.insert({
+            data: photo.data,
+            type: photo.mimetype,
+          }, (error, photoId) => {
+            if (error || !photoId) {
+              // Log error
+              Log.e("[Announcement] Error inserting photo: " + error);
+
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) {
+                  Log.e(error.message);
+                }
+
+                callback(ErrorTypes.DB_ERROR);
+              });
+              
+              return;
+            }
+
+            // Update with photo changes
+            update(photoId.toString());
+          });
+
+          return;
+        }
+
+        // Otherwise, update and remove the photo
+        update(null);
+
+        /**
+         * 
+         * @param photoId if string, update with photo changes
+         *                if undefined, update without photo changes
+         *                if null, remove photo
+         */
+        function update(photoId?: string | null) {
+          // Data 
+          const data: (string | null)[] = [announcement.title, announcement.content];
+
+          // If changing photo or removing photo
+          if (photoId !== undefined) {
+            data.push(photoId);
+          }
+
+          // Add announcement id
+          data.push(id.toString());
+
+          // Query the database
+          conn.query(`UPDATE announcements SET title = ?, content = ? ${photoId !== undefined ? ', photos_id = ?' : '' } WHERE id = ?`, data, (error, results) => {
+            // If has an error
+            if (error) {
+              // Log error
+              Log.e("[Announcements] Error updating announcement: " + error.message);
+
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) {
+                  Log.e(error.message)
+                }
+
+                callback(ErrorTypes.DB_ERROR);
+              });
+
+              return;
+            }
+      
+            if (results.affectedRows === 0) {
+              // Rollback the transaction
+              conn.rollback(error => {
+                if (error) {
+                  Log.e(error.message);
+                  Log.e("[Announcements] Updating announcement that doesn't exist!: " + error.message);
+                }
+
+                callback(ErrorTypes.DB_EMPTY_RESULT);
+              });
+
+              return;
+            }
+      
+            // Commit transaction
+            conn.commit((error) => {
+              // If has an error
+              if (error) {
+                // Log error
+                Log.e("[Announcements] Error committing transaction: " + error.message);
+
+                // Rollback the transaction
+                conn.rollback(error => {
+                  if (error) Log.e(error.message);
+                  callback(ErrorTypes.DB_ERROR);
+                });
+
+                return;
+              }
+    
+              // Return success
+              callback(null);
+            });
+          });
+        }
+      });
+    });
   }
 
   public static delete(id: number, callback: (error: ErrorTypes | null, success: boolean) => void) {

@@ -90,7 +90,6 @@ export const routes: AppRoutes[] = [
   { path: "/qrcode/:q" , methods: ['GET'], handler: qrcode },
  
   // Announcements
-  { path: "/announcements/:academic_year", methods: ["GET"], handler: announcements },
   { path: "/announcements/:id", methods: ["PUT"], handler: announcements, auth: { "PUT": AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.STUDENT }}
 ];
