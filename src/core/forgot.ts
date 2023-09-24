@@ -84,8 +84,8 @@ export function postForgotPassword(request: Request, response: Response) {
         }
       }, (error, info) => {
           // If has error
-          if (error !== null) {
-            console.log(error);
+          if (error) {
+            Log.e(error.message);
             Log.e(`Error sending reset password link to ${student!.getEmailCredential()}: ${error.message}`);
             return;
           }
