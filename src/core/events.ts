@@ -20,6 +20,9 @@ export function events(request: Request, response: Response) {
 
     case 'POST':
       postEvents(request,response);
+
+    case 'PUT':
+      updateEvent(request,response)
   }
 }
 
@@ -154,4 +157,41 @@ function postEvents(request: Request, response: Response){
     response.send(result.success(Strings.EVENT_CREATED, event));
   });
 }
+
+/**
+ * PUT /event
+ * @param request
+ * @param response
+ */
+function updateEvent(request: Request, response: Response){
+  // Validate the Event Data
+  const validation = Event.validate(request.body);
+
+  // If has an error
+  if (validation){
+    response.status(400).send(result.error(validation[0], validation[1]));
+    return;
+  }
+
+  if (!isNumber(request.params.id)) {
+    response.status(404).send(result.error(Strings.EVENT_NOT_FOUND));
+    return;
+  }
+
+  /**
+   * Update the Event Data
+   */
+  Event.update(request.body, parseInt(request.params.id), (error, event) => {
+    // If has error
+    switch(error){
+      case ErrorTypes.DB_ERROR:
+        response.status(500).send(result.error(Strings.EVENT_PUT_ERROR));
+        break;
+    }
+    
+    // Otherwise, return the Event Data
+    response.send(result.success(Strings.EVENT_UPDATED, event));
+  });
+}
+
 

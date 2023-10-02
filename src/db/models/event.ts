@@ -258,6 +258,51 @@ class Event extends DatabaseModel {
     });
   }
 
+  
+  
+/**
+   * Update Event Data to the Database
+   * @param event 
+   * @param callback 
+   */
+public static update(event: EventModel, id: Number, callback: (error: ErrorTypes | null, flag: Boolean ) => void) {
+  // Get date stamp
+  const stamp = getDatestamp();
+  // Photo (if any)
+  
+  // Get database instance
+  Database.getConnection((error, conn) => {
+    if (error) {
+      callback(ErrorTypes.DB_ERROR, false);
+      return;
+    }
+    
+   
+    // Query the Database
+    conn.query(`UPDATE ${Tables.EVENTS} SET title = ?, description = ?, venue = ?, date = ?, start_time = ?, end_time = ?, date_stamp = ? where id = ?`, [
+      event.title,
+      event.description || "",
+      event.venue,
+      event.date,
+      event.start_time,
+      event.end_time,
+      stamp,
+      id
+    ], (error, results) => {
+      if (error) {
+        Log.e(error.message);
+        callback(ErrorTypes.DB_ERROR, false);
+
+        return;
+      }
+
+      callback(null, true);
+    });
+
+  });
+}
+
+  
   /**
    * Get the next event
    */

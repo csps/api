@@ -60,7 +60,7 @@ export const routes: AppRoutes[] = [
 
   // Events
   { path: "/events/next", methods: ["GET"], handler: events },
-  { path: "/events/:id", methods: ["GET"], handler: events },
+  { path: "/events/:id", methods: ["GET", "PUT"], handler: events },
   { path: "/events", methods: ["GET", "POST"], handler: events, auth: { "POST": AuthType.ADMIN }},
 
   // Tutorials
