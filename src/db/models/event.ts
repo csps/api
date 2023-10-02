@@ -8,7 +8,7 @@ import { FileArray } from "express-fileupload";
 import { getFile } from "../../utils/file";
 import { Photo } from "./photo";
 import { Tables } from "../structure";
-import { PaginationRequest } from "../../types/request";
+import { EventRequest, PaginationRequest } from "../../types/request";
 import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import Strings from "../../config/strings";
 
@@ -170,7 +170,7 @@ class Event extends DatabaseModel {
    * @param event 
    * @param callback 
    */
-  public static insert(event: EventModel, files: FileArray | null | undefined, callback: (error: ErrorTypes | null, event: Event | null ) => void) {
+  public static insert(event: EventRequest, files: FileArray | null | undefined, callback: (error: ErrorTypes | null, event: EventModel | null ) => void) {
     // Get date stamp
     const stamp = getDatestamp();
     // Photo (if any)
@@ -248,7 +248,7 @@ class Event extends DatabaseModel {
   
           // Commit transaction
           conn.commit(() => {
-            callback(null, new Event(event));
+            callback(null, event as EventModel);
           });
         });
       }
@@ -265,7 +265,7 @@ class Event extends DatabaseModel {
    * @param event 
    * @param callback 
    */
-public static update(event: EventModel, id: Number, callback: (error: ErrorTypes | null, flag: Boolean ) => void) {
+public static update(event: EventRequest, id: Number, callback: (error: ErrorTypes | null, flag: Boolean ) => void) {
   // Get date stamp
   const stamp = getDatestamp();
   // Photo (if any)

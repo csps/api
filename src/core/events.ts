@@ -17,12 +17,11 @@ export function events(request: Request, response: Response) {
     case 'GET': 
       getEvents(request, response)
       break;
-
     case 'POST':
-      postEvents(request,response);
-
+      postEvents(request, response);
+      break;
     case 'PUT':
-      updateEvent(request,response)
+      updateEvent(request, response)
   }
 }
 
@@ -147,10 +146,9 @@ function postEvents(request: Request, response: Response){
    */
   Event.insert(request.body, request.files, (error, event) => {
     // If has error
-    switch(error){
-      case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error(Strings.EVENT_POST_ERROR));
-        break;
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.EVENT_POST_ERROR));
+      return;
     }
     
     // Otherwise, return the Event Data
@@ -183,10 +181,9 @@ function updateEvent(request: Request, response: Response){
    */
   Event.update(request.body, parseInt(request.params.id), (error, event) => {
     // If has error
-    switch(error){
-      case ErrorTypes.DB_ERROR:
-        response.status(500).send(result.error(Strings.EVENT_PUT_ERROR));
-        break;
+    if (error === ErrorTypes.DB_ERROR) {
+      response.status(500).send(result.error(Strings.EVENT_PUT_ERROR));
+      return;
     }
     
     // Otherwise, return the Event Data
