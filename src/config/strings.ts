@@ -28,6 +28,8 @@ const Strings = {
   ANNOUNCEMENTS_INVALID_CONTENT: "Invalid content!",
   ANNOUNCEMENTS_INVALID_DATE_STAMP: "Invalid date stamp!",
   ANNOUNCEMENTS_INVALID_PHOTO_ID: "Invalid photo id!",
+  ANNOUNCEMENT_DELETE_SUCCESS: "Announcement succesfully deleted!",
+  ANNOUNCEMENT_DELETE_ERROR: "Something went wrong while deleting announcement.",
 
   ENV_EMPTY_KEY: "Empty key.",
   ENV_EMPTY_VALUE: "Empty value.",

@@ -154,18 +154,21 @@ export function updateAnnouncement(request: Request, response: Response) {
  * DELETE /announcements/:id 
  */
 export function deleteAnnouncement(request: Request, response: Response) {
-  const { academic_year } = request.params;
-  if (!isNumber(academic_year)) {
-    response.status(404).send(result.error(Strings.ANNOUNCEMENTS_INVALID_ACADEMIC_YEAR));
+  const { id } = request.params;
+
+  if (!id) {
+    response.status(404).send(result.error(Strings.GENERAL_INVALID_REQUEST));
     return;
   }
-  Announcement.delete(parseInt(academic_year), (error, success) => {
+
+  // Delete announcement
+  Announcement.delete(parseInt(id), (error, success) => {
     if (success) {
-      response.send(result.success("Success"))
+      response.send(result.success(Strings.ANNOUNCEMENT_DELETE_SUCCESS))
       return
     }
 
-    response.send(result.error("Failed"))
+    response.send(result.error(Strings.ANNOUNCEMENT_DELETE_ERROR))
   })
 }
 

@@ -9,7 +9,6 @@ import { PaginationQuery, paginationWrapper } from "../../utils/query";
 import Database, { DatabaseModel } from "../database";
 import { Photo } from "./photo";
 import { getFile } from "../../utils/file";
-import { request } from "http";
 
 class Announcement extends DatabaseModel{
     private id: number;
@@ -389,11 +388,7 @@ class Announcement extends DatabaseModel{
     // Get database instance
     const db = Database.getInstance();
 
-    // Query the database
-    db.query("DELETE from announcements where id = ?", [
-      id,
-    ], (error, results) => {
-      // If has an error
+    db.query("DELETE FROM announcements WHERE id = ?", [ id ], (error, results) => {
       if (error) {
         Log.e(error.message);
         callback(ErrorTypes.DB_ERROR, false);
