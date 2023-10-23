@@ -17,6 +17,7 @@ declare global {
   type SessionData = {
     id: string,
     role?: AuthType,
+    token?: string
   }
 
   type EmailButton = {

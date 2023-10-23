@@ -48,7 +48,7 @@ app.use(nocache())
 /**
  * Handle requests specified in routes
  */
-app.use(routes.map(r => r.path), (request, response) => {
+app.use(routes.map(r => r.path), async (request, response) => {
   // Set default response content type
   response.setHeader("Content-Type", "application/json");
   // Get route pattern
@@ -68,36 +68,44 @@ app.use(routes.map(r => r.path), (request, response) => {
         return handleUnimplemented(request, response);
       }
 
-      // Get session data
-      Session.getSession(request, (error, data, newToken) => {
-        // If has authentication token and is expired
-        if (error === ErrorTypes.DB_EXPIRED || data === null) {
-          Log.w("Session expired for ID: " + data?.id);
-          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
-          return;
-        }
+      try {
+        // Get session data
+        const { id, role, token } = await Session.getSession(request);
 
         // If not allowed to access the route, nakuha najud :) pwede nako matog
-        if (route.auth && route.auth[request.method as HttpMethod] && (data.role !== route.auth[request.method as HttpMethod] || !data.role)) {
+        if (route.auth && route.auth[request.method as HttpMethod] && (role !== route.auth[request.method as HttpMethod] || !role)) {
           response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
           return;
         }
 
         // If has new token is generated
-        if (newToken) {
+        if (token) {
           // Set authorization header
-          response.setHeader("x-" + (data.role === AuthType.ADMIN ? 'adm' : 'std') + "-authorization", `Bearer ${newToken}`);
+          response.setHeader("x-" + (role === AuthType.ADMIN ? 'adm' : 'std') + "-authorization", `Bearer ${token}`);
           response.setHeader("Access-Control-Expose-Headers", "x-std-authorization, x-adm-authorization");
         }
         
         // Add ID to response locals
-        response.locals.studentID = data.id;
+        response.locals.studentID = id;
         // Add role to response locals
-        response.locals.role = data.role;
+        response.locals.role = role;
 
         // Call the API handler
         return route.handler(request, response); 
-      });
+      }
+      
+      catch (e: any) {
+        // If has authentication token and is expired
+        if (e.type === ErrorTypes.DB_EXPIRED || e.type === ErrorTypes.UNAUTHORIZED) {
+          Log.w("A student's session is expired!");
+          response.status(401).send(result.error(Strings.GENERAL_UNAUTHORIZED, "UNAUTHORIZED"));
+          return;
+        }
+
+        // Otherwise, return unknown error
+        Log.e(e);
+        response.status(500).send(result.error(Strings.GENERAL_SESSION_ERROR, "UNKNOWN"));
+      }
     }
   }
 });
