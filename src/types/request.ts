@@ -10,6 +10,17 @@ export type ProductRequest = {
   thumbnail: number | File;
 }
 
+export type EditLogsModel = {
+  id?: number,
+  admin_id: number,
+  method: string,
+  table: string,
+  before: string,
+  after: string,
+  ip_address: string,
+  date_stamp?: string,
+}
+
 export type EventRequest = {
   id?: number;
   title: string;

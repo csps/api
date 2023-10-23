@@ -2,6 +2,7 @@ export enum Tables {
   ANNOUNCEMENTS = "announcements",
   ENV = "env",
   EVENTS = "events",
+  EDIT_LOGS = "edit_logs",
   ORDERS = "orders",
   PHOTOS = "photos",
   PRODUCT_VARIATIONS = "product_variations",
@@ -28,6 +29,16 @@ export enum EnvColumns {
   ID = "id",
   KEY = "key",
   VALUE = "value",
+  DATE_STAMP = "date_stamp",
+}
+
+export enum EditLogColumns {
+  ID = "id",
+  ADMIN_ID = "admin_id",
+  METHOD = "method",
+  TABLE = "table",
+  BEFORE = "before",
+  AFTER = "after",
   DATE_STAMP = "date_stamp",
 }
 

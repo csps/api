@@ -1,4 +1,5 @@
 import { ErrorTypes } from "../types/enums"
+import { EditLogsModel } from "../types/models";
 import { sanitize } from "../utils/security";
 import Database from "./database"
 
@@ -37,6 +38,23 @@ export class DatabaseHelper {
 
       // Data exist if results length is greater than 0
       callback(null, results[0].count > 0);
+    });
+  }
+
+  /**
+   * Save edit logs
+   * @param data 
+   */
+  public static saveLog(data: EditLogsModel) {
+    // Query the database
+    Database.getInstance().query(`
+      INSERT INTO ${Tables.EDIT_LOGS} (admin_id, method, \`table\`,  \`before\`, \`after\`, ip_address, date_stamp) VALUES (?, ?, ?, ?, ?, ?, NOW())
+    `, [ data.admin_id, data.method, data.table, data.before, data.after, data.ip_address ],
+    (error) => {
+      // If has error
+      if (error) {
+        console.error(error);
+      }
     });
   }
 }

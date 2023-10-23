@@ -16,6 +16,17 @@ export type EnvModel = {
   date_stamp: string,
 }
 
+export type EditLogsModel = {
+  id: number,
+  admin_id: number | string,
+  method: string,
+  table: string,
+  before: string | object,
+  after: string | object,
+  ip_address: string,
+  date_stamp: string,
+}
+
 export type EventModel = {
   id: number,
   thumbnail?: number,
