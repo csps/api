@@ -1,0 +1,15 @@
+{
+  "name": "api",
+  "version": "2.0.0-pre.1",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "elysia": "^0.7.19"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.7"
+  },
+  "module": "src/index.js"
+}
