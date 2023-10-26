@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 
-import { ElysiaRequest, HttpMethod } from "./types";
+import { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";
 
 const app = new Elysia();
@@ -17,10 +17,10 @@ app.use(helmet({
 
 // Register routes
 for (const route of routes) {
-  app.all(route.path, (data: ElysiaRequest) => {
+  app.all(route.path, (context: ElysiaContext) => {
     // Check if the route supports the request method
-    if (route.methods.includes(data.request.method as HttpMethod)) {
-      return route.handler(data);
+    if (route.methods.includes(context.request.method as HttpMethod)) {
+      return route.handler(context);
     }
 
     // Otherwise, return 501 Not Implemented
@@ -33,5 +33,5 @@ app.all("*", status404);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`✨ New CSPS API Backend Server is running at port ${port}!`);
+  console.log(`✨ New UC Main CSPS API back-end server is running at port ${port}!`);
 });

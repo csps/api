@@ -1,5 +1,5 @@
 import { status501 } from "../routes";
-import { ElysiaRequest, ResponseBody } from "../types";
+import { ElysiaContext, ResponseBody } from "../types";
 
 import response from "../utils/response";
 
@@ -8,19 +8,19 @@ import response from "../utils/response";
  * @param request 
  * @param response 
  */
-export default function example(data: ElysiaRequest): ResponseBody {
+export default function example(context: ElysiaContext): ResponseBody {
   /**
    * Note: Only include methods that are specified in the routes.
    */
-  switch (data.request.method) {
+  switch (context.request.method) {
     case "GET":
-      return getExample(data);
+      return getExample(context);
     case "POST":
-      return postExample(data);
+      return postExample(context);
     case "DELETE":
-      return deleteExample(data);
+      return deleteExample(context);
     case "PUT":
-      return putExample(data);
+      return putExample(context);
   }
 
   return status501();
@@ -29,27 +29,27 @@ export default function example(data: ElysiaRequest): ResponseBody {
 /**
  * GET /example (read)
  */
-function getExample(data: ElysiaRequest): ResponseBody {
+function getExample(context: ElysiaContext): ResponseBody {
   return response.success("I'm a GET request!");
 }
 
 /**
  * POST /example (create)
  */
-function postExample(data: ElysiaRequest): ResponseBody {
+function postExample(context: ElysiaContext): ResponseBody {
   return response.success("I'm a POST request!", { name: "Example" });
 }
 
 /**
  * DELETE /example (delete)
  */
-function deleteExample(data: ElysiaRequest): ResponseBody {
+function deleteExample(context: ElysiaContext): ResponseBody {
   return response.success("I'm a DELETE request!");
 }
 
 /**
  * PUT /example (update)
  */
-function putExample(data: ElysiaRequest): ResponseBody {
+function putExample(context: ElysiaContext): ResponseBody {
   return response.success("I'm a PUT request!");
 }

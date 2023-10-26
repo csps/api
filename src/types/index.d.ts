@@ -16,7 +16,7 @@ export type ResponseBody = {
   count?: number;
 };
 
-export type ElysiaRequest = {
+export type ElysiaContext = {
   body: unknown;
   query: Record<string, string | null>;
   params: never;
