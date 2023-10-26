@@ -3,9 +3,13 @@ import { helmet } from "elysia-helmet";
 
 import { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";
+import Log from "./utils/log";
 
 const app = new Elysia();
 const port = 3000;
+
+// Extend Logging with Elysia
+Log.extend(app);
 
 // Register helmet middleware
 app.use(helmet({
@@ -24,14 +28,16 @@ for (const route of routes) {
     }
 
     // Otherwise, return 501 Not Implemented
-    return status501();
+    return status501(context);
   });
 }
 
 // Handle 404 Not Found
-app.all("*", status404);
+app.all("*", context => {
+  return status404(context);
+});
 
 // Start the server
 app.listen(port, () => {
-  console.log(`✨ New UC Main CSPS API back-end server is running at port ${port}!`);
+  Log.s(`✨ New UC Main CSPS API back-end server is running at port ${port}!`);
 });

@@ -1,3 +1,5 @@
+import { StudentModel } from "../models";
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 export type AppRoutes = {
@@ -22,8 +24,15 @@ export type ElysiaContext = {
   params: never;
   headers: Record<string, string | null>;
   cookie: Record<string, Cookie<any>>;
-  set: {};
+  set: any;
   path: string;
   request: Request;
   store: {};
+  response?: ResponseBody
+  ip?: {
+    address: string;
+    family: string;
+    port: number;
+  },
+  user?: StudentModel
 };
