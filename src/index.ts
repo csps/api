@@ -10,7 +10,8 @@ const port = 3000;
 // Register helmet middleware
 app.use(helmet({
   crossOriginResourcePolicy: {
-    policy: process.env.NODE_ENV === 'development' ? "cross-origin" : "same-origin"
+    policy: process.env.NODE_ENV === 'development' ?
+      "cross-origin" : "same-origin"
   }
 }));
 
