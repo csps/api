@@ -1,4 +1,4 @@
-import { Elysia, mapCompactResponse } from "elysia";
+import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 
 import { ElysiaContext, HttpMethod } from "./types";
@@ -34,10 +34,10 @@ app.onBeforeHandle((context: ElysiaContext) => {
  * Register routes
  */
 for (const route of routes) {
-  app.all(route.path, async (context: ElysiaContext) => {
+  app.all(route.path, (context: ElysiaContext) => {
     // Check if the route supports the request method
-    if (route.methods.includes(context.request.method as HttpMethod)) {
-      return await route.handler(context);
+    if (route.methods.indexOf(context.request.method as HttpMethod) !== -1) {
+      return route.handler(context);
     }
 
     // Otherwise, return 501 Not Implemented

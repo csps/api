@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "elysia": "^0.7.19",
+    "elysia": "^0.7.20",
     "elysia-helmet": "^1.0.1",
     "elysia-ip": "^0.0.4",
     "mysql": "^2.18.1"
