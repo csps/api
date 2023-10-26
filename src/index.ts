@@ -8,10 +8,14 @@ import Log from "./utils/log";
 const app = new Elysia();
 const port = 3000;
 
-// Extend Logging with Elysia
+/**
+ * Extend logging mechanism to Elysia
+ */
 Log.extend(app);
 
-// Register helmet middleware
+/**
+ * Set security headers
+ */
 app.use(helmet({
   crossOriginResourcePolicy: {
     policy: process.env.NODE_ENV === 'development' ?
@@ -19,7 +23,16 @@ app.use(helmet({
   }
 }));
 
-// Register routes
+/**
+ * Set default headers
+ */
+app.onBeforeHandle((context: ElysiaContext) => {
+  context.set.headers["content-type"] = "application/json;charset=utf-8";
+});
+
+/**
+ * Register routes
+ */
 for (const route of routes) {
   app.all(route.path, (context: ElysiaContext) => {
     // Check if the route supports the request method
@@ -32,12 +45,16 @@ for (const route of routes) {
   });
 }
 
-// Handle 404 Not Found
+/**
+ * Register 404 route
+ */
 app.all("*", context => {
   return status404(context);
 });
 
-// Start the server
+/**
+ * Start the server
+ */
 app.listen(port, () => {
   Log.s(`✨ New UC Main CSPS API back-end server is running at port ${port}!`);
 });
