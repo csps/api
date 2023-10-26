@@ -22,6 +22,8 @@ export default function example(context: ElysiaContext) {
     case "PUT":
       return putExample(context);
   }
+
+  return status501(context);
 }
 
 /**

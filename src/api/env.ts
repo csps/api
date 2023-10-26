@@ -1,16 +1,17 @@
 import { ErrorTypes } from "../types/enums";
-import Strings from "../config/strings";
 import { ElysiaContext, ResponseBody } from "../types";
-import response from "../utils/response";
 
+import Strings from "../config/strings";
+import response from "../utils/response";
 import Env from "../db/models/env";
+import { status501 } from "../routes";
 
 /**
  * Env API
  * @author mavyfaby (Maverick Fabroa)
  * @param context
  */
-function env(context: ElysiaContext): Promise<ResponseBody | undefined> | undefined {
+function env(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
   switch (context.request.method) {
     case "GET":
       return getEnv(context);
@@ -21,6 +22,8 @@ function env(context: ElysiaContext): Promise<ResponseBody | undefined> | undefi
     case "PUT":
       return putEnv(context);
   }
+
+  return status501(context);
 }
 
 /**
