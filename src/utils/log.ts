@@ -120,15 +120,16 @@ class Log {
       txLog = chalk.white;
     }
 
-    // Get success and message
-    const { success, message } = context.response as ResponseBody;
+    const success = context.response?.success || false;
+    const message = context.response?.message || context.response;
+
     // Get student ID
     const data = context.user ? context.user.student_id + " " : "";
 
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${data}${context.ip?.address}] [${date}] [${context.request.method} ${context.path}] [${statusCode}] [{ success: ${success}, message: ${message}}]`
+        `[${data}${context.ip?.address}] [${date}] [${context.request.method} ${context.path}] [${statusCode}] [ success: ${success}, message: ${message} ]`
       )
     );
   }

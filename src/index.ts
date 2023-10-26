@@ -1,11 +1,11 @@
-import { Elysia } from "elysia";
+import { Elysia, mapCompactResponse } from "elysia";
 import { helmet } from "elysia-helmet";
 
 import { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";
 import Log from "./utils/log";
 
-const app = new Elysia();
+const app = new Elysia({ name: "UC Main CSPS API" });
 const port = 3000;
 
 /**
@@ -34,10 +34,10 @@ app.onBeforeHandle((context: ElysiaContext) => {
  * Register routes
  */
 for (const route of routes) {
-  app.all(route.path, (context: ElysiaContext) => {
+  app.all(route.path, async (context: ElysiaContext) => {
     // Check if the route supports the request method
     if (route.methods.includes(context.request.method as HttpMethod)) {
-      return route.handler(context);
+      return await route.handler(context);
     }
 
     // Otherwise, return 501 Not Implemented

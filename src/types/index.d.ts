@@ -5,7 +5,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 export type AppRoutes = {
   path: string;
   methods: HttpMethod[];
-  handler: (data: ElysiaRequest) => void;
+  handler: (context: ElysiaContext) => void;
   auth?: {
     [key in HttpMethod]?: AuthType;
   }

@@ -8,7 +8,7 @@ import response from "../utils/response";
  * @param request 
  * @param response 
  */
-export default function example(context: ElysiaContext): ResponseBody {
+export default function example(context: ElysiaContext) {
   /**
    * Note: Only include methods that are specified in the routes.
    */
@@ -22,8 +22,6 @@ export default function example(context: ElysiaContext): ResponseBody {
     case "PUT":
       return putExample(context);
   }
-
-  return status501();
 }
 
 /**
