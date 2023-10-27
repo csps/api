@@ -1,6 +1,7 @@
 import type { AppRoutes, ElysiaContext, ResponseBody } from "../types";
 import { AuthType } from "../types/enums";
 
+import announcements from "../api/announcements";
 import example from "../api/example";
 import courses from "../api/courses";
 import env from "../api/env";
@@ -16,6 +17,10 @@ const routes: AppRoutes[] = [
   // Courses
   { path: "/courses/:id", methods: ["PUT", "DELETE"], handler: courses, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN } },
   { path: "/courses", methods: ["GET", "POST"], handler: courses, auth: { "POST": AuthType.ADMIN }},
+
+  // Announcements
+  { path: "/announcements/:id", methods: ["PUT", "DELETE"], handler: announcements, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN }},
+  { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.STUDENT }}
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {
