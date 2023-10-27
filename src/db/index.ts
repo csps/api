@@ -52,6 +52,10 @@ class Database {
    * Get the database connection
    */
   public static getConnection(): Promise<mariadb.PoolConnection> {
+    if (!Database.pool) {
+      Database.getInstance();
+    }
+    
     return Database.pool.getConnection();
   }
 
