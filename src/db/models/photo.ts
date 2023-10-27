@@ -3,6 +3,7 @@ import { ErrorTypes } from "../../types/enums";
 
 import Database from "..";
 import Log from "../../utils/log";
+import mariadb from "mariadb";
 
 /**
  * Photos model
@@ -15,10 +16,12 @@ class Photo {
    * Insert photo to the database
    * @param photo Photo data
    */
-  public static insert(photo: File): Promise<number> {
+  public static insert(photo: File, db?: mariadb.PoolConnection): Promise<number> {
     return new Promise(async (resolve, reject) => {
-      // Get database instance
-      const db = Database.getInstance();
+      if (!db) {
+        // Get database pool connection if not provided
+        db = await Database.getConnection();
+      }
 
       // Insert photo
       try {
