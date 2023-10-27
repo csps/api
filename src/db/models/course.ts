@@ -1,5 +1,8 @@
 import { ErrorTypes } from "../../types/enums";
 
+import { CourseModel } from "../../types/models";
+import { MariaUpdateResult } from "../../types";
+
 import Log from "../../utils/log";
 import Database from "../";
 
@@ -18,33 +21,33 @@ class Course {
       // Get database instance
       const db = Database.getInstance();
 
-      // Get all env
-      db.query(`SELECT * FROM courses ORDER BY name`, [], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      try {
+        // Get all courses
+        const result = await db.query<CourseModel[]>(`SELECT * FROM courses ORDER BY name`);
 
         // If no results
-        if (results.length === 0) {
+        if (result.length === 0) {
           Log.e("No courses found");
-          reject(ErrorTypes.DB_EMPTY_RESULT);
-          return;
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
         }
 
         // Create courses object
         const courses: Record<string, string> = {};
 
-        // Loop through the results
-        for (const result of results) {
-          courses[result.id] = result.name;
+        // Loop through the result
+        for (const course of result) {
+          courses[course.id] = course.name;
         }
 
-        // Return the results
+        // Return the courses
         resolve(courses);
-      });
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 
@@ -57,35 +60,28 @@ class Course {
       // Get database instance
       const db = Database.getInstance();
 
-      // Check if course key already exists
-      db.query("SELECT COUNT(*) AS count FROM courses WHERE `name` = ?", [name], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      // Check if course key already exists 
+      try {
+        // Get course count
+        const result = await db.query<[{ count: number }]>("SELECT COUNT(*) AS count FROM courses WHERE `name` = ?`", [name]);
 
         // If course key already exists
-        if (results.length > 0 && results[0].count > 0) {
+        if (result[0].count > 0) {
           Log.e(`Course "${name}" already exists!`);
-          reject(ErrorTypes.DB_EXIST);
-          return;
+          return reject(ErrorTypes.DB_EXIST);
         }
 
         // If no error, insert course
-        db.query("INSERT INTO courses (`name`) VALUES (?)", [name], (error, results) => {
-          // If database error
-          if (error) {
-            Log.e(error.message);
-            reject(ErrorTypes.DB_ERROR);
-            return;
-          }
-    
-          // Execute callback without error
-          resolve();
-        });
-      });
+        await db.query("INSERT INTO courses (`name`) VALUES (?)", [name]);
+        // Resolve promise
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 
@@ -99,25 +95,36 @@ class Course {
       // Get database instance
       const db = Database.getInstance();
 
-      // Update course
-      db.query("UPDATE courses SET `name` = ? WHERE `id` = ?", [name, id], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
+      // Check if course key already exists
+      try {
+        // Get course count
+        const result = await db.query<[{ count: number }]>("SELECT COUNT(*) AS count FROM courses WHERE `id` = ?", [name, id]);
+
+        // If course key already exists
+        if (result[0].count === 0) {
+          Log.e(`Course with ID "${id}" doesn't exists!`);
+          return reject(ErrorTypes.DB_EXIST);
         }
 
+        // If no error, insert course
+        const updateResult = await db.query<MariaUpdateResult>("UPDATE courses SET `name` = ? WHERE `id` = ?", [name, id]);
+
         // If no rows affected
-        if (results.affectedRows === 0) {
+        if (updateResult.affectedRows === 0) {
           Log.e(`Update course aborted: id "${id}" not found!`);
           reject(ErrorTypes.DB_EMPTY_RESULT);
           return;
         }
 
-        // Execute callback without error
+        // Resolve promise
         resolve();
-      });
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 
@@ -131,24 +138,26 @@ class Course {
       const db = Database.getInstance();
 
       // Delete the course
-      db.query("DELETE FROM courses WHERE `id` = ?", [id], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      try {
+        // Delete course
+        const result = await db.query<MariaUpdateResult>("DELETE FROM courses WHERE `id` = ?", [id]);
 
         // If no rows affected
-        if (results.affectedRows === 0) {
+        if (result.affectedRows === 0) {
           Log.e(`Delete course aborted: key "${id}" not found!`);
           reject(ErrorTypes.DB_EMPTY_RESULT);
           return;
         }
 
-        // Execute callback without error
+        // Resolve promise
         resolve();
-      });
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 

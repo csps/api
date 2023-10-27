@@ -1,4 +1,4 @@
-import mysql from "mysql";
+import mariadb from "mariadb";
 
 /**
  * Singleton Database class
@@ -15,7 +15,7 @@ import mysql from "mysql";
  */
 class Database {
   private static instance: Database;
-  private static pool: mysql.Pool;
+  private static pool: mariadb.Pool;
 
   /**
    * Create a database connection pool
@@ -24,7 +24,7 @@ class Database {
    * This is more efficient and faster than creating a new connection every time.
    */
   private constructor() {
-    Database.pool = mysql.createPool({
+    Database.pool = mariadb.createPool({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
@@ -51,26 +51,17 @@ class Database {
   /**
    * Get the database connection
    */
-  public static getConnection(): Promise<mysql.PoolConnection> {
-    return new Promise((resolve, reject) => {
-      Database.pool.getConnection((err, connection) => {
-        if (err) {
-          reject(err);
-        }
-
-        resolve(connection);
-      });
-    });
+  public static getConnection(): Promise<mariadb.PoolConnection> {
+    return Database.pool.getConnection();
   }
 
   /**
    * Query the database 
    * @param query SQL query
    * @param values Parameter values
-   * @param callback Callback function (error, results)
    */
-  public query(query: string, values: any[], callback: (error: mysql.MysqlError | null, results: any) => void) {
-    return Database.pool.query(query, values, callback);
+  public query<T>(query: string, values?: any[]) {
+    return Database.pool.query<T>(query, values);
   }
 }
 

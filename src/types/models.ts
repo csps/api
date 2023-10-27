@@ -9,6 +9,11 @@ export type AnnouncementModel = {
   date_stamp: string
 }
 
+export type CourseModel = {
+  id: number,
+  name: string,
+}
+
 export type EnvModel = {
   id: number,
   key: string,

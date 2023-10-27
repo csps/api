@@ -18,8 +18,14 @@ export type ResponseBody = {
   count?: number;
 };
 
+export type MariaUpdateResult = {
+  insertId: number,
+  affectedRows: number,
+  warningStatus: number
+};
+
 export type ElysiaContext = {
-  body: unknown;
+  body: Route['body'];
   query: Record<string, string | null>;
   params: never;
   headers: Record<string, string | null>;
@@ -28,7 +34,7 @@ export type ElysiaContext = {
   path: string;
   request: Request;
   store: {};
-  response?: ResponseBody
+  response?: ResponseBody;
   ip?: {
     address: string;
     family: string;

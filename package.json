@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "elysia": "^0.7.20",
+    "elysia": "^0.7.21",
     "elysia-helmet": "^1.0.1",
     "elysia-ip": "^0.0.4",
-    "mysql": "^2.18.1"
+    "mariadb": "^3.2.2"
   },
   "devDependencies": {
     "@types/mysql": "^2.15.23",

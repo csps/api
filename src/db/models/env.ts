@@ -1,6 +1,7 @@
 import { ErrorTypes } from "../../types/enums";
 import Log from "../../utils/log";
 import Database from "../";
+import { MariaUpdateResult } from "../../types";
 
 /**
  * Env model
@@ -18,14 +19,12 @@ class Env {
       const db = Database.getInstance();
 
       // Get env value from key
-      db.query("SELECT value FROM env WHERE `key` = ?", [key], (error, results) => {
-        if (error) {
-          Log.e(`Error while getting env value from key: ${error.message}`);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      try {
+        // Get env value from key
+        const result = await db.query<{ value: string }[]>("SELECT value FROM env WHERE `key` = ?", [key]);
 
-        if (results.length === 0) {
+        // If no results
+        if (result.length === 0) {
           if (!fromInsert) {
             Log.e(`No env value found from key: ${key}`);
           }
@@ -34,8 +33,14 @@ class Env {
           return;
         }
 
-        resolve(results[0].value);
-      });
+        resolve(result[0].value);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 
@@ -48,32 +53,34 @@ class Env {
       const db = Database.getInstance();
 
       // Get all env
-      db.query("SELECT * FROM env ORDER BY `key` ASC", [], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      try {
+        // Get all env
+        const result = await db.query<{ key: string, value: string }[]>("SELECT * FROM env ORDER BY `key` ASC");
 
         // If no results
-        if (results.length === 0) {
+        if (result.length === 0) {
           Log.e("No environment variables found!");
           reject(ErrorTypes.DB_EMPTY_RESULT);
           return;
         }
 
         // Create env object
-        const env: Record<string, string> = {};
+        const envs: Record<string, string> = {};
 
         // Loop through the results
-        for (const result of results) {
-          env[result.key] = result.value;
+        for (const env of result) {
+          envs[env.key] = env.value;
         }
 
         // Return the results
-        resolve(env);
-      });
+        resolve(envs);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 
@@ -106,18 +113,18 @@ class Env {
 
         // If no result
         if (err === ErrorTypes.DB_EMPTY_RESULT) {
-          // If no error, insert the env
-          db.query("INSERT INTO env (`key`, `value`, date_stamp) VALUES (?, ?, NOW())", [key, value], (error, results) => {
-            // If database error
-            if (error) {
-              Log.e(error.message);
-              reject(ErrorTypes.DB_ERROR);
-              return;
-            }
-      
+          try {
+            // Insert new env
+            await db.query("INSERT INTO env (`key`, `value`, date_stamp) VALUES (?, ?, NOW())", [key, value]);
             // Resolve without error
             resolve();
-          });
+          }
+
+          catch (e) {
+            // If database error
+            Log.e(e);
+            reject(ErrorTypes.DB_ERROR);
+          }
         }
       }
     });
@@ -133,25 +140,26 @@ class Env {
       // Get database instance
       const db = Database.getInstance();
 
-      // Update env
-      db.query("UPDATE env SET `value` = ? WHERE `key` = ?", [value, key], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      try {
+        // Check if env key already exists
+        const result = await db.query<MariaUpdateResult>("UPDATE env SET `value` = ? WHERE `key` = ?", [value, key]);
 
         // If no rows affected
-        if (results.affectedRows === 0) {
+        if (result.affectedRows === 0) {
           Log.e(`Update env aborted: key "${key}" not found!`);
           reject(ErrorTypes.DB_EMPTY_RESULT);
           return;
         }
 
-        // Resolve without error
+        // Resolve promise
         resolve();
-      });
+      }
+
+      catch (e) {
+        // If database error
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 
@@ -164,25 +172,26 @@ class Env {
       // Get database instance
       const db = Database.getInstance();
 
-      // Delete env
-      db.query("DELETE FROM env WHERE `key` = ?", [key], (error, results) => {
-        // If database error
-        if (error) {
-          Log.e(error.message);
-          reject(ErrorTypes.DB_ERROR);
-          return;
-        }
+      try {
+        // Check if env key already exists
+        const result = await db.query<MariaUpdateResult>("DELETE FROM env WHERE `key` = ?", [key]);
 
         // If no rows affected
-        if (results.affectedRows === 0) {
+        if (result.affectedRows === 0) {
           Log.e(`Delete env aborted: key "${key}" not found!`);
           reject(ErrorTypes.DB_EMPTY_RESULT);
           return;
         }
 
-        // Resolve without error
+        // Resolve promise
         resolve();
-      });
+      }
+
+      catch (e) {
+        // If database error
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
     });
   }
 }

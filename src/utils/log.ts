@@ -15,7 +15,7 @@ class Log {
    * @param message Error message to log
    * @param highlight Highlight the log
    */
-  static e(message: string, highlight?: boolean) {
+  static e(message: any, highlight?: boolean) {
     if (highlight) {
       console.log(chalk.bgRed("[-] " + message));
       return;
@@ -29,7 +29,7 @@ class Log {
    * @param message Success message to log
    * @param highlight Highlight the log
    */
-  static s(message: string, highlight?: boolean) {
+  static s(message: any, highlight?: boolean) {
     if (highlight) {
       console.log(chalk.bgGreen("[+] " + message));
       return;
@@ -43,7 +43,7 @@ class Log {
    * @param message Warning message to log
    * @param highlight Highlight the log
    */
-  static w(message: string, highlight?: boolean) {
+  static w(message: any, highlight?: boolean) {
     if (highlight) {
       console.log(chalk.bgYellow("[!] " + message));
       return;
@@ -57,7 +57,7 @@ class Log {
    * @param message Info message to log
    * @param highlight Highlight the log
    */
-  static i(message: string, highlight?: boolean) {
+  static i(message: any, highlight?: boolean) {
     if (highlight) {
       console.log(chalk.bgBlue("[*] " + message));
       return;
