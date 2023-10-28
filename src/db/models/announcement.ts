@@ -119,10 +119,87 @@ class Announcement {
   }
 
   /**
+   * Update announcement
+   * @param id Announcement ID
+   * @param request Announcement request data
+   */
+  public static update(id: number, request: AnnouncementRequest): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Validate
+      const error = Announcement.validate(request);
+
+      if (error) {
+        return reject(error);
+      }
+
+      // Get database pool connection
+      const db = await Database.getConnection();
+      
+      try {
+        // Begin transaction
+        await db.beginTransaction();
+        // Default Photo ID
+        let photoId: number | null = null;
+
+        // Check for photo
+        if (request.photo) {
+          try {
+            // Insert photo
+            photoId = await Photo.insert(request.photo, db);
+          }
+
+          catch (e) {
+            // If no photo inserted
+            if (e === ErrorTypes.DB_EMPTY_RESULT) {
+              Log.e("Announcement Update Error: photo attached but no photo inserted");
+              await db.rollback();
+              return reject(ErrorTypes.DB_EMPTY_RESULT);
+            }
+
+            // If database error
+            if (e === ErrorTypes.DB_ERROR) {
+              Log.e("Announcement Update Error: database error");
+              await db.rollback();
+              return reject(ErrorTypes.DB_ERROR);
+            }
+          }
+        }
+
+        // If no error, insert announcement
+        const result = await db.query<MariaUpdateResult>(
+          "UPDATE announcements SET title = ?, content = ?, photos_id = ? WHERE id = ?", [
+            request.title, request.content, photoId, id
+          ]
+        );
+
+        // If no affected rows
+        if (result.affectedRows === 0) {
+          Log.e("Announcement Update Error: #" + id + " not found!");
+          await db.rollback();
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Commit and resolve transaction
+        await db.commit();
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        await db.rollback();
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
    * Validate the announcement raw data
    * @param raw Raw data
    */
-  public static validate(data: AnnouncementRequest): string[] | null {
+  public static validate(data?: AnnouncementRequest): string[] | null {
+    // If no data
+    if (!data) return [Strings.GENERAL_INVALID_REQUEST];
     // If has no title
     if (!data.title) return [Strings.ANNOUNCEMENTS_INVALID_TITLE, "title"];
     // If has no content

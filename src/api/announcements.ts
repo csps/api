@@ -17,10 +17,8 @@ function announcements(context: ElysiaContext): Promise<ResponseBody | undefined
       return getAnnouncements(context);
     case "POST":
       return postAnnouncements(context);
-    // case "PUT":
-    //   return putAnnouncements(context);
-    // case "DELETE":
-    //   return deleteAnnouncements(context);
+    case "PUT":
+      return putAnnouncements(context);
   }
 
   return status501(context);
@@ -71,6 +69,47 @@ async function postAnnouncements(context: ElysiaContext) {
     if (err === ErrorTypes.DB_ERROR) {
       context.set.status = 500;
       return response.error(Strings.ANNOUNCEMENT_POST_ERROR);
+    }
+  }
+}
+
+/**
+ * PUT /announcements (create)
+ */
+async function putAnnouncements(context: ElysiaContext) {
+  // Get id from params
+  const { id } = context.params || {};
+
+  // If id is empty
+  if (!id) {
+    context.set.status = 400;
+    return response.error(Strings.GENERAL_INVALID_REQUEST);
+  }
+
+  try {
+    // Insert new env
+    await Announcement.update(id, context.body);
+    // If no error, env is created
+    return response.success(Strings.ANNOUNCEMENT_UPDATE_SUCCESS);
+  }
+
+  catch (err) {
+    // if list of errors
+    if (Array.isArray(err)) {
+      context.set.status = 400;
+      return response.error(err[0], err[1]);
+    }
+
+    // If announcement not found
+    if (err === ErrorTypes.DB_EMPTY_RESULT) {
+      context.set.status = 404;
+      return response.error(Strings.ANNOUNCEMENT_NOT_FOUND);
+    }
+
+    // If database error
+    if (err === ErrorTypes.DB_ERROR) {
+      context.set.status = 500;
+      return response.error(Strings.ANNOUNCEMENT_UPDATE_ERROR);
     }
   }
 }
