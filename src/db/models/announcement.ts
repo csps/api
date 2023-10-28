@@ -165,7 +165,7 @@ class Announcement {
           }
         }
 
-        // If no error, insert announcement
+        // If no error, update announcement
         const result = await db.query<MariaUpdateResult>(
           "UPDATE announcements SET title = ?, content = ?, photos_id = ? WHERE id = ?", [
             request.title, request.content, photoId, id
@@ -192,6 +192,38 @@ class Announcement {
       }
     });
   }
+
+  /**
+   * Delete announcement
+   * @param id Announcement ID
+   */
+  public static delete(id: number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Get database
+      const db = Database.getInstance();
+      
+      try {
+        // If no error, delete announcement
+        const result = await db.query<MariaUpdateResult>("DELETE FROM announcements WHERE id = ?", [ id ]);
+
+        // If no affected rows
+        if (result.affectedRows === 0) {
+          Log.e("Announcement Delete Error: #" + id + " not found!");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Resolve promise
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
 
   /**
    * Validate the announcement raw data
