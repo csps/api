@@ -1,7 +1,8 @@
 import { ErrorTypes } from "../../types/enums";
+import { MariaUpdateResult } from "../../types";
+
 import Log from "../../utils/log";
 import Database from "../";
-import { MariaUpdateResult } from "../../types";
 
 /**
  * Env model

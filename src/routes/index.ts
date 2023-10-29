@@ -4,6 +4,7 @@ import { AuthType } from "../types/enums";
 import announcements from "../api/announcements";
 import example from "../api/example";
 import courses from "../api/courses";
+import events from "../api/events";
 import env from "../api/env";
 
 const routes: AppRoutes[] = [
@@ -20,7 +21,12 @@ const routes: AppRoutes[] = [
 
   // Announcements
   { path: "/announcements/:id", methods: ["PUT", "DELETE"], handler: announcements, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN }},
-  { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.STUDENT }}
+  { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.STUDENT }},
+
+  // Events
+  { path: "/events/next", methods: ["GET"], handler: events },
+  { path: "/events/:id", methods: ["PUT", "DELETE"], handler: events },
+  { path: "/events", methods: ["GET", "POST"], handler: events, auth: { "POST": AuthType.ADMIN }},
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {
