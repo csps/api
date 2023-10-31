@@ -1,7 +1,9 @@
+import Bun from "bun";
+
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 
-import { ElysiaContext, HttpMethod } from "./types";
+import type { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";
 import Log from "./utils/log";
 
@@ -49,6 +51,12 @@ for (const route of routes) {
  * Register 404 route
  */
 app.all("*", context => {
+  // If looking for favicon
+  if (context.path === "/favicon.ico") {
+    context.set.headers["content-type"] = "image/x-icon";
+    return Bun.file("./assets/favicon.ico");
+  }
+
   return status404(context);
 });
 
