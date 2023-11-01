@@ -1,10 +1,10 @@
 import type { ElysiaContext, ResponseBody } from "../types";
 import { ErrorTypes } from "../types/enums";
 
-import { status501 } from "../routes";
 import Student from "../db/models/student";
 import response from "../utils/response";
 import Strings from "../config/strings";
+import { status501 } from "../routes";
 
 /**
  * Students API
@@ -15,6 +15,8 @@ function students(context: ElysiaContext): Promise<ResponseBody | undefined> | R
   switch (context.request.method) {
     case "GET":
       return getStudents(context);
+    case "POST":
+      return postStudents(context);
   }
 
   return status501(context);
@@ -43,5 +45,32 @@ async function getStudents(context: ElysiaContext) {
     }
   }
 }
+
+/**
+ * POST /students (create)
+ */
+async function postStudents(context: ElysiaContext) {
+  try {
+    // Insert new student
+    await Student.insert(context.body);
+    // If no error, student is created
+    return response.success(Strings.STUDENT_CREATED);
+  }
+
+  catch (err) {
+    // if list of errors
+    if (Array.isArray(err)) {
+      context.set.status = 400;
+      return response.error(err[0], err[1]);
+    }
+
+    // If database error
+    if (err === ErrorTypes.DB_ERROR) {
+      context.set.status = 500;
+      return response.error(Strings.STUDENT_POST_ERROR);
+    }
+  }
+}
+
 
 export default students
