@@ -30,6 +30,7 @@ const routes: AppRoutes[] = [
   { path: "/events", methods: ["GET", "POST"], handler: events, auth: { "POST": AuthType.ADMIN }},
 
   // Students
+  { path: "/students/:student_id", methods: ["PUT"], handler: students, auth: { "POST": AuthType.ADMIN }},
   { path: "/students", methods: ["GET", "POST"], handler: students, auth: { "POST": AuthType.ADMIN }},  
 ];
 
