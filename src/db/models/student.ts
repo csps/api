@@ -48,6 +48,53 @@ class Student {
   }
 
   /**
+   * Get student by its student id
+   * @param student_id Student ID
+   * @param fromAdmin If true, will check in admin table
+   */
+  public static getByStudentId(student_id: string, fromAdmin = false): Promise<StudentModel> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Query string
+        let query = 'SELECT * FROM students WHERE student_id = ?';
+
+        // If getting data from admin
+        if (fromAdmin) {
+          query = `
+            SELECT
+              s.id, s.student_id, s.last_name, s.first_name,
+              s.year_level, s.email_address, s.password, s.date_stamp
+            FROM
+              admin a
+            INNER JOIN students s ON s.id = a.students_id WHERE s.student_id = ?
+          `;
+        }
+
+        // Get student
+        const result = await db.query<StudentModel[]>(query, [student_id]);
+
+        // If no results
+        if (result.length === 0) {
+          Log.e(`${fromAdmin ? 'Admin' : 'Student'} not found (id = ${student_id})`);
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Resolve promise
+        resolve(result[0]);
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
    * Insert student data to the database
    * @param student Student data
    */
