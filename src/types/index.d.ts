@@ -1,4 +1,5 @@
 import { StudentModel } from "../models";
+import type { jwt } from "@elysiajs/jwt";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -34,6 +35,8 @@ export type ElysiaContext = {
   path: string;
   request: Request;
   store: {};
+  jwt?: any;
+  setCookie?: any;
   response?: ResponseBody;
   ip?: {
     address: string;
@@ -42,3 +45,24 @@ export type ElysiaContext = {
   },
   user?: StudentModel
 };
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      DB_HOST: string,
+      DB_USER: string,
+      DB_PASS: string,
+      DB_NAME: string,
+      DB_PORT: string,
+      SMTP_NAME: string,
+      SMTP_HOST: string,
+      SMTP_PORT: number,
+      SMTP_USER: string,
+      SMTP_PASS: string,
+      SECRET_KEY: string,
+      ORDERS_UPDATE_ALLOWED_KEYS: string,
+      STUDENTS_UPDATE_ALLOWED_KEYS: string,
+      API_KEY: string
+    }
+  }
+}

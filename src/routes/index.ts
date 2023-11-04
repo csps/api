@@ -6,6 +6,7 @@ import example from "../api/example";
 import courses from "../api/courses";
 import students from "../api/students";
 import events from "../api/events";
+import login from "../api/login";
 import env from "../api/env";
 
 const routes: AppRoutes[] = [
@@ -31,7 +32,10 @@ const routes: AppRoutes[] = [
 
   // Students
   { path: "/students/:student_id", methods: ["PUT"], handler: students, auth: { "POST": AuthType.ADMIN }},
-  { path: "/students", methods: ["GET", "POST"], handler: students, auth: { "POST": AuthType.ADMIN }},  
+  { path: "/students", methods: ["GET", "POST"], handler: students, auth: { "POST": AuthType.ADMIN }},
+
+  // Login
+  { path: "/login", methods: ["POST"], handler: login },
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {

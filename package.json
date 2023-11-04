@@ -9,6 +9,8 @@
     "chalk": "^5.3.0",
     "elysia": "^0.7.21",
     "elysia-helmet": "^1.0.1",
+    "@elysiajs/cookie": "^0.7.0",
+    "@elysiajs/jwt": "^0.7.0",
     "elysia-ip": "^0.0.4",
     "mariadb": "^3.2.2"
   },

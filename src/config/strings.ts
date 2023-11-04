@@ -65,10 +65,12 @@ const Strings = {
   COURSES_FOUND: "Courses found!",
   COURSE_NOT_FOUND: "Course with ID #{id} not found!",
 
-  LOGIN_EMPTY_ID: "Empty Student ID.",
+  LOGIN_TYPE_NOT_SPECIFIED: "Login type is not specified.",
+  LOGIN_INVALID_TYPE: "Invalid login type.",
+  LOGIN_EMPTY_STUDENT_ID: "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
   LOGIN_EMPTY_TOKEN: "Empty Token.",
-  LOGIN_FAILED: "Oops! Incorrect ID or Password.",
+  LOGIN_FAILED: "Oops! Incorrect Student ID or Password.",
   LOGIN_ERROR_VALIDATING_PASSWORD: "Oops! Error validating password. Please contact the CSP-S server admin.",
   LOGIN_SUCCESS: "Login successful",
 
