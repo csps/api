@@ -104,6 +104,7 @@ const Strings = {
   PHOTO_NOT_FOUND: "Photo not found!",
   PHOTO_EMPTY_DATA: "Empty photo data!",
   PHOTO_EMPTY_TYPE: "Empty photo type!",
+  PHOTO_REQUEST_FILE: "Request must contain a file!",
 
   PRODUCTS_GET_ERROR: "Something went wrong while fetching products.",
   PRODUCTS_NOT_FOUND: "No products found!",

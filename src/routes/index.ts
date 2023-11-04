@@ -5,6 +5,7 @@ import announcements from "../api/announcements";
 import example from "../api/example";
 import courses from "../api/courses";
 import students from "../api/students";
+import photos from "../api/photos";
 import events from "../api/events";
 import login from "../api/login";
 import env from "../api/env";
@@ -36,6 +37,10 @@ const routes: AppRoutes[] = [
 
   // Login
   { path: "/login", methods: ["POST"], handler: login },
+
+  // Photos
+  { path: "/photos/:hash", methods: ["GET"], handler: photos },
+  { path: "/photos", methods: ["POST"], handler: photos },
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {
