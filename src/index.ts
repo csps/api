@@ -4,6 +4,7 @@ import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import { cookie } from "@elysiajs/cookie";
 
+import { setHeader } from "./utils/security";
 import type { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";
 import session from "./session";
@@ -18,14 +19,15 @@ Log.extend(app);
 // Set security headers
 app.use(helmet({
   crossOriginResourcePolicy: {
-    policy: process.env.NODE_ENV === 'development' ?
-      "cross-origin" : "same-origin"
+    policy: process.env.NODE_ENV === 'dev' ? "cross-origin" : "same-origin"
   }
 }));
 
 // Set default headers
 app.onBeforeHandle((context: ElysiaContext) => {
-  context.set.headers["content-type"] = "application/json;charset=utf-8";
+  setHeader(context, "content-type", "application/json;charset=utf-8");
+  setHeader(context, "Access-Control-Allow-Origin", process.env.NODE_ENV === 'dev' ? "*" : "https://ucmncsps.org");
+  setHeader(context, "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
 });
 
 // Register session
