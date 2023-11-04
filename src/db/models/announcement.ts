@@ -63,14 +63,14 @@ class Announcement {
       try {
         // Begin transaction
         await db.beginTransaction();
-        // Default Photo ID
-        let photoId: number | null = null;
+        // Default Photo Hash
+        let photoHash: string | null = null;
 
         // Check for photo
         if (request.photo) {
           try {
             // Insert photo
-            photoId = await Photo.insert(request.photo, db);
+            photoHash = await Photo.insert(request.photo, db);
           }
 
           catch (e) {
@@ -92,8 +92,8 @@ class Announcement {
 
         // If no error, insert announcement
         const result = await db.query<MariaUpdateResult>(
-          "INSERT INTO announcements (admin_student_id, title, content, photos_id, date_stamp) VALUES (?, ?, ?, ?, NOW())", [
-            1, request.title, request.content, photoId
+          "INSERT INTO announcements (admin_student_id, title, content, photos_hash, date_stamp) VALUES (?, ?, ?, ?, NOW())", [
+            1, request.title, request.content, photoHash
           ]
         );
 
@@ -138,14 +138,14 @@ class Announcement {
       try {
         // Begin transaction
         await db.beginTransaction();
-        // Default Photo ID
-        let photoId: number | null = null;
+        // Default Photo Hash
+        let photoHash: string | null = null;
 
         // Check for photo
         if (request.photo) {
           try {
             // Insert photo
-            photoId = await Photo.insert(request.photo, db);
+            photoHash = await Photo.insert(request.photo, db);
           }
 
           catch (e) {
@@ -167,8 +167,8 @@ class Announcement {
 
         // If no error, update announcement
         const result = await db.query<MariaUpdateResult>(
-          "UPDATE announcements SET title = ?, content = ?, photos_id = ? WHERE id = ?", [
-            request.title, request.content, photoId, id
+          "UPDATE announcements SET title = ?, content = ?, photos_hash = ? WHERE id = ?", [
+            request.title, request.content, photoHash, id
           ]
         );
 

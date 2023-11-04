@@ -5,7 +5,7 @@ export type AnnouncementModel = {
   admin_student_id: string,
   title: string,
   content: string,
-  photos_id?: number,
+  photos_hash?: string,
   date_stamp: string
 }
 

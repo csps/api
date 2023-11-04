@@ -21,7 +21,7 @@ export enum AnnouncementColumns {
   ADMIN_STUDENT_ID = "admin_student_id",
   TITLE = "title",
   CONTENT = "content",
-  PHOTOS_ID = "photos_id",
+  PHOTOS_HASH = "photos_hash",
   DATE_STAMP = "date_stamp",
 }
 
