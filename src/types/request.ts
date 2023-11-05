@@ -17,3 +17,23 @@ export type EventRequest = {
   thumbnail?: File;
   date_stamp?: string;
 }
+
+export type PaginationRequest = {
+  sort?: {
+    key: string;
+    type: 'ASC' | 'DESC';
+  },
+  search?: {
+    key: string[];
+    value: string[];
+  },
+  page?: number;
+  limit?: number;
+};
+
+export type PaginationOutput = {
+  sort?: string,
+  search?: string,
+  page?: string;
+  limit?: string;
+};
