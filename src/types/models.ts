@@ -142,7 +142,7 @@ export type ProductVariationModel = {
   products_id: number,
   variations_id: number,
   stock: number,
-  photos_id: number,
+  photos_hash: string,
 
   // Extra
   name: string,
@@ -151,7 +151,7 @@ export type ProductVariationModel = {
 export type ProductModel = {
   id: number,
   name: string,
-  thumbnail?: number,
+  photos_hash?: string,
   description: string,
   likes: number,
   stock: number,

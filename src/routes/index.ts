@@ -4,6 +4,7 @@ import { AuthType } from "../types/enums";
 import announcements from "../api/announcements";
 import example from "../api/example";
 import courses from "../api/courses";
+import products from "../api/products";
 import students from "../api/students";
 import photos from "../api/photos";
 import events from "../api/events";
@@ -41,6 +42,9 @@ const routes: AppRoutes[] = [
   // Photos
   { path: "/photos/:hash", methods: ["GET"], handler: photos },
   { path: "/photos", methods: ["POST"], handler: photos },
+
+  // Products
+  { path: "/products", methods: ["GET"], handler: products },
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {

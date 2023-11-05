@@ -18,7 +18,7 @@ import Strings from "../../config/strings";
 class Student {
 
   /**
-   * Get all events
+   * Get all students
    */
   public static getAll(): Promise<StudentModel[]> {
     return new Promise(async (resolve, reject) => {
@@ -26,7 +26,7 @@ class Student {
       const db = Database.getInstance();
 
       try {
-        // Get all events
+        // Get all students
         const result = await db.query<StudentModel[]>(`SELECT * FROM students ORDER BY id DESC`);
 
         // If no results
