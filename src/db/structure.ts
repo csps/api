@@ -115,13 +115,13 @@ export enum ProductVariationColumns {
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
   STOCK = "stock",
-  PHOTOS_ID = "photos_id",
+  PHOTOS_HASH = "photos_hash",
 }
 
 export enum ProductColumns {
   ID = "id",
   NAME = "name",
-  THUMBNAIL = "thumbnail",
+  PHOTOS_HASH = "photos_hash",
   DESCRIPTION = "description",
   LIKES = "likes",
   STOCK = "stock",

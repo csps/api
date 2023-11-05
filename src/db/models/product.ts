@@ -30,7 +30,9 @@ class Product {
         }
 
         // Get all product variations
-        const variations = await db.query<ProductVariationModel[]>(`SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id`);
+        const variations = await db.query<ProductVariationModel[]>(
+          `SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id
+        `);
 
         // If no results, resolve without variations
         if (variations.length === 0) {
@@ -47,6 +49,51 @@ class Product {
 
         // Resolve promise
         resolve(products);
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Get product by slug name
+   * @param name URL friendly name of the product
+   */
+  public static get(slug: string) {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Get product
+        const product = await db.query<ProductModel[]>(`SELECT * FROM products WHERE slug = ?`, [slug]);
+
+        // If no results
+        if (product.length === 0) {
+          Log.e("No product found");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Get product variations
+        const variations = await db.query<ProductVariationModel[]>(
+          `SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id WHERE pv.products_id = ?
+        `, [product[0].id]);
+
+        // If no results, resolve without variations
+        if (variations.length === 0) {
+          Log.i("No product variations found");
+          return resolve(product[0]);
+        }
+
+        // Map product variations to product
+        product[0].variations = variations;
+
+        // Resolve promise
+        resolve(product[0]);
       }
       
       // Log error and reject promise

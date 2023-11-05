@@ -44,6 +44,7 @@ const routes: AppRoutes[] = [
   { path: "/photos", methods: ["POST"], handler: photos },
 
   // Products
+  { path: "/products/:slug", methods: ["GET"], handler: products },
   { path: "/products", methods: ["GET"], handler: products },
 ];
 

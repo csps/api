@@ -28,7 +28,7 @@ export type MariaUpdateResult = {
 export type ElysiaContext = {
   body: Route['body'];
   query: Record<string, string | null>;
-  params: never;
+  params: Record<string, string | null>;
   headers: Record<string, string | null>;
   cookie: Record<string, Cookie<any>>;
   set: any;

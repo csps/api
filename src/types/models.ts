@@ -151,6 +151,7 @@ export type ProductVariationModel = {
 export type ProductModel = {
   id: number,
   name: string,
+  slug: string,
   photos_hash?: string,
   description: string,
   likes: number,

@@ -26,8 +26,14 @@ function products(context: ElysiaContext): Promise<ResponseBody | undefined> | R
  * @param context
  */
 async function getProducts(context: ElysiaContext) {
-  // Get all products
   try {
+    // If name is specified
+    if (context.params?.slug) {
+      const product = await Product.get(context.params.slug);
+      return response.success(Strings.PRODUCT_FOUND, product);
+    }
+    
+    // Get all products
     const products = await Product.getAll();
     return response.success(Strings.PRODUCTS_FOUND, products);
   }
