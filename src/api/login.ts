@@ -15,6 +15,8 @@ export default function login(context: ElysiaContext): Promise<ResponseBody | un
   switch (context.request.method) {
     case "POST":
       return postLogin(context);
+    case "OPTIONS":
+      return response.success();
   }
 
   return status501(context);
@@ -58,7 +60,7 @@ async function postLogin(context: ElysiaContext) {
   
     // Compare password
     if (!(await Bun.password.verify(password, user.password || ""))) {
-      context.set.status = 400;
+      context.set.status = 404;
       return response.error(Strings.LOGIN_FAILED);
     }
   

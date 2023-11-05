@@ -1,7 +1,7 @@
 import { StudentModel } from "../models";
 import type { jwt } from "@elysiajs/jwt";
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS";
 
 export type AppRoutes = {
   path: string;
