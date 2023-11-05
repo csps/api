@@ -36,7 +36,7 @@ const routes: AppRoutes[] = [
   { path: "/students", methods: ["GET", "POST"], handler: students, auth: { "POST": AuthType.ADMIN }},
 
   // Login
-  { path: "/login", methods: ["POST", "OPTIONS"], handler: login },
+  { path: "/login", methods: ["GET", "POST", "OPTIONS"], handler: login },
 
   // Photos
   { path: "/photos/:hash", methods: ["GET"], handler: photos },

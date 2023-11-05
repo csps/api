@@ -122,7 +122,7 @@ class Log {
     }
 
     let success = context.response?.success || false;
-    let message = context.response?.message || context.response;
+    let message = context.response?.message;
 
     // Get student ID
     const data = context.user ? context.user.student_id + " " : "";

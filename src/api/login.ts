@@ -5,6 +5,7 @@ import { status501 } from "../routes";
 import response from "../utils/response";
 import Strings from "../config/strings";
 import Student from "../db/models/student";
+import Log from "../utils/log";
 
 /**
  * Login API
@@ -13,6 +14,8 @@ import Student from "../db/models/student";
  */
 export default function login(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
   switch (context.request.method) {
+    case "GET":
+      return getLogin(context);
     case "POST":
       return postLogin(context);
     case "OPTIONS":
@@ -20,6 +23,65 @@ export default function login(context: ElysiaContext): Promise<ResponseBody | un
   }
 
   return status501(context);
+}
+
+/**
+ * GET /login
+ * @param context Elysia context
+ */
+async function getLogin(context: ElysiaContext) {
+  // Get token from cookie
+  const { token } = context.cookie;
+
+  // If token is not specified
+  if (!token) {
+    context.set.status = 400;
+    return response.error(Strings.GENERAL_INVALID_REQUEST);
+  }
+
+  try {
+    // Verify token
+    const decoded = await context.jwt.verify(token);
+    
+    // If token is invalid
+    if (!decoded) {
+      context.set.status = 401;
+      return response.error(Strings.LOGIN_INVALID_TOKEN);
+    }
+
+    // Get Role
+    const role = decoded.admin_id ? AuthType.ADMIN : AuthType.STUDENT;
+
+    // If token is valid, get student
+    const student = await Student.getByStudentId(role === AuthType.ADMIN ? decoded.admin_id : decoded.student_id);
+
+    // If student is not found
+    if (!student) {
+      context.set.status = 404;
+      return response.error(Strings.LOGIN_FAILED);
+    }
+
+    // Remove password from student
+    delete student.password;
+    // Return success and student data
+    return response.success(Strings.LOGIN_SUCCESS, student, role);
+  }
+
+  catch (err) {
+    // If error is DB_ERROR
+    if (err === ErrorTypes.DB_ERROR) {
+      context.set.status = 500;
+      return response.error(Strings.LOGIN_ERROR_VALIDATING_PASSWORD);
+    }
+
+    // If error is DB_EMPTY_RESULT
+    if (err === ErrorTypes.DB_EMPTY_RESULT) {
+      context.set.status = 404;
+      return response.error(Strings.LOGIN_FAILED);
+    }
+
+    Log.e(err);
+  }
 }
 
 /**

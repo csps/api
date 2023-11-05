@@ -26,9 +26,9 @@ app.use(helmet({
 // Set default headers
 app.onBeforeHandle((context: ElysiaContext) => {
   setHeader(context, "content-type", "application/json;charset=utf-8");
-  setHeader(context, "access-control-allow-origin", process.env.NODE_ENV === 'dev' ? "*" : "https://ucmncsps.org");
+  setHeader(context, "access-control-allow-origin", process.env.NODE_ENV === 'dev' ? "http://127.0.0.1:3001" : "https://ucmncsps.org");
   setHeader(context, "access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS");
-  setHeader(context, "access-control-allow-headers", "authorization");
+  setHeader(context, "access-control-allow-credentials", "true");
   setHeader(context, "x-powered-by", "Bun + Elysia (UC Main CSP-S Server)");
 });
 

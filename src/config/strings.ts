@@ -73,6 +73,7 @@ const Strings = {
   LOGIN_FAILED: "Oops! Incorrect Student ID or Password.",
   LOGIN_ERROR_VALIDATING_PASSWORD: "Oops! Error validating password. Please contact the CSP-S server admin.",
   LOGIN_SUCCESS: "Login successful",
+  LOGIN_INVALID_TOKEN: "Invalid token.",
 
   EVENTS_GET_ERROR: "Something went wrong while fetching events.",
   EVENTS_NOT_FOUND: "No events found!",
