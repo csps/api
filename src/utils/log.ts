@@ -83,6 +83,7 @@ class Log {
    */
   static response(context: ElysiaContext) {
     // Get the method, URL, and date
+    const { path } = context;
     const statusCode = context.set.status;
     const date = getDatestamp();
 
@@ -120,16 +121,21 @@ class Log {
       txLog = chalk.white;
     }
 
-    const success = context.response?.success || false;
-    const message = context.response?.message || context.response;
+    let success = context.response?.success || false;
+    let message = context.response?.message || context.response;
 
     // Get student ID
     const data = context.user ? context.user.student_id + " " : "";
 
+    if ((path.startsWith("/photos") || path.startsWith("/favicon.ico")) && statusCode == 200) {
+      success = true;
+      message = "[ Photo ]";
+    }
+
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${data}${context.ip?.address}] [${date}] [${context.request.method} ${context.path}] [${statusCode}] [ success: ${success}, message: ${message} ]`
+        `[${data}${context.ip?.address}] [${date}] [${context.request.method} ${path}] [${statusCode}] [ success: ${success}, message: ${message} ]`
       )
     );
   }
