@@ -38,8 +38,8 @@ async function getEvents(context: ElysiaContext) {
 
   // Get all events
   try {
-    const events = await Event.getAll();
-    return response.success(Strings.EVENTS_FOUND, events);
+    const events = await Event.getAll(context.query);
+    return response.success(Strings.EVENTS_FOUND, ...events);
   } catch (err) {
     // If error is DB_ERROR
     if (err === ErrorTypes.DB_ERROR) {

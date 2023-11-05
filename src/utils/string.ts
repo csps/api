@@ -27,3 +27,12 @@ export function trim(value: Record<string, any>) {
     }
   }
 }
+
+/**
+ * Check if object is empty
+ * @param object object to check
+ */
+export function isObjectEmpty(object: any) {
+  if (typeof object !== "object") return true;
+  return Object.keys(object).length === 0;
+}

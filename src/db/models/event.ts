@@ -1,13 +1,15 @@
 import type { MariaUpdateResult } from "../../types";
-import type { EventRequest } from "../../types/request";
+import type { EventRequest, PaginationOutput } from "../../types/request";
 import { ErrorTypes } from "../../types/enums";
 import { EventModel } from "../../types/models";
+
+import { isTimeBefore } from "../../utils/date";
+import { paginationWrapper } from "../../utils/pagination";
+import { isObjectEmpty } from "../../utils/string";
 
 import Database from "../";
 import Log from "../../utils/log";
 import Strings from "../../config/strings";
-
-import { isTimeBefore } from "../../utils/date";
 
 /**
  * Event model
@@ -19,14 +21,27 @@ class Event {
   /**
    * Get all events
    */
-  public static getAll(): Promise<EventModel[]> {
+  public static getAll(pagination?: PaginationOutput): Promise<[ EventModel[], count: number ]> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
 
       try {
+        // Get pagination
+        if (!isObjectEmpty(pagination)) {
+          const { query, countQuery, values, countValues } = paginationWrapper(db, {
+            query: "SELECT * FROM events",
+            request: pagination!
+          });
+
+          const mainResult = await db.query<EventModel[]>(query, values);
+          const countResult = await db.query<[{ count: bigint }]>(countQuery, countValues);
+
+          return resolve([mainResult, Number(countResult[0].count) ]);
+        }
+
         // Get all events
-        const result = await db.query<EventModel[]>(`SELECT * FROM events ORDER BY id DESC`);
+        const result = await db.query<EventModel[]>(`SELECT * FROM events`);
 
         // If no results
         if (result.length === 0) {
@@ -35,7 +50,7 @@ class Event {
         }
 
         // Resolve promise
-        resolve(result);
+        resolve([ result, Number(result.length) ]);
       }
       
       // Log error and reject promise
