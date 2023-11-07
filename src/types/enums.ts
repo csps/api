@@ -78,3 +78,7 @@ export enum FullOrderEnum {
   edit_date = "edit_date",
   date_stamp = "date_stamp",
 }
+
+export enum EmailType {
+  MESSAGE = "message",
+}

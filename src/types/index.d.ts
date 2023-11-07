@@ -1,5 +1,6 @@
-import { StudentModel } from "../models";
 import type { jwt } from "@elysiajs/jwt";
+import { StudentModel } from "../models";
+import { EmailType } from "./enums";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS";
 
@@ -45,6 +46,17 @@ export type ElysiaContext = {
   },
   user?: StudentModel
 };
+
+export type EmailMetaData = {
+  type: EmailType,
+  to: string, // Name <email@gmail.com>
+  subject: string,
+  preheader: string,
+  title?: string,
+  cc?: string[],
+  bcc?: string[],
+  data: Record<string, any>
+}
 
 declare global {
   namespace NodeJS {
