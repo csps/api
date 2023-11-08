@@ -5,10 +5,12 @@ import { join } from "path";
 
 import juice from "juice";
 import pug from "pug";
-import Log from "./log";
+import Queue from 'p-queue';
 
 // SMTP credentials transporter
 let transporter: Transporter;
+// Email queue (with concurrency of 10)
+const queue = new Queue({ concurrency: 10 });
 
 /**
  * Send email using Gmail SMTP
@@ -71,14 +73,20 @@ export async function sendEmail(metadata: EmailMetaData, callback?: (err: Error 
   // Add html to request
   request.html = juice(output);
   
-  // Send email
-  transporter.sendMail(request, callback || ((error, info) => {
-    // Log error (if exists)
-    if (error) {
-      return Log.e(error);
-    }
+  // Add process to queue
+  queue.add(() => new Promise((resolve, reject) => {
+    // Send email
+    transporter.sendMail(request, (err, info) => {
+      if (typeof callback === "function") {
+        callback(err, info);
+      }
 
-    // Otherwise, log info
-    Log.i(info);
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(info);
+    });
   }));
+
 } 

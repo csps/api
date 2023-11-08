@@ -10,16 +10,17 @@
     "@elysiajs/cookie": "^0.7.0",
     "@elysiajs/jwt": "^0.7.0",
     "chalk": "^5.3.0",
-    "elysia": "^0.7.21",
+    "elysia": "^0.7.23",
     "elysia-helmet": "^1.0.1",
     "elysia-ip": "^0.0.4",
     "juice": "^9.1.0",
     "mariadb": "^3.2.2",
     "nodemailer": "^6.9.7",
+    "p-queue": "^7.4.1",
     "pug": "^3.0.2"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.13",
+    "@types/nodemailer": "^6.4.14",
     "@types/pug": "^2.0.9",
     "bun-types": "latest"
   },
