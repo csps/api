@@ -36,7 +36,7 @@ async function getLogin(context: ElysiaContext) {
   // If token is not specified
   if (!token) {
     context.set.status = 400;
-    return response.error(Strings.GENERAL_INVALID_REQUEST);
+    return response.error(Strings.GENERAL_NO_SESSION);
   }
 
   try {
