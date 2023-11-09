@@ -10,6 +10,7 @@ import photos from "../api/photos";
 import events from "../api/events";
 import forgot from "../api/forgot";
 import login from "../api/login";
+import reset from "../api/reset";
 import env from "../api/env";
 
 const routes: AppRoutes[] = [
@@ -50,6 +51,9 @@ const routes: AppRoutes[] = [
   // Products
   { path: "/products/:slug", methods: ["GET"], handler: products },
   { path: "/products", methods: ["GET"], handler: products },
+
+  // Reset password
+  { path: "/reset/:token", methods: ["GET"], handler: reset },
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {

@@ -96,6 +96,60 @@ class Student {
   }
 
   /**
+   * Get student by reset token
+   * @param token Reset token
+   */
+  public static fromResetToken(token: string): Promise<StudentModel> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Get student
+        const result = await db.query<(StudentModel & { is_used: number, token_created: string })[]>(`
+          SELECT
+            s.id, s.student_id, s.last_name, s.first_name,
+            s.year_level, s.email_address, s.password, s.date_stamp,
+            rt.is_used, rt.date_stamp AS token_created
+          FROM
+            ${Tables.RESET_TOKENS} rt
+          INNER JOIN students s ON s.id = rt.students_id WHERE rt.token = ?
+        `, [token]);
+
+        // If no results
+        if (result.length === 0) {
+          Log.e(`Student not found (token = ${token})`);
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // If token is already used
+        if (result[0].is_used > 0) {
+          Log.e(`Token already used (token = ${token})`);
+          return reject(ErrorTypes.DB_USED);
+        }
+
+        // If token is expired
+        const currentDate = new Date();
+        const tokenDate = new Date(result[0].token_created);
+
+        if (currentDate.getTime() - tokenDate.getTime() > Config.TOKEN_VALIDITY * 60 * 1000) {
+          Log.e(`Token expired (token = ${token})`);
+          return reject(ErrorTypes.DB_EXPIRED);
+        }
+
+        // Resolve promise
+        resolve(result[0]);
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
    * Insert student data to the database
    * @param student Student data
    */
