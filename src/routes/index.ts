@@ -8,6 +8,7 @@ import products from "../api/products";
 import students from "../api/students";
 import photos from "../api/photos";
 import events from "../api/events";
+import forgot from "../api/forgot";
 import login from "../api/login";
 import env from "../api/env";
 
@@ -22,6 +23,9 @@ const routes: AppRoutes[] = [
   // Courses
   { path: "/courses/:id", methods: ["PUT", "DELETE"], handler: courses, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN } },
   { path: "/courses", methods: ["GET", "POST"], handler: courses, auth: { "POST": AuthType.ADMIN }},
+
+  // Forgot password
+  { path: "/forgot", methods: ["POST"], handler: forgot },
 
   // Announcements
   { path: "/announcements/:id", methods: ["PUT", "DELETE"], handler: announcements, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN }},

@@ -51,7 +51,7 @@ export type EmailMetaData = {
   type: EmailType,
   to: string, // Name <email@gmail.com>
   subject: string,
-  preheader: string,
+  preheader?: string,
   title?: string,
   cc?: string[],
   bcc?: string[],

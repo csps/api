@@ -81,4 +81,5 @@ export enum FullOrderEnum {
 
 export enum EmailType {
   MESSAGE = "message",
+  FORGOT_PASSWORD = "forgot_password"
 }

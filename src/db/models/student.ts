@@ -3,12 +3,13 @@ import type { MariaUpdateResult } from "../../types";
 import { ErrorTypes } from "../../types/enums";
 
 import { isNumber, isEmail, trim } from "../../utils/string";
-import { StudentColumns } from "../structure";
-import { hashPassword } from "../../utils/security";
+import { StudentColumns, Tables } from "../structure";
+import { generateHash, hashPassword } from "../../utils/security";
 
 import Database from "..";
 import Log from "../../utils/log";
 import Strings from "../../config/strings";
+import Config from "../../config";
 
 /**
  * Student model
@@ -280,6 +281,47 @@ class Student {
     if (!data.last_name) return [Strings.STUDENT_EMPTY_LAST_NAME, StudentColumns.LAST_NAME];
     // Check if year level is a number and valid
     if (!isNumber(data.year_level) || data.year_level < 1 || data.year_level > 4) return [Strings.STUDENT_LIMIT_YEAR_LEVEL, StudentColumns.YEAR_LEVEL];
+  }
+
+  // Utilities
+
+  /**
+   * Add reset token for password reset request
+   * @param student_primary_id Student primary database ID
+   */
+  public static addResetToken(student_primary_id: number): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      // Generate token
+      const token = generateHash(Config.TOKEN_LENGTH);
+
+      try {
+        // Get database instance
+        const db = Database.getInstance();
+
+        // Insert token
+        const result = await db.query<MariaUpdateResult>(
+          `INSERT INTO ${Tables.RESET_TOKENS} (students_id, token, is_used, date_stamp) VALUES (?, ?, 0, NOW())`, [
+            student_primary_id,
+            token,
+          ]
+        );
+
+        // If no affected rows
+        if (result.affectedRows === 0) {
+          Log.e("Reset Token Insert Failed: No rows affected");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Resolve promise
+        resolve(token);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
   }
 }
 
