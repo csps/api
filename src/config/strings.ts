@@ -211,7 +211,6 @@ const Strings = {
   FORGOT_PASSWORD_SUCCESS_TITLE: "Your password reset email is on its way!",
   FORGOT_PASSWORD_SUCCESS_MESSAGE: "We've sent a password reset email to your email address. It should arrive in a few minutes. If you don't see it, check your spam folder.",
   FORGOT_PASSWORD_EMAIL_SUBJECT: "Your password reset request",
-  FORGOT_PASSWORD_EMAIL_BODY: `Hi {name},\n\nWe received a request to reset your password. If you made this request, please click the link or button below to reset your password. If you didn't make this request, you can ignore this email.\n\nThis link will expire in ${Config.TOKEN_VALIDITY} minutes.`,
 
   RESET_PASSWORD_EMPTY_TOKEN: "Empty token.",
   RESET_PASSWORD_EMPTY_PASSWORD: "Empty password.",
@@ -227,7 +226,7 @@ const Strings = {
   QRCODE_GENERATED_SUCCESFULLY: "QR Code generated succesfully!",
 
   RESET_PASSWORD_EMAIL_SUCCESS_SUBJECT: "Password Changed!",
-  RESET_PASSWORD_EMAIL_SUCCESS_BODY: `Hi {name},\n\nYour password has been reset successfully. If you didn't make this request, please contact the CSP-S server admin.\n\nCheers,\nUC Main CSP-S`,
+  RESET_PASSWORD_EMAIL_SUCCESS_TITLE: "Your password has been changed!"
 };
 
 export default Strings;

@@ -54,6 +54,7 @@ const routes: AppRoutes[] = [
 
   // Reset password
   { path: "/reset/:token", methods: ["GET"], handler: reset },
+  { path: "/reset/", methods: ["POST"], handler: reset },
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {

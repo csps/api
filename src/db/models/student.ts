@@ -150,6 +150,67 @@ class Student {
   }
 
   /**
+   * Reset password from token
+   * @param token Reset token
+   * @param password New password
+   */
+  public static updatePassword(token: string, password: string): Promise<StudentModel> {
+    return new Promise(async (resolve, reject) => {
+      // Validate password
+      if (!password) {
+        return reject([Strings.RESET_PASSWORD_EMPTY_PASSWORD, StudentColumns.PASSWORD]);
+      }
+
+      // Get connection instance
+      const db = await Database.getConnection();
+
+      try {
+        // Hash password
+        const hash = await hashPassword(password);
+        // Get student from token
+        const student = await Student.fromResetToken(token);
+        // Start transaction
+        await db.beginTransaction();
+
+        // Update password
+        let result = await db.query<MariaUpdateResult>(
+          `UPDATE students SET password = ? WHERE id = ?`, [ hash, student.id ]
+        );
+
+        // If no affected rows
+        if (result.affectedRows === 0) {
+          await db.rollback();
+          Log.e("Student update failed: No rows affected");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Update token
+        result = await db.query<MariaUpdateResult>(
+          `UPDATE ${Tables.RESET_TOKENS} SET is_used = 1, reset_date_stamp = NOW() WHERE token = ?`, [ token ]
+        );
+
+        // If no affected rows
+        if (result.affectedRows === 0) {
+          await db.rollback();
+          Log.e("Reset token update failed: No rows affected");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Commit transaction
+        await db.commit();
+        // Resolve promise
+        resolve(student);
+      }
+
+      // Rollback and reject promise
+      catch (error) {
+        await db.rollback();
+        return reject(error);
+      }
+    });
+  }
+
+  /**
    * Insert student data to the database
    * @param student Student data
    */
