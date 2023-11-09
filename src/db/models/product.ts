@@ -36,7 +36,7 @@ class Product {
 
         // If no results, resolve without variations
         if (variations.length === 0) {
-          Log.i("No product variations found");
+          Log.i("[All] No product variations found");
           return resolve(products);
         }
 
@@ -44,8 +44,6 @@ class Product {
         for (const product of products) {
           product.variations = variations.filter(v => v.products_id === product.id);
         }
-
-        console.log(products);
 
         // Resolve promise
         resolve(products);
@@ -85,7 +83,7 @@ class Product {
 
         // If no results, resolve without variations
         if (variations.length === 0) {
-          Log.i("No product variations found");
+          Log.i(`No product variations found for ${product[0].name}`);
           return resolve(product[0]);
         }
 
