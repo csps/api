@@ -5,12 +5,13 @@ import { join } from "path";
 
 import juice from "juice";
 import pug from "pug";
-import Queue from 'p-queue';
+import Log from "./log";
+import PriorityQueue from 'p-queue';
 
 // SMTP credentials transporter
 let transporter: Transporter;
 // Email queue (with concurrency of 10)
-const queue = new Queue({ concurrency: 10 });
+const queue = new PriorityQueue({ concurrency: 10 });
 
 /**
  * Send email using Gmail SMTP
@@ -43,7 +44,6 @@ export async function sendEmail(metadata: EmailMetaData, callback?: (err: Error 
   const request: SendMailOptions = {
     to: metadata.to,
     subject: metadata.subject,
-    text: `${metadata.title}\n\n${metadata.data.message}}`,
     from: `${process.env.SMTP_NAME} <${process.env.SMTP_USER}>`,
   };
 
@@ -64,10 +64,10 @@ export async function sendEmail(metadata: EmailMetaData, callback?: (err: Error 
 
   // Get email template
   const output = tpl({
+    ...metadata.data,
     type: metadata.type,
     preheader: metadata.preheader,
     title: metadata.title,
-    ...metadata.data
   });
 
   // Add html to request
@@ -75,18 +75,24 @@ export async function sendEmail(metadata: EmailMetaData, callback?: (err: Error 
   
   // Add process to queue
   queue.add(() => new Promise((resolve, reject) => {
+    // Log email
+    Log.i(`Sending email to <${metadata.to}> (${metadata.subject})`);
     // Send email
     transporter.sendMail(request, (err, info) => {
+      // Call callback (if exists)
       if (typeof callback === "function") {
         callback(err, info);
       }
 
+      // Error
       if (err) {
+        Log.e(`Error sending email to <${metadata.to}> (${metadata.subject}): ${err}`);
         return reject(err);
       }
 
+      // Success
+      Log.i(`Email sent to <${metadata.to}> (${metadata.subject})`);
       resolve(info);
     });
   }));
-
-} 
+}
