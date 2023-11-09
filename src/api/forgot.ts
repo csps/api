@@ -52,7 +52,7 @@ async function postForgot(context: ElysiaContext) {
         title: Strings.FORGOT_PASSWORD_EMAIL_SUBJECT,
         data: {
           name: student.first_name + " " + student.last_name,
-          link: Strings.DOMAIN + "/reset-password/" + token,
+          link: Strings.DOMAIN + "/reset/" + token,
           validity: Config.TOKEN_VALIDITY
         }
       });
