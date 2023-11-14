@@ -75,7 +75,7 @@ class Event {
 
         // If no results
         if (result.length === 0) {
-          Log.e("No next event found");
+          Log.i("Next event not found!");
           return reject(ErrorTypes.DB_EMPTY_RESULT);
         }
 
