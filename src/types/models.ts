@@ -58,33 +58,12 @@ export type OrderModel = {
   id: number,
   reference: string,
   unique_id: string,
-  student_id: string,
+  students_id: number,
+  students_external_id: number,
   products_id: number,
   variations_id: number,
   quantity: number,
   mode_of_payment: ModeOfPayment,
-  status: OrderStatus,
-  user_remarks: string,
-  admin_remarks: string,
-  status_updated: string,
-  edit_date: string,
-  date_stamp: string,
-}
-
-export type NonBscsOrderModel = {
-  id: number,
-  reference: string,
-  unique_id: string,
-  products_id: number,
-  variations_id: number,
-  quantity: number,
-  mode_of_payment: ModeOfPayment,
-  student_id: string,
-  first_name: string,
-  last_name: string,
-  email_address: string,
-  course: number,
-  year_level: number,
   status: OrderStatus,
   user_remarks: string,
   admin_remarks: string,
@@ -95,7 +74,7 @@ export type NonBscsOrderModel = {
 
 export type FullOrderModel = {
   id: string,
-  thumbnail: number,
+  photos_hash: string,
   reference: string,
   unique_id: string,
   products_id: number,
@@ -103,7 +82,7 @@ export type FullOrderModel = {
   product_price: number,
   variations_id: number,
   variations_name: string,
-  variations_photo_id: number,
+  variations_photo_hash: number,
   quantity: number,
   mode_of_payment: ModeOfPayment,
   student_id: string,
@@ -118,6 +97,7 @@ export type FullOrderModel = {
   status_updated: string,
   edit_date: string,
   date_stamp: string,
+  is_external: number, // Whether the student is external (non-bscs) or not
 }
 
 export type PhotoModel = {
@@ -143,9 +123,7 @@ export type ProductVariationModel = {
   variations_id: number,
   stock: number,
   photos_hash: string,
-
-  // Extra
-  name: string,
+  name: string // Extra
 }
 
 export type ProductModel = {
@@ -160,9 +138,7 @@ export type ProductModel = {
   max_quantity: number,
   is_available: boolean,
   date_stamp?: string,
-
-  // Extra
-  variations: ProductVariationModel[],
+  variations: ProductVariationModel[] // Extra
 }
 
 export type ResetTokenModel = {

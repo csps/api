@@ -4,6 +4,7 @@ export enum Tables {
   EVENTS = "events",
   EDIT_LOGS = "edit_logs",
   ORDERS = "orders",
+  ORDERS_EXTERNAL = "orders_external",
   PHOTOS = "photos",
   PRODUCT_VARIATIONS = "product_variations",
   PRODUCTS = "products",
@@ -12,11 +13,10 @@ export enum Tables {
   STUDENTS = "students",
   TUTORIALS = "tutorials",
   VARIATIONS = "variations",
-  NON_BSCS_ORDERS = "non_bscs_orders",
   GCASH_UPLOADS = "gcash_uploads",
 }
 
-export enum AnnouncementColumns {
+export enum AnnouncementsColumn {
   ID = "id",
   ADMIN_STUDENT_ID = "admin_student_id",
   TITLE = "title",
@@ -25,14 +25,14 @@ export enum AnnouncementColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum EnvColumns {
+export enum EnvColumn {
   ID = "id",
   KEY = "key",
   VALUE = "value",
   DATE_STAMP = "date_stamp",
 }
 
-export enum EditLogColumns {
+export enum EditLogsColumn {
   ID = "id",
   ADMIN_ID = "admin_id",
   METHOD = "method",
@@ -42,7 +42,7 @@ export enum EditLogColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum EventColumns {
+export enum EventsColumn {
   ID = "id",
   THUMBNAIL = "thumbnail",
   TITLE = "title",
@@ -54,11 +54,12 @@ export enum EventColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum OrderColumns {
+export enum OrdersColumn {
   ID = "id",
   REFERENCE = "reference",
   UNIQUE_ID = "unique_id",
-  STUDENT_ID = "student_id",
+  STUDENTS_ID = "students_id",
+  STUDENTS_EXTERNAL_ID = "students_external_id",
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
   QUANTITY = "quantity",
@@ -71,29 +72,18 @@ export enum OrderColumns {
   DATE_STAMP = "date_stamp"
 }
 
-export enum NonBscsOrderColumns {
+export enum StudentsExternalColumn {
   ID = "id",
-  REFERENCE = "reference",
-  UNIQUE_ID = "unique_id",
-  PRODUCTS_ID = "products_id",
-  VARIATIONS_ID = "variations_id",
-  QUANTITY = "quantity",
-  MODE_OF_PAYMENT = "mode_of_payment",
-  STUDENT_ID = "student_id",
-  FIRST_NAME = "first_name",
-  LAST_NAME = "last_name",
-  EMAIL = "email",
-  COURSE = "course",
-  YEAR_LEVEL = "year_level",
-  STATUS = "status",
-  USER_REMARKS = "user_remarks",
-  ADMIN_REMARKS = "admin_remarks",
-  STATUS_UPDATED = "status_updated",
-  EDIT_DATE = "edit_date",
-  DATE_STAMP = "date_stamp"
+  student_id = "student_id",
+  first_name = "first_name",
+  last_name = "last_name",
+  email_address = "email_address",
+  course = "course",
+  year_level = "year_level",
+  date_stamp = "date_stamp",
 }
 
-export enum PhotoColumns {
+export enum PhotosColumn {
   ID = "id",
   NAME = "name",
   DATA = "data",
@@ -101,7 +91,7 @@ export enum PhotoColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum GcashUploadsColumns {
+export enum GcashUploadsColumn {
   ID = "id",
   REFERENCE = "reference",
   NAME = "name",
@@ -118,7 +108,7 @@ export enum ProductVariationColumns {
   PHOTOS_HASH = "photos_hash",
 }
 
-export enum ProductColumns {
+export enum ProductsColumn {
   ID = "id",
   NAME = "name",
   PHOTOS_HASH = "photos_hash",
@@ -131,7 +121,7 @@ export enum ProductColumns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum ResetTokenColummns {
+export enum ResetTokensColummn {
   ID = "id",
   STUDENTS_ID = "students_id",
   TOKEN = "token",
@@ -140,7 +130,7 @@ export enum ResetTokenColummns {
   DATE_STAMP = "date_stamp",
 }
 
-export enum StudentColumns {
+export enum StudentsColumn {
   ID = "id",
   STUDENT_ID = "student_id",
   LAST_NAME = "last_name",
@@ -151,18 +141,7 @@ export enum StudentColumns {
   DATE_STAMP = "date_stamp",
 };
 
-export enum TutorialColumns {
-  ID = "id",
-  STUDENT_ID = "student_id",
-  LANGUAGE = "language",
-  SCHEDULE = "schedule",
-  STATUS = "status",
-  STATUS_DATE_STAMP = "status_date_stamp",
-  REMARKS = "remarks",
-  DATE_STAMP = "date_stamp"
-}
-
-export enum VariationColumns {
+export enum VariationsColumn {
   ID = "id",
   NAME = "name"
 }

@@ -3,7 +3,7 @@ import type { MariaUpdateResult } from "../../types";
 import { ErrorTypes } from "../../types/enums";
 
 import { isNumber, isEmail, trim } from "../../utils/string";
-import { StudentColumns, Tables } from "../structure";
+import { StudentsColumn, Tables } from "../structure.d";
 import { generateHash, hashPassword } from "../../utils/security";
 
 import Database from "..";
@@ -158,7 +158,7 @@ class Student {
     return new Promise(async (resolve, reject) => {
       // Validate password
       if (!password) {
-        return reject([Strings.RESET_PASSWORD_EMPTY_PASSWORD, StudentColumns.PASSWORD]);
+        return reject([Strings.RESET_PASSWORD_EMPTY_PASSWORD, StudentsColumn.PASSWORD]);
       }
 
       // Get connection instance
@@ -224,15 +224,15 @@ class Student {
       }
 
       // Check if student id already exists
-      if (await Student.isExist(StudentColumns.STUDENT_ID, student.student_id)) {
+      if (await Student.isExist(StudentsColumn.STUDENT_ID, student.student_id)) {
         Log.i(`Student ID already exists (${student.student_id})`);
-        return reject([Strings.STUDENT_ALREADY_EXIST, StudentColumns.STUDENT_ID]);
+        return reject([Strings.STUDENT_ALREADY_EXIST, StudentsColumn.STUDENT_ID]);
       }
 
       // Check if email already exists
-      if (await Student.isExist(StudentColumns.EMAIL_ADDRESS, student.email_address)) {
+      if (await Student.isExist(StudentsColumn.EMAIL_ADDRESS, student.email_address)) {
         Log.i(`Student email already exists (${student.email_address})`);
-        return reject([Strings.STUDENT_EMAIL_ALREADY_EXIST, StudentColumns.EMAIL_ADDRESS]);
+        return reject([Strings.STUDENT_EMAIL_ALREADY_EXIST, StudentsColumn.EMAIL_ADDRESS]);
       }
 
       // Log inserting student
@@ -287,15 +287,15 @@ class Student {
       }
 
       // Check if student id already exists
-      if (!(await Student.isExist(StudentColumns.STUDENT_ID, student_id))) {
+      if (!(await Student.isExist(StudentsColumn.STUDENT_ID, student_id))) {
         Log.i(`Student ID does not exist (${student_id})`);
-        return reject([Strings.STUDENT_NOT_EXIST, StudentColumns.STUDENT_ID]);
+        return reject([Strings.STUDENT_NOT_EXIST, StudentsColumn.STUDENT_ID]);
       }
 
       // Check if email already exists
-      if ((await Student.isExist(StudentColumns.EMAIL_ADDRESS, student.email_address)) > 1) {
+      if ((await Student.isExist(StudentsColumn.EMAIL_ADDRESS, student.email_address)) > 1) {
         Log.i(`Student email already exists (${student.email_address})`);
-        return reject([Strings.STUDENT_EMAIL_ALREADY_EXIST, StudentColumns.EMAIL_ADDRESS]);
+        return reject([Strings.STUDENT_EMAIL_ALREADY_EXIST, StudentsColumn.EMAIL_ADDRESS]);
       }
 
       // Log updating student
@@ -337,7 +337,7 @@ class Student {
    * @param key Student column
    * @param value Value to check
    */
-  public static isExist(key: StudentColumns, value: any): Promise<bigint> {
+  public static isExist(key: StudentsColumn, value: any): Promise<bigint> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
@@ -377,25 +377,25 @@ class Student {
 
     if (!isUpdate) {
       // Check if student id is empty
-      if (!data.student_id) return [Strings.STUDENT_EMPTY_ID, StudentColumns.STUDENT_ID];
+      if (!data.student_id) return [Strings.STUDENT_EMPTY_ID, StudentsColumn.STUDENT_ID];
       // Check if password is empty
-      if (!data.password) return [Strings.STUDENT_EMPTY_PASSWORD, StudentColumns.PASSWORD];
+      if (!data.password) return [Strings.STUDENT_EMPTY_PASSWORD, StudentsColumn.PASSWORD];
       // Check if student id is a number
-      if (!isNumber(data.student_id) || data.student_id.length >= 16) return [Strings.STUDENT_LIMIT_ID, StudentColumns.STUDENT_ID];
+      if (!isNumber(data.student_id) || data.student_id.length >= 16) return [Strings.STUDENT_LIMIT_ID, StudentsColumn.STUDENT_ID];
       // Check if email is empty
-      if (!data.email_address) return [Strings.STUDENT_EMPTY_EMAIL, StudentColumns.EMAIL_ADDRESS];
+      if (!data.email_address) return [Strings.STUDENT_EMPTY_EMAIL, StudentsColumn.EMAIL_ADDRESS];
       // Check if email is valid
-      if (!isEmail(data.email_address.trim())) return [Strings.STUDENT_INVALID_EMAIL, StudentColumns.EMAIL_ADDRESS];
+      if (!isEmail(data.email_address.trim())) return [Strings.STUDENT_INVALID_EMAIL, StudentsColumn.EMAIL_ADDRESS];
     }
 
     // Check if year level is empty
-    if (!data.year_level) return [Strings.STUDENT_EMPTY_YEAR_LEVEL, StudentColumns.YEAR_LEVEL];
+    if (!data.year_level) return [Strings.STUDENT_EMPTY_YEAR_LEVEL, StudentsColumn.YEAR_LEVEL];
     // Check if first name is empty
-    if (!data.first_name) return [Strings.STUDENT_EMPTY_FIRST_NAME, StudentColumns.FIRST_NAME];
+    if (!data.first_name) return [Strings.STUDENT_EMPTY_FIRST_NAME, StudentsColumn.FIRST_NAME];
     // Check if last name is empty
-    if (!data.last_name) return [Strings.STUDENT_EMPTY_LAST_NAME, StudentColumns.LAST_NAME];
+    if (!data.last_name) return [Strings.STUDENT_EMPTY_LAST_NAME, StudentsColumn.LAST_NAME];
     // Check if year level is a number and valid
-    if (!isNumber(data.year_level) || data.year_level < 1 || data.year_level > 4) return [Strings.STUDENT_LIMIT_YEAR_LEVEL, StudentColumns.YEAR_LEVEL];
+    if (!isNumber(data.year_level) || data.year_level < 1 || data.year_level > 4) return [Strings.STUDENT_LIMIT_YEAR_LEVEL, StudentsColumn.YEAR_LEVEL];
   }
 
   // Utilities
