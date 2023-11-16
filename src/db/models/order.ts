@@ -36,8 +36,8 @@ class Order {
   `;
 
   /**
- * Get all orders
- */
+   * Get all orders
+   */
   public static getAll(): Promise<FullOrderModel[]> {
     return new Promise(async (resolve, reject) => {
       // Get database instance

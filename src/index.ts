@@ -7,8 +7,11 @@ import { cookie } from "@elysiajs/cookie";
 import { setHeader } from "./utils/security";
 import type { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";
-import session from "./session";
 import Log from "./utils/log";
+import { jwtConfig, getRole } from "./session";
+import { AuthType } from "./types/enums";
+import response from "./utils/response";
+import Strings from "./config/strings";
 
 const app = new Elysia({ name: "UC Main CSPS API" });
 const port = 3000;
@@ -33,12 +36,24 @@ app.onBeforeHandle((context: ElysiaContext) => {
 });
 
 // Register session
-app.use(session);
 app.use(cookie());
+app.use(jwtConfig);
 
 // Register routes
 for (const route of routes) {
-  app.all(route.path, (context: ElysiaContext) => {
+  app.all(route.path, async (context: ElysiaContext) => {
+    // Get route role
+    const routeRole = route.auth ? (route.auth as Record<HttpMethod, AuthType>)[context.request.method as HttpMethod] : null;
+
+    // Check for route authorization requirements
+    if (routeRole !== null && routeRole in [AuthType.STUDENT, AuthType.ADMIN]) {
+      // If not authorized
+      if (await getRole(context) !== routeRole) {
+        context.set.status = 401;
+        return response.error(Strings.GENERAL_UNAUTHORIZED);
+      }
+    }
+
     // Check if the route supports the request HTTP method
     if (route.methods.indexOf(context.request.method as HttpMethod) !== -1) {
       return route.handler(context);

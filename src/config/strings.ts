@@ -11,7 +11,7 @@ const Strings = {
   GENERAL_SESSION_ERROR: "Session Error! Please logout and login again.",
   GENERAL_SESSION_EXPIRED: "Session Expired! Please logout and login again.",
   GENERAL_NO_SESSION: "No session found!",
-  GENERAL_UNAUTHORIZED: "Unauthorized!",
+  GENERAL_UNAUTHORIZED: "Unauthorized access!",
   GENERAL_INCORRECT_VALUE: "Incorrect value!",
   GENERAL_KEY_NOT_ALLOWED: "Editing this information is not allowed!",
   GENERAL_COLUMN_NOT_FOUND: "Column not found!",

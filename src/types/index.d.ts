@@ -45,6 +45,7 @@ export type ElysiaContext = {
     port: number;
   },
   user?: StudentModel
+  admin?: StudentModel
 };
 
 export type EmailMetaData = {
