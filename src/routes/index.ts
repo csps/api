@@ -9,6 +9,7 @@ import students from "../api/students";
 import photos from "../api/photos";
 import events from "../api/events";
 import forgot from "../api/forgot";
+import orders from "../api/orders";
 import login from "../api/login";
 import reset from "../api/reset";
 import env from "../api/env";
@@ -55,6 +56,9 @@ const routes: AppRoutes[] = [
   // Reset password
   { path: "/reset/:token", methods: ["GET"], handler: reset },
   { path: "/reset/", methods: ["POST"], handler: reset },
+
+  // Orders
+  { path: "/orders", methods: ["GET", "POST"], handler: orders },
 ];
 
 export function status404(context: ElysiaContext): ResponseBody {
