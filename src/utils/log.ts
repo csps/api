@@ -16,12 +16,7 @@ class Log {
    * @param highlight Highlight the log
    */
   static e(message: any, highlight?: boolean) {
-    if (highlight) {
-      console.log(chalk.bgRed("[-] " + message));
-      return;
-    }
-
-    console.log(chalk.bgRed("[-]") + " " + chalk.red(message));
+    console.log(chalk.bgRed("[-]") + " " + (highlight ? message : chalk.red(message)));
   }
 
   /**
@@ -30,12 +25,7 @@ class Log {
    * @param highlight Highlight the log
    */
   static s(message: any, highlight?: boolean) {
-    if (highlight) {
-      console.log(chalk.bgGreen("[+] " + message));
-      return;
-    }
-
-    console.log(chalk.bgGreen("[+]") + " " + chalk.green(message));
+    console.log(chalk.bgGreen("[+]") + " " + (highlight ? message : chalk.green(message)));
   }
 
   /**
@@ -44,12 +34,7 @@ class Log {
    * @param highlight Highlight the log
    */
   static w(message: any, highlight?: boolean) {
-    if (highlight) {
-      console.log(chalk.bgYellow("[!] " + message));
-      return;
-    }
-
-    console.log(chalk.bgYellow("[!]") + " " + chalk.yellow(message));
+    console.log(chalk.bgYellow("[!]") + " " + (highlight ? message : chalk.yellow(message)));
   }
 
   /**
@@ -58,12 +43,7 @@ class Log {
    * @param highlight Highlight the log
    */
   static i(message: any, highlight?: boolean) {
-    if (highlight) {
-      console.log(chalk.bgBlue("[*] " + message));
-      return;
-    }
-
-    console.log(chalk.bgBlue("[*]") + " " + chalk.blue(message));
+    console.log(chalk.bgBlue("[*]") + " " + (highlight ? message : chalk.blue(message)));
   }
 
   /**
