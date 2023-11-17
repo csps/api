@@ -3,7 +3,7 @@ import { ElysiaContext } from "../types";
 import { AuthType } from "../types/enums";
 import Log from "../utils/log";
 
-export const jwtConfig = jwt({
+export const jwtConfig = () => jwt({
   name: "jwt",
   secret: process.env.SECRET_KEY,
   exp: "1d",
