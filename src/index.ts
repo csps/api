@@ -15,7 +15,18 @@ import Strings from "./config/strings";
 import Log from "./utils/log";
 
 const app = new Elysia({ name: "UC Main CSPS API" });
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+// Set default headers
+app.onBeforeHandle((context: ElysiaContext) => {
+  setHeader(context, "content-type", "application/json;charset=utf-8");
+  setHeader(context, "x-powered-by", "Bun + Elysia (UC Main CSP-S Server)");
+  setHeader(context, "access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS");
+  setHeader(context, "access-control-allow-credentials", "true");
+  setHeader(context, "access-control-allow-origin",
+    process.env.NODE_ENV === 'dev' ? "http://127.0.0.1:3001" : "https://ucmncsps.org"
+  );
+});
 
 // Extend logging mechanism to Elysia
 Log.extend(app);
@@ -28,17 +39,6 @@ app.use(helmet({
     policy: process.env.NODE_ENV === 'dev' ? "cross-origin" : "same-origin"
   }
 }));
-
-// Set default headers
-app.onBeforeHandle((context: ElysiaContext) => {
-  setHeader(context, "content-type", "application/json;charset=utf-8");
-  setHeader(context, "x-powered-by", "Bun + Elysia (UC Main CSP-S Server)");
-  setHeader(context, "access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS");
-  setHeader(context, "access-control-allow-credentials", "true");
-  setHeader(context, "access-control-allow-origin",
-    process.env.NODE_ENV === 'dev' ? "http://127.0.0.1:3001" : "https://ucmncsps.org"
-  );
-});
 
 // Register routes
 for (const route of routes) {
