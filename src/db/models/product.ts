@@ -58,17 +58,19 @@ class Product {
   }
 
   /**
-   * Get product by slug name
-   * @param name URL friendly name of the product
+   * Get product by slug name or id
+   * @param id if string, it's a slug name, product id otherwise
    */
-  public static get(slug: string) {
+  public static get(id: string | number): Promise<ProductModel> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
+      // Is using slug name
+      const isSlug = typeof id === 'string';
 
       try {
         // Get product
-        const product = await db.query<ProductModel[]>(`SELECT * FROM products WHERE slug = ?`, [slug]);
+        const product = await db.query<ProductModel[]>(`SELECT * FROM products WHERE ${isSlug ? 'slug' : 'id'} = ?`, [id]);
 
         // If no results
         if (product.length === 0) {
@@ -89,7 +91,6 @@ class Product {
 
         // Map product variations to product
         product[0].variations = variations;
-
         // Resolve promise
         resolve(product[0]);
       }
@@ -101,7 +102,6 @@ class Product {
       }
     });
   }
-
 }
 
 export default Product;
