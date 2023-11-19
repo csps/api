@@ -2,6 +2,7 @@ import { ProductModel, ProductVariationModel } from "../../types/models";
 import { ErrorTypes } from "../../types/enums";
 import Log from "../../utils/log";
 import Database from "..";
+import { MariaUpdateResult } from "../../types";
 
 /**
  * Product Model
@@ -93,6 +94,42 @@ class Product {
         product[0].variations = variations;
         // Resolve promise
         resolve(product[0]);
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Update product stock
+   * @param id if string, it's a slug name, product id otherwise
+   * @param change change in stock (positive or negative)
+   */
+  public static updateStock(id: string | number, change: number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+      // Is using slug name
+      const isSlug = typeof id === 'string';
+
+      try {
+        // Update stock
+        const result = await db.query<MariaUpdateResult>(`UPDATE products SET stock = stock + ? WHERE ${isSlug ? 'slug' : 'id'} = ?`, [change, id]);
+
+        // If no results
+        if (result.affectedRows === 0) {
+          Log.e("Update stock failed: No product found");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Log message
+        Log.i(`Product '${id}' stock ${change > 0 ? 'in' : 'de'}cremented by ${Math.abs(change)}`);
+        // Resolve promise
+        resolve();
       }
       
       // Log error and reject promise
