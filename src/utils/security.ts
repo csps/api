@@ -12,11 +12,32 @@ export function hashPassword(plain: string): Promise<string> {
 }
 
 /**
- * Generate a hash string with the specified length
- * @param length Length of the hash
+ * Generate reference number
+ * @param start Starting number
  */
-export function generateHash(length: number): string {
-  return randomBytes(Math.floor(length / 2)).toString('hex');
+export function generateReference(start: number) {
+  // Get date
+  const date = new Date();
+  // Get year, month, date
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `CSPS${year}${month < 10 ? '0' + month : month}${day < 10 ? '0' + day : day}${Math.abs(start).toString().padStart(3, '0')}`;
+}
+
+/**
+ * Generate secure token
+ */
+export function generateToken(length = 16): Promise<string> {
+  return new Promise((resolve, reject) => {
+    randomBytes(length / 2, (err, buf) => {
+      // If error
+      if (err) return reject(err);
+      // Resolve promise
+      resolve(buf.toString('hex'));
+    });
+  });
 }
 
 /**

@@ -10,7 +10,7 @@ export const jwtConfig = () => jwt({
 });
 
 /**
- * Session checker middleware
+ * Get user role from token
  * @author mavyfaby (Maverick Fabroa)
  * @param context Elysia context
  */
@@ -25,6 +25,8 @@ export async function getRole(context: ElysiaContext): Promise<AuthType | null> 
     const decoded = await context.jwt.verify(token);
     // Don't proceed If token is invalid
     if (!decoded) return null;
+    // Set user in context
+    context.user = decoded;
 
     // Return appropriate auth type
     if ("admin_id" in decoded) return AuthType.ADMIN;

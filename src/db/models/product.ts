@@ -123,7 +123,7 @@ class Product {
         // If no results
         if (result.affectedRows === 0) {
           Log.e("Update stock failed: No product found");
-          return reject(ErrorTypes.DB_EMPTY_RESULT);
+          return reject(ErrorTypes.DB_ERROR);
         }
 
         // Log message

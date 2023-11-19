@@ -137,7 +137,7 @@ class Event {
    * @param id Event ID
    * @param request Event request data
    */
-  public static update(id: number, request: EventRequest): Promise<void> {
+  public static update(id: number | string, request: EventRequest): Promise<void> {
     return new Promise(async (resolve, reject) => {
       // Validate
       const error = Event.validate(request);
@@ -179,7 +179,7 @@ class Event {
    * Delete event
    * @param id Event ID
    */
-  public static delete(id: number): Promise<void> {
+  public static delete(id: number | string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       // Get database
       const db = Database.getInstance();

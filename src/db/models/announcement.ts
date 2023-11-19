@@ -70,7 +70,7 @@ class Announcement {
         if (request.photo) {
           try {
             // Insert photo
-            photoHash = await Photo.insert(request.photo, db);
+            photoHash = await Photo.insert({ photo: request.photo, db });
           }
 
           catch (e) {
@@ -123,7 +123,7 @@ class Announcement {
    * @param id Announcement ID
    * @param request Announcement request data
    */
-  public static update(id: number, request: AnnouncementRequest): Promise<void> {
+  public static update(id: number | string, request: AnnouncementRequest): Promise<void> {
     return new Promise(async (resolve, reject) => {
       // Validate
       const error = Announcement.validate(request);
@@ -145,7 +145,7 @@ class Announcement {
         if (request.photo) {
           try {
             // Insert photo
-            photoHash = await Photo.insert(request.photo, db);
+            photoHash = await Photo.insert({ photo: request.photo, db });
           }
 
           catch (e) {
@@ -197,7 +197,7 @@ class Announcement {
    * Delete announcement
    * @param id Announcement ID
    */
-  public static delete(id: number): Promise<void> {
+  public static delete(id: number | string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       // Get database
       const db = Database.getInstance();

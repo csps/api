@@ -4,7 +4,7 @@ import { ErrorTypes } from "../../types/enums";
 
 import { isNumber, isEmail, trim } from "../../utils/string";
 import { StudentsColumn, Tables } from "../structure.d";
-import { generateHash, hashPassword } from "../../utils/security";
+import { generateToken, hashPassword } from "../../utils/security";
 
 import Database from "..";
 import Log from "../../utils/log";
@@ -371,7 +371,6 @@ class Student {
   private static validate(data?: Record<string, any>, isUpdate = false) {
     // Check if data is empty
     if (!data) return [Strings.GENERAL_INVALID_REQUEST];
-
     // Trim all values
     trim(data);
 
@@ -407,7 +406,7 @@ class Student {
   public static addResetToken(student_primary_id: number): Promise<string> {
     return new Promise(async (resolve, reject) => {
       // Generate token
-      const token = generateHash(Config.TOKEN_LENGTH);
+      const token = await generateToken(Config.TOKEN_LENGTH);
 
       try {
         // Get database instance

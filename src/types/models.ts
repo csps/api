@@ -59,7 +59,7 @@ export type OrderModel = {
   reference: string,
   unique_id: string,
   students_id: number,
-  students_external_id: number,
+  students_guest_id: number,
   products_id: number,
   variations_id: number,
   quantity: number,
@@ -97,7 +97,7 @@ export type FullOrderModel = {
   status_updated: string,
   edit_date: string,
   date_stamp: string,
-  is_external: number, // Whether the student is external (non-bscs) or not
+  is_guest: number, // Whether the student is guest (non-bscs) or not
 }
 
 export type PhotoModel = {

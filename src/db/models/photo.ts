@@ -2,7 +2,7 @@ import { MariaUpdateResult } from "../../types";
 import { ErrorTypes } from "../../types/enums";
 
 import { PhotoModel } from "../../types/models";
-import { generateHash } from "../../utils/security";
+import { generateToken } from "../../utils/security";
 import Log from "../../utils/log";
 import mariadb from "mariadb";
 import Database from "..";
@@ -55,9 +55,9 @@ class Photo {
 
   /**
    * Insert photo to the database
-   * @param photo Photo data
+   * @param 
    */
-  public static insert(photo?: File, db?: mariadb.PoolConnection): Promise<string> {
+  public static insert({ db, photo, reference }: { photo?: File, db?: mariadb.PoolConnection, reference?: string }): Promise<string> {
     return new Promise(async (resolve, reject) => {
       if (!db) {
         // Get database pool connection if not provided
@@ -66,25 +66,34 @@ class Photo {
 
       // if photo is undefined
       if (!photo) {
-        Log.e("Photo is undefined");
+        Log.e("Photo not defined!");
         return reject(ErrorTypes.REQUEST_FILE);
       }
-
-      // Generate hash for the photo
-      const hash = generateHash(16);
-
+      
       try {
+        // Generate hash for the photo
+        const hash = await generateToken(16);
+
+        // Default query
+        let query = "INSERT INTO photos (hash, name, type, data, date_stamp) VALUES (?, ?, ?, ?, NOW())";
+        let data = [ photo.name || null, photo.type, Buffer.from(await photo.arrayBuffer()) ];
+  
+        // If reference is defined
+        if (reference) {
+          // Query (reference)
+          query = "INSERT INTO gcash_uploads (hash, reference, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?, NOW())";
+          // Add reference to data at the beginning
+          data.unshift(hash);
+          data.unshift(reference);
+        }
+
         // Insert photo
-        const result = await db.query<MariaUpdateResult>(
-          "INSERT INTO photos (hash, name, type, data, date_stamp) VALUES (?, ?, ?, ?, NOW())", [
-            hash, photo.name, photo.type, Buffer.from(await photo.arrayBuffer())
-          ]
-        );
+        const result = await db.query<MariaUpdateResult>(query, data);
 
         // If no inserted photo
         if (result.affectedRows === 0) {
           Log.e("No photo inserted");
-          return reject(ErrorTypes.DB_EMPTY_RESULT);
+          return reject(ErrorTypes.DB_ERROR);
         }
 
         // Return hash

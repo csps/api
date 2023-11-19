@@ -72,7 +72,7 @@ async function getEventNext(context: ElysiaContext) {
 
     // If error is DB_EMPTY_RESULT
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
-      context.set.status = 404;
+      context.set.status = 200;
       return response.error(Strings.EVENT_EMPTY_NEXT);
     }
   }

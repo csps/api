@@ -4,7 +4,7 @@ export enum Tables {
   EVENTS = "events",
   EDIT_LOGS = "edit_logs",
   ORDERS = "orders",
-  ORDERS_EXTERNAL = "orders_external",
+  ORDERS_GUEST = "orders_guest",
   PHOTOS = "photos",
   PRODUCT_VARIATIONS = "product_variations",
   PRODUCTS = "products",
@@ -59,7 +59,7 @@ export enum OrdersColumn {
   REFERENCE = "reference",
   UNIQUE_ID = "unique_id",
   STUDENTS_ID = "students_id",
-  STUDENTS_EXTERNAL_ID = "students_external_id",
+  STUDENTS_GUEST_ID = "students_guest_id",
   PRODUCTS_ID = "products_id",
   VARIATIONS_ID = "variations_id",
   QUANTITY = "quantity",
@@ -72,7 +72,7 @@ export enum OrdersColumn {
   DATE_STAMP = "date_stamp"
 }
 
-export enum StudentsExternalColumn {
+export enum StudentsGuestColumn {
   ID = "id",
   student_id = "student_id",
   first_name = "first_name",
