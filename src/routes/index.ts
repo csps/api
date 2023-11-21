@@ -30,8 +30,8 @@ const routes: AppRoutes[] = [
   { path: "/forgot", methods: ["POST"], handler: forgot },
 
   // Announcements
-  { path: "/announcements/:id", methods: ["PUT", "DELETE"], handler: announcements, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN }},
-  { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.STUDENT }},
+  { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { "PUT": AuthType.ADMIN, "DELETE": AuthType.ADMIN }},
+  { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { "POST": AuthType.ADMIN }},
 
   // Events
   { path: "/events/next", methods: ["GET"], handler: events },
