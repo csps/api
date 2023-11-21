@@ -28,10 +28,10 @@ class Event {
 
       try {
         // Get pagination
-        if (!isObjectEmpty(pagination)) {
+        if (pagination && !isObjectEmpty(pagination)) {
           const { query, countQuery, values, countValues } = paginationWrapper(db, {
             query: "SELECT * FROM events",
-            request: pagination!
+            request: pagination
           });
 
           const mainResult = await db.query<EventModel[]>(query, values);

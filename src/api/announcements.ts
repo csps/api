@@ -21,6 +21,8 @@ function announcements(context: ElysiaContext): Promise<ResponseBody | undefined
       return putAnnouncements(context);
     case "DELETE":
       return deleteAnnouncements(context);
+    case "OPTIONS":
+      return response.success();
   }
 
   return status501(context);

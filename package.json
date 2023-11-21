@@ -10,7 +10,7 @@
     "@elysiajs/cookie": "^0.7.0",
     "@elysiajs/jwt": "^0.7.0",
     "chalk": "^5.3.0",
-    "elysia": "^0.7.28",
+    "elysia": "^0.7.29",
     "elysia-helmet": "^1.0.1",
     "elysia-ip": "^0.0.4",
     "juice": "^9.1.0",
