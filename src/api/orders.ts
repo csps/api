@@ -27,8 +27,8 @@ function orders(context: ElysiaContext): Promise<ResponseBody | undefined> | Res
  */
 async function getOrders(context: ElysiaContext) {
   try {
-    const orders = await Order.getAll();
-    return response.success(Strings.ORDERS_FOUND, orders);
+    const orders = await Order.getAll(context.query);
+    return response.success(Strings.ORDERS_FOUND, ...orders);
   }
 
   catch (err) {

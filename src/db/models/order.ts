@@ -2,9 +2,10 @@ import { generateReference, generateToken } from "../../utils/security";
 import { ElysiaContext, MariaUpdateResult } from "../../types";
 import { ErrorTypes, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { FullOrderModel } from "../../types/models";
-import { OrderRequest } from "../../types/request";
+import { OrderRequest, PaginationOutput } from "../../types/request";
 import { getLocalDate } from "../../utils/date";
-import { isEmail } from "../../utils/string";
+import { isEmail, isObjectEmpty } from "../../utils/string";
+import { paginationWrapper } from "../../utils/pagination";
 
 import Database from "..";
 import Product from "./product";
@@ -47,12 +48,31 @@ class Order {
   /**
    * Get all orders
    */
-  public static getAll(): Promise<FullOrderModel[]> {
+  public static getAll(pagination?: PaginationOutput): Promise<[FullOrderModel[], count: number] > {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
 
       try {
+        // Get pagination
+        if (pagination && !isObjectEmpty(pagination)) {
+          const { query, countQuery, values, countValues } = paginationWrapper(db, {
+            query: Order.DEF_QUERY,
+            request: pagination
+          });
+
+          const mainResult = await db.query<FullOrderModel[]>(query, values);
+          const countResult = await db.query<[{ count: bigint }]>(countQuery, countValues);
+
+          // If no results
+          if (mainResult.length === 0) {
+            Log.e("No orders found (pagination)");
+            return reject(ErrorTypes.DB_EMPTY_RESULT);
+          }
+
+          return resolve([mainResult, Number(countResult[0].count) ]);
+        }
+        
         // Get all orders
         const result = await db.query<FullOrderModel[]>(Order.DEF_QUERY);
 
@@ -63,7 +83,7 @@ class Order {
         }
 
         // Resolve promise
-        resolve(result);
+        resolve([ result, Number(result.length) ]);
       }
 
       // Log error and reject promise
