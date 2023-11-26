@@ -6,6 +6,7 @@ import { OrderRequest, PaginationOutput } from "../../types/request";
 import { getLocalDate } from "../../utils/date";
 import { isEmail, isObjectEmpty } from "../../utils/string";
 import { paginationWrapper } from "../../utils/pagination";
+import { OrdersColumn } from "../structure.d";
 
 import Database from "..";
 import Product from "./product";
@@ -92,6 +93,31 @@ class Order {
         reject(ErrorTypes.DB_ERROR);
       }
     });
+  }
+
+  /**
+   * Get order by reference
+   * @param reference Order reference #
+   */
+  public static async byReference(reference: string) {
+    // Get order
+    const [orders, count] = await Order.getAll({
+      limit: "1",
+      page: "1",
+      search: {
+        key: [OrdersColumn.REFERENCE as string],
+        value: [reference]
+      }
+    });
+
+    // If no order found
+    if (count === 0 || orders.length === 0) {
+      Log.e(`Order #${reference} not found`);
+      throw ErrorTypes.DB_EMPTY_RESULT;
+    }
+
+    // Return order
+    return orders[0];
   }
 
   /**

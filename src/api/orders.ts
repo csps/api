@@ -26,7 +26,16 @@ function orders(context: ElysiaContext): Promise<ResponseBody | undefined> | Res
  * GET /orders (read)
  */
 async function getOrders(context: ElysiaContext) {
+  // Get params
+  const { reference } = context.params || {};
+
   try {
+
+    if (reference) {
+      const order = await Order.byReference(reference);
+      return response.success(Strings.ORDER_FOUND, order);
+    }
+
     const orders = await Order.getAll(context.query);
     return response.success(Strings.ORDERS_FOUND, ...orders);
   }

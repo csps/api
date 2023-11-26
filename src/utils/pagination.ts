@@ -29,7 +29,8 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
   const values = [];
 
   if (request.search) {
-    const search: Search = JSON.parse(atob(request.search));
+    const search: Search = typeof request.search === "string" ?
+      JSON.parse(atob(request.search)) : request.search;
 
     let condition = " WHERE ";
     let isRequiredColumn = true;
@@ -84,7 +85,7 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
   const countValues = [...values];
   
   if (request.sort) {
-    const [ key, dir ] = atob(request.sort).split(":");
+    const [ key, dir ] = typeof request.sort === "string" ? atob(request.sort).split(":") : [ request.sort.key, request.sort.value ];
     query += ` ORDER BY ${db.escapeId(key)} ${dir === 'ASC' || dir === 'asc' ? 'ASC' : 'DESC'}`;
   }
 

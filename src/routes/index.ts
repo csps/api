@@ -58,6 +58,7 @@ const routes: AppRoutes[] = [
   { path: "/reset/", methods: ["POST"], handler: reset },
 
   // Orders
+  { path: "/orders/reference/:reference", methods: ["GET"], handler: orders, auth: { "GET": AuthType.ADMIN }},
   { path: "/orders", methods: ["GET", "POST"], handler: orders },
 ];
 

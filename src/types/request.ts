@@ -48,8 +48,8 @@ export type PaginationRequest = {
 };
 
 export type PaginationOutput = {
-  sort?: string,
-  search?: string,
+  sort?: string | { key: string[], value: string[] },
+  search?: string | { key: string[], value: string[] },
   page?: string;
   limit?: string;
 };
