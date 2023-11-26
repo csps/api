@@ -25,7 +25,7 @@ class Order {
   // Default query
   private static DEF_QUERY = `
     SELECT
-      p.photos_hash, o.unique_id, o.reference, o.products_id, p.name AS product_name, p.price AS product_price,
+      o.id, p.photos_hash, o.unique_id, o.reference, o.products_id, p.name AS product_name, p.price AS product_price,
       o.variations_id, pv.photos_hash AS variations_photo_hash, v.name AS variations_name, o.quantity, o.mode_of_payment,
       
       IF(o.students_id = 0, se.student_id, s.student_id) AS student_id, 
