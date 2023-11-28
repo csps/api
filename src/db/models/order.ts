@@ -253,8 +253,122 @@ class Order {
       }
 
       catch (err) {
-        Log.e(err);
+        if (typeof err !== "number") Log.e(err);
         return reject(typeof err === 'number' ? err : ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Update order status
+   */
+  public static update(id: number, key: OrdersColumn, value: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // If order ID is not present
+      if (!id) return reject(ErrorTypes.REQUEST_ID);
+      // If key is not present
+      if (!key) return reject(ErrorTypes.REQUEST_KEY);
+      // If value is not present
+      if (!value) return reject(ErrorTypes.REQUEST_VALUE);
+
+      // if key doesn't exists in order allowed keys
+      if (!process.env.ORDERS_UPDATE_ALLOWED_KEYS?.includes(key)) {
+        return reject(ErrorTypes.REQUEST_KEY_NOT_ALLOWED);
+      }
+
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Check if order exists
+        const [orders, count] = await Order.getAll({
+          limit: "1",
+          page: "1",
+          search: {
+            key: [OrdersColumn.ID],
+            value: [`${id}`]
+          }
+        });
+
+        // If order not found
+        if (count === 0 || orders.length === 0) {
+          Log.e(`Order #${id} not found`);
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+
+        if (key == OrdersColumn.STATUS) {
+          // Check current status
+          const isPendingOrComplete = orders[0].status == OrderStatus.PENDING_PAYMENT || orders[0].status == OrderStatus.COMPLETED;
+          // If status is to cancelled, removed, rejected
+          const willIncrement = [OrderStatus.CANCELLED_BY_ADMIN, OrderStatus.CANCELLED_BY_USER, OrderStatus.REJECTED, OrderStatus.REMOVED].includes(Number(value));
+
+          // (Increment) If pending or complete will be cancelled, removed, or rejected
+          if (isPendingOrComplete && willIncrement) {
+            try {
+              // Increment stock
+              await Product.updateStock(orders[0].products_id, orders[0].quantity);
+            }
+            
+            catch (e) {
+              // If product not found
+              if (e === ErrorTypes.DB_EMPTY_RESULT) {
+                Log.e(`[ORDER] Product '${orders[0].product_name}' not found`);
+              }
+  
+              // If error
+              if (e === ErrorTypes.DB_ERROR) {
+                Log.e(`[ORDER] Error while decrementing product '${orders[0].product_name}' stock`);
+              }
+  
+              return reject(e);
+            }
+          }
+
+          // Decrement (If from cancelled, removed, or rejected to pending or complete)
+          if (!isPendingOrComplete && !willIncrement) {
+            try {
+              // Log message
+              await Product.updateStock(orders[0].products_id, -orders[0].quantity);
+            }
+            
+            catch (e) {
+              // If product not found
+              if (e === ErrorTypes.DB_EMPTY_RESULT) {
+                Log.e(`[ORDER] Product '${orders[0].product_name}' not found`);
+              }
+
+              // If insufficient stock
+              if (e === ErrorTypes.DB_PRODUCT_INSUFFICIENT) {
+                Log.e(`[ORDER] Product '#${orders[0].product_name}' has insufficient stock`);
+              }
+
+              // If error
+              if (e === ErrorTypes.DB_ERROR) {
+                Log.e(`[ORDER] Error while incrementing product '${orders[0].product_name}' stock`);
+              }
+
+              return reject(e);
+            }
+          }
+        }
+
+        // Update order
+        const result = await db.query<MariaUpdateResult>(`UPDATE orders SET ${db.escapeId(key)} = ?, ${OrdersColumn.EDIT_DATE} = NOW() WHERE id = ?`, [ value, id ]);
+
+        // If no rows affected
+        if (result.affectedRows === 0) {
+          Log.e(`Order #${id} not found`);
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Resolve promise
+        resolve();
+      }
+
+      catch (err) {
+        Log.e(err);
+        reject(ErrorTypes.DB_ERROR);
       }
     });
   }

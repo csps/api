@@ -64,7 +64,7 @@ async function getLogin(context: ElysiaContext) {
     // Remove password from student
     delete student.password;
     // Return success and student data
-    return response.success(Strings.LOGIN_SUCCESS, student, role);
+    return response.success(Strings.LOGIN_VALID, student, role);
   }
 
   catch (err) {

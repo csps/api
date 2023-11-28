@@ -107,9 +107,9 @@ class Product {
   /**
    * Update product stock
    * @param id if string, it's a slug name, product id otherwise
-   * @param change change in stock (positive or negative)
+   * @param delta change in stock (positive or negative)
    */
-  public static updateStock(id: string | number, change: number): Promise<void> {
+  public static updateStock(id: string | number, delta: number): Promise<void> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
@@ -117,8 +117,23 @@ class Product {
       const isSlug = typeof id === 'string';
 
       try {
+        // Get current stock
+        const stocks = await db.query<{ stock: number }[]>(`SELECT stock FROM products WHERE ${isSlug ? 'slug' : 'id'} = ?`, [id]);
+
+        // If no results
+        if (stocks.length === 0) {
+          Log.e("[Product.updateStock]: No product found");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // If stock is lesser than delta
+        if (stocks[0].stock + delta < 0) {
+          Log.e("[Product.updateStock]: Insufficient stock");
+          return reject(ErrorTypes.DB_PRODUCT_INSUFFICIENT);
+        }
+
         // Update stock
-        const result = await db.query<MariaUpdateResult>(`UPDATE products SET stock = stock + ? WHERE ${isSlug ? 'slug' : 'id'} = ?`, [change, id]);
+        const result = await db.query<MariaUpdateResult>(`UPDATE products SET stock = stock + ? WHERE ${isSlug ? 'slug' : 'id'} = ?`, [delta, id]);
 
         // If no results
         if (result.affectedRows === 0) {
@@ -127,14 +142,13 @@ class Product {
         }
 
         // Log message
-        Log.i(`Product '${id}' stock ${change > 0 ? 'in' : 'de'}cremented by ${Math.abs(change)}`);
+        Log.i(`[ORDER] ${delta >= 0 ? 'Incrementing' : 'Decrementing'} product #'${id}' stock by ${Math.abs(delta)}.`, true);
         // Resolve promise
         resolve();
       }
       
       // Log error and reject promise
       catch (e) {
-        Log.e(e);
         reject(ErrorTypes.DB_ERROR);
       }
     });

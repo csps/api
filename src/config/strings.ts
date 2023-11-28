@@ -74,6 +74,7 @@ const Strings = {
   LOGIN_FAILED: "Oops! Incorrect Student ID or Password.",
   LOGIN_ERROR_VALIDATING_PASSWORD: "Oops! Error validating password. Please contact the CSP-S server admin.",
   LOGIN_SUCCESS: "Login successful",
+  LOGIN_VALID: "Login validated.",
   LOGIN_INVALID_TOKEN: "Invalid token.",
 
   EVENTS_GET_ERROR: "Something went wrong while fetching events.",
@@ -197,7 +198,8 @@ const Strings = {
   ORDER_UPDATE_ERROR: "Something went wrong while updating order.",
   ORDER_UNAVAILABLE: "Product is unavailable!",
   ORDER_UPDATE_STATUS_NO_STOCK: "Order status cannot be updated, product is out of stock!",
-  ORDER_ADD_NO_STOCK: "Product has insufficient stock!",
+  ORDER_ADD_NO_STOCK: "Product is out of stock!",
+  ORDER_ADD_INSUFFICIENT: "Insufficient stock!",
   ORDER_INVALID_STUDENT_ID: "Invalid Student ID!",
   ORDER_INVALID_STUDENT_EMAIL: "Invalid Email!",
   ORDER_LENGTH_STUDENT_ID: "Student ID must be 8 chars in length!",

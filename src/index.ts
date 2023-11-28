@@ -75,5 +75,6 @@ app.all("*", context => {
 
 // Start the server
 app.listen(port, () => {
-  Log.s(`✨ New UC Main CSPS API back-end server is running at port ${port}!`);
+  Log.s(`✨ New UC Main CSP-S API back-end server is running at port ${port}.`);
+  Log.i(`💎 Originally Created By: Maverick Fabroa (mavyfaby) [2023]`);
 });
