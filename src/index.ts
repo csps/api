@@ -3,13 +3,13 @@ import Bun from "bun";
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import { cookie } from "@elysiajs/cookie";
+import { AuthType } from "./types/enums";
+import { setHeader } from "./utils/security";
+import { jwt, getRole } from "./session";
 
 import type { ElysiaContext, HttpMethod } from "./types";
-import { AuthType } from "./types/enums";
-
 import routes, { status404, status501 } from "./routes";
-import { jwtConfig as jwt, getRole } from "./session";
-import { setHeader } from "./utils/security";
+
 import response from "./utils/response";
 import Strings from "./config/strings";
 import Log from "./utils/log";
@@ -17,33 +17,27 @@ import Log from "./utils/log";
 const app = new Elysia({ name: "UC Main CSPS API" });
 const port = process.env.PORT || 3000;
 
+// Register middlewares
+app.use(jwt());
+app.use(cookie());
+app.use(helmet());
+
+// Extend logging mechanism to Elysia
+Log.extend(app);
+
 // Set default headers
 app.onBeforeHandle((context: ElysiaContext) => {
   setHeader(context, "content-type", "application/json;charset=utf-8");
   setHeader(context, "x-powered-by", "Bun + Elysia (UC Main CSP-S Server)");
   setHeader(context, "access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS");
   setHeader(context, "access-control-allow-credentials", "true");
-  setHeader(context, "access-control-allow-origin",
-    process.env.NODE_ENV === 'dev' ? "http://127.0.0.1:3001" : "https://ucmncsps.org"
-  );
+  setHeader(context, "access-control-allow-origin", "https://ucmncsps.org");
 });
-
-// Extend logging mechanism to Elysia
-Log.extend(app);
-
-// Register middlewares
-app.use(jwt());
-app.use(cookie());
-app.use(helmet({
-  crossOriginResourcePolicy: {
-    policy: process.env.NODE_ENV === 'dev' ? "cross-origin" : "same-origin"
-  }
-}));
 
 // Register routes
 for (const route of routes) {
   app.all(route.path, async (context: ElysiaContext) => {
-    // Get route role
+    // Get requested route role
     const routeRole = route.auth ? route.auth[context.request.method as HttpMethod] : null;
     
     // Check for route authorization requirements
@@ -76,5 +70,5 @@ app.all("*", context => {
 // Start the server
 app.listen(port, () => {
   Log.s(`✨ New UC Main CSP-S API back-end server is running at port ${port}.`);
-  Log.i(`💎 Originally Created By: Maverick Fabroa (mavyfaby) [2023]`);
+  Log.i(`💎 This project was originally created and led by — Maverick Fabroa (A.Y. 2023 - 2024)`);
 });

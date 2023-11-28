@@ -1,13 +1,7 @@
-import { jwt } from "@elysiajs/jwt";
+import { jwt as jwtConfig } from "@elysiajs/jwt";
 import { ElysiaContext } from "../types";
 import { AuthType } from "../types/enums";
 import Log from "../utils/log";
-
-export const jwtConfig = () => jwt({
-  name: "jwt",
-  secret: process.env.SECRET_KEY,
-  exp: "1d",
-});
 
 /**
  * Get user role from token
@@ -40,3 +34,12 @@ export async function getRole(context: ElysiaContext): Promise<AuthType | null> 
 
   return null;
 }
+
+/**
+ * JWT middleware configuration
+ */
+export const jwt = () => jwtConfig({
+  name: "jwt",
+  secret: Bun.env.SECRET_KEY,
+  exp: "1d"
+});
