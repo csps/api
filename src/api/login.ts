@@ -12,7 +12,7 @@ import Log from "../utils/log";
  * @author TotalElderBerry (Brian Keith Lisondra)
  * @author mavyfaby (Maverick Fabroa)
  */
-export default function login(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
+export function login(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
   switch (context.request.method) {
     case "GET":
       return getLogin(context);

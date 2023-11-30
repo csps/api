@@ -13,7 +13,7 @@ import Config from "../config";
  * Forgot Password API
  * @author mavyfaby (Maverick Fabroa)
  */
-export default function forgot(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
+export function forgot(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
   switch (context.request.method) {
     case "POST":
       return postForgot(context);

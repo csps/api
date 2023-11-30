@@ -12,7 +12,7 @@ import Config from "../config";
  * Reset Password API
  * @author mavyfaby (Maverick Fabroa)
  */
-export default function reset(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
+export function reset(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
   switch (context.request.method) {
     case "GET":
       return getReset(context);

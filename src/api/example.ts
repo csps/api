@@ -8,7 +8,7 @@ import response from "../utils/response";
  * @param request 
  * @param response 
  */
-export default function example(context: ElysiaContext) {
+export function example(context: ElysiaContext) {
   /**
    * Note: Only include methods that are specified in the routes.
    */

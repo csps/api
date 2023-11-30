@@ -11,7 +11,7 @@ import Photo from "../db/models/photo";
  * Photos API
  * @author mavyfaby (Maverick Fabroa)
  */
-export default function photos(context: ElysiaContext): Promise<ResponseBody | File | undefined> | ResponseBody  {
+export function photos(context: ElysiaContext): Promise<ResponseBody | File | undefined> | ResponseBody  {
   switch (context.request.method) {
     case 'GET':
       return getPhotos(context);

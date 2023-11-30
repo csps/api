@@ -1,18 +1,10 @@
 import type { AppRoutes, ElysiaContext, ResponseBody } from "../types";
 import { AuthType } from "../types/enums";
 
-import announcements from "../api/announcements";
-import example from "../api/example";
-import courses from "../api/courses";
-import products from "../api/products";
-import students from "../api/students";
-import photos from "../api/photos";
-import events from "../api/events";
-import forgot from "../api/forgot";
-import orders from "../api/orders";
-import login from "../api/login";
-import reset from "../api/reset";
-import env from "../api/env";
+import {
+  announcements, courses, env, events, example, forgot,
+  login, orders, photos, products, reset, students
+} from "../api"
 
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },

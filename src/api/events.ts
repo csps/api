@@ -11,7 +11,7 @@ import { status501 } from "../routes";
  * @author mavyfaby (Maverick Fabroa)
  * @param context
  */
-function events(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
+export function events(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
   switch (context.request.method) {
     case "GET":
       return getEvents(context);
@@ -169,5 +169,3 @@ async function deleteEvents(context: ElysiaContext) {
     }
   }
 }
-
-export default events;

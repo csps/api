@@ -12,7 +12,7 @@ import response from "../utils/response";
  * @author mavyfaby (Maverick G. Fabroa)
  * @param context
  */
-function products(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
+export function products(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
   switch (context.request.method) {
     case "GET":
       return getProducts(context);
@@ -53,5 +53,3 @@ async function getProducts(context: ElysiaContext) {
     }
   }
 }
-
-export default products;

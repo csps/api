@@ -12,7 +12,7 @@ import { OrdersColumn } from "../db/structure";
  * @author mavyfaby (Maverick Fabroa)
  * @param context
  */
-function orders(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
+export function orders(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
   switch (context.request.method) {
     case "GET":
       return getOrders(context);
@@ -162,5 +162,3 @@ async function putOrders(context: ElysiaContext) {
     }
   }
 }
-
-export default orders;

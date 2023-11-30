@@ -11,7 +11,7 @@ import { status501 } from "../routes";
  * @author mavyfaby (Maverick Fabroa)
  * @param context
  */
-function env(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
+export function env(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
   switch (context.request.method) {
     case "GET":
       return getEnv(context);
@@ -208,5 +208,3 @@ async function deleteEnv(context: ElysiaContext) {
     }
   }
 }
-
-export default env;
