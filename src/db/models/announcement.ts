@@ -1,12 +1,15 @@
+import type { AnnouncementRequest, PaginationOutput } from "../../types/request";
+
 import { ErrorTypes } from "../../types/enums";
 import { AnnouncementModel } from "../../types/models";
-import { AnnouncementRequest } from "../../types/request";
 import { MariaUpdateResult } from "../../types";
 
 import Log from "../../utils/log";
 import Database from "../";
 import Strings from "../../config/strings";
 import Photo from "./photo";
+import { isObjectEmpty } from "../../utils/string";
+import { paginationWrapper } from "../../utils/pagination";
 
 /**
  * Announcement Model
@@ -18,14 +21,35 @@ class Announcement {
   /**
    * Get all announcements
    */
-  public static getAll(): Promise<AnnouncementModel[]> {
+  public static getAll(pagination?: PaginationOutput): Promise<[ AnnouncementModel[], count: number ]> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
 
       try {
+        const sql = "SELECT * FROM announcements ORDER BY id DESC";
+
+        // Get pagination
+        if (pagination && !isObjectEmpty(pagination)) {
+          const { query, countQuery, values, countValues } = paginationWrapper(db, {
+            query: sql,
+            request: pagination
+          });
+
+          const mainResult = await db.query<AnnouncementModel[]>(query, values);
+          const countResult = await db.query<[{ count: bigint }]>(countQuery, countValues);
+
+          // If no results
+          if (mainResult.length === 0) {
+            Log.e("No announcements found");
+            return reject(ErrorTypes.DB_EMPTY_RESULT_PAGINATION);
+          }
+
+          return resolve([mainResult, Number(countResult[0].count) ]);
+        }
+
         // Get all announcements
-        const result = await db.query<AnnouncementModel[]>("SELECT * FROM announcements ORDER BY id DESC");
+        const result = await db.query<AnnouncementModel[]>(sql);
 
         // If no results
         if (result.length === 0) {
@@ -33,7 +57,7 @@ class Announcement {
           return;
         }
 
-        resolve(result);
+        resolve([ result, result.length ]);
       }
 
       // Log error and reject promise

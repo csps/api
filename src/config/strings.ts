@@ -21,6 +21,7 @@ const Strings = {
   ANNOUNCEMENT_UPDATE_ERROR: "Something went wrong while updating announcement.",
   ANNOUNCEMENTS_GET_ERROR: "Something went wrong while getting announcements.",
   ANNOUNCEMENTS_NOT_FOUND: "There are currently no announcements available.",
+  ANNOUNCEMENTS_NOT_FOUND_SEARCH: "Announcement not found!",
   ANNOUNCEMENTS_FOUND: "Announcements found",
   ANNOUNCEMENT_NOT_FOUND: "Announcement does not exist!",
   ANNOUNCEMENT_UPDATE_SUCCESS: "Announcement succesfully updated!",

@@ -34,16 +34,19 @@ function announcements(context: ElysiaContext): Promise<ResponseBody | undefined
 async function getAnnouncements(context: ElysiaContext) {
   // Get all announcements
   try {
-    const announcements = await Announcement.getAll();
-    return response.success(Strings.ANNOUNCEMENTS_FOUND, announcements);
+    const announcements = await Announcement.getAll(context.query);
+    return response.success(Strings.ANNOUNCEMENTS_FOUND, ...announcements);
   } catch (err) {
-    // If error is DB_ERROR
     if (err === ErrorTypes.DB_ERROR) {
       context.set.status = 500;
       return response.error(Strings.ANNOUNCEMENTS_GET_ERROR);
     }
 
-    // If error is DB_EMPTY_RESULT
+    if (err === ErrorTypes.DB_EMPTY_RESULT_PAGINATION) {
+      context.set.status = 500;
+      return response.error(Strings.ANNOUNCEMENTS_NOT_FOUND_SEARCH);
+    }
+
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
       context.set.status = 404;
       return response.error(Strings.ANNOUNCEMENTS_NOT_FOUND);

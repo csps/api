@@ -56,7 +56,7 @@ class Event {
         }
 
         // Resolve promise
-        resolve([ result, Number(result.length) ]);
+        resolve([ result, result.length ]);
       }
       
       // Log error and reject promise
