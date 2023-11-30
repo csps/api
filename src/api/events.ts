@@ -21,6 +21,8 @@ function events(context: ElysiaContext): Promise<ResponseBody | undefined> | Res
       return putEvents(context);
     case "DELETE":
       return deleteEvents(context);
+    case "OPTIONS":
+      return response.success();
   }
 
   return status501(context);

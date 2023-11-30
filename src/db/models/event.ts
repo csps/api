@@ -115,8 +115,8 @@ class Event {
       try {
         // Insert new event
         const result = await db.query<MariaUpdateResult>(
-          `INSERT INTO events (photos_hash, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
-            request.title, request.venue, request.date, request.start_time, request.end_time
+          `INSERT INTO events (photos_hash, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`, [
+            '', request.title, request.description || '', request.venue, request.date, request.start_time, request.end_time
           ]
         );
 
