@@ -44,7 +44,7 @@ export enum EditLogsColumn {
 
 export enum EventsColumn {
   ID = "id",
-  THUMBNAIL = "thumbnail",
+  PHOTOS_HASH = "photos_hash",
   TITLE = "title",
   DESCRIPTION = "description",
   DATE = "date",

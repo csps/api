@@ -37,6 +37,12 @@ class Event {
           const mainResult = await db.query<EventModel[]>(query, values);
           const countResult = await db.query<[{ count: bigint }]>(countQuery, countValues);
 
+          // If no results
+          if (mainResult.length === 0) {
+            Log.e("No events found");
+            return reject(ErrorTypes.DB_EMPTY_RESULT);
+          }
+
           return resolve([mainResult, Number(countResult[0].count) ]);
         }
 
@@ -109,7 +115,7 @@ class Event {
       try {
         // Insert new event
         const result = await db.query<MariaUpdateResult>(
-          `INSERT INTO events (thumbnail, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
+          `INSERT INTO events (photos_hash, title, description, venue, date, start_time, end_time, date_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
             request.title, request.venue, request.date, request.start_time, request.end_time
           ]
         );
