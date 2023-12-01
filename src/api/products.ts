@@ -39,8 +39,8 @@ async function getProducts(context: ElysiaContext) {
     }
     
     // Get all products
-    const products = await Product.getAll();
-    return response.success(Strings.PRODUCTS_FOUND, products);
+    const products = await Product.getAll(context.query);
+    return response.success(Strings.PRODUCTS_FOUND, ...products);
   }
   
   // If error

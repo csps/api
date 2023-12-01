@@ -2,6 +2,10 @@ import { ProductModel, ProductVariationModel } from "../../types/models";
 import { ErrorTypes } from "../../types/enums";
 import { MariaUpdateResult } from "../../types";
 import { ProductsColumn } from "../structure.d";
+import { PaginationOutput } from "../../types/request";
+import { isObjectEmpty } from "../../utils/string";
+import { paginationWrapper } from "../../utils/pagination";
+
 import Log from "../../utils/log";
 import Database from "..";
 
@@ -16,14 +20,37 @@ class Product {
   /**
    * Get all products
    */
-  public static getAll(): Promise<ProductModel[]> {
+  public static getAll(pagination?: PaginationOutput): Promise<[ ProductModel[], count: number ]> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
 
       try {
+        // Queries
+        const queryProducts = "SELECT * FROM products ORDER BY name ASC";
+        const queryVariants = "SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id";
+
+        // Get pagination
+        if (pagination && !isObjectEmpty(pagination)) {
+          const { query, countQuery, values, countValues } = paginationWrapper(db, {
+            query: queryProducts,
+            request: pagination
+          });
+
+          const mainResult = await db.query<ProductModel[]>(query, values);
+          const countResult = await db.query<[{ count: bigint }]>(countQuery, countValues);
+
+          // If no results
+          if (mainResult.length === 0) {
+            Log.e("No products found");
+            return reject(ErrorTypes.DB_EMPTY_RESULT);
+          }
+          
+          return resolve([ await getProductWithVariations(mainResult), Number(countResult[0].count) ]);
+        }
+        
         // Get all products
-        const products = await db.query<ProductModel[]>(`SELECT * FROM products ORDER BY name ASC`);
+        const products = await db.query<ProductModel[]>(queryProducts);
 
         // If no results
         if (products.length === 0) {
@@ -31,24 +58,26 @@ class Product {
           return reject(ErrorTypes.DB_EMPTY_RESULT);
         }
 
-        // Get all product variations
-        const variations = await db.query<ProductVariationModel[]>(
-          `SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id
-        `);
+        // Get product with variations
+        async function getProductWithVariations(products: ProductModel[]) {
+          // Get all product variations
+          const variations = await db.query<ProductVariationModel[]>(queryVariants);
+  
+          // If no results, resolve without variations
+          if (variations.length === 0) {
+            Log.i("[All] No product variations found");
+          }
+  
+          // Map product variations to products
+          for (const product of products) {
+            product.variations = variations.filter(v => v.products_id === product.id);
+          }
 
-        // If no results, resolve without variations
-        if (variations.length === 0) {
-          Log.i("[All] No product variations found");
-          return resolve(products);
-        }
-
-        // Map product variations to products
-        for (const product of products) {
-          product.variations = variations.filter(v => v.products_id === product.id);
+          return products;
         }
 
         // Resolve promise
-        resolve(products);
+        resolve([ await getProductWithVariations(products), products.length ]);
       }
       
       // Log error and reject promise
