@@ -33,6 +33,7 @@ const routes: AppRoutes[] = [
   { path: "/photos/:hash", methods: ["GET"], handler: photos },
   { path: "/photos", methods: ["POST"], handler: photos },
 
+  { path: "/products/:slug/:key", methods: ["PUT", "OPTIONS"], handler: products, auth: { PUT: AuthType.ADMIN }},
   { path: "/products/:slug", methods: ["GET"], handler: products },
   { path: "/products", methods: ["GET"], handler: products },
   

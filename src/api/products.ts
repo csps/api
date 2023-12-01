@@ -1,5 +1,6 @@
-import { ErrorTypes } from "../types/enums";
 import type { ElysiaContext, ResponseBody } from "../types";
+import { ErrorTypes } from "../types/enums";
+import { ProductsColumn } from "../db/structure";
 
 import { status501 } from "../routes";
 import Strings from "../config/strings";
@@ -16,6 +17,10 @@ export function products(context: ElysiaContext): Promise<ResponseBody | undefin
   switch (context.request.method) {
     case "GET":
       return getProducts(context);
+    case "PUT":
+      return putProducts(context);
+    case "OPTIONS":
+      return response.success();
   }
 
   return status501(context);
@@ -36,6 +41,40 @@ async function getProducts(context: ElysiaContext) {
     // Get all products
     const products = await Product.getAll();
     return response.success(Strings.PRODUCTS_FOUND, products);
+  }
+  
+  // If error
+  catch (err) {
+    // If error is DB_ERROR
+    if (err === ErrorTypes.DB_ERROR) {
+      context.set.status = 500;
+      return response.error(Strings.PRODUCTS_GET_ERROR);
+    }
+
+    // If error is DB_EMPTY_RESULT
+    if (err === ErrorTypes.DB_EMPTY_RESULT) {
+      context.set.status = 404;
+      return response.error(Strings.PRODUCTS_NOT_FOUND);
+    }
+  }
+}
+
+/**
+ * PUT /products
+ * @param context 
+ */
+async function putProducts(context: ElysiaContext) {
+  const { slug, key } = context.params || {};
+  const { value } = context.body || {};
+
+  if (!slug) {
+    context.set.status = 400;
+    return response.error(Strings.GENERAL_INVALID_REQUEST);
+  }
+
+  try {
+    await Product.updateKey(slug, key as ProductsColumn, value);
+    return response.success(Strings.PRODUCT_UPDATED);
   }
   
   // If error

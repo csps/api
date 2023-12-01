@@ -1,8 +1,9 @@
 import { ProductModel, ProductVariationModel } from "../../types/models";
 import { ErrorTypes } from "../../types/enums";
+import { MariaUpdateResult } from "../../types";
+import { ProductsColumn } from "../structure.d";
 import Log from "../../utils/log";
 import Database from "..";
-import { MariaUpdateResult } from "../../types";
 
 /**
  * Product Model
@@ -94,6 +95,40 @@ class Product {
         product[0].variations = variations;
         // Resolve promise
         resolve(product[0]);
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Update product by key
+   */
+  public static updateKey(id: string | number, key: ProductsColumn, value: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+      // Is using slug name
+      const isSlug = typeof id === 'string';
+
+      try {
+        // Update product
+        const result = await db.query<MariaUpdateResult>(`UPDATE products SET ${db.escapeId(key)} = ? WHERE ${isSlug ? 'slug' : 'id'} = ?`, [value, id]);
+
+        // If no results
+        if (result.affectedRows === 0) {
+          Log.e("Update product failed: No product found");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Log message
+        Log.i(`[PRODUCT] Updated product ${id} - ${key} to ${value}.`);
+        // Resolve promise
+        resolve();
       }
       
       // Log error and reject promise
