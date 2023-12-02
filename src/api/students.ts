@@ -31,8 +31,8 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
 async function getStudents(context: ElysiaContext) {
   // Get all students
   try {
-    const students = await Student.getAll();
-    return response.success(Strings.STUDENTS_FOUND, students);
+    const students = await Student.getAll(context.query);
+    return response.success(Strings.STUDENTS_FOUND, ...students);
   } catch (err) {
     // If error is DB_ERROR
     if (err === ErrorTypes.DB_ERROR) {

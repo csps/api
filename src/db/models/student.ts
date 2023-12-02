@@ -1,10 +1,12 @@
 import type { StudentModel } from "../../types/models";
 import type { MariaUpdateResult } from "../../types";
+import { PaginationOutput } from "../../types/request";
 import { ErrorTypes } from "../../types/enums";
 
-import { isNumber, isEmail, trim } from "../../utils/string";
+import { isNumber, isEmail, trim, isObjectEmpty } from "../../utils/string";
 import { StudentsColumn, Tables } from "../structure.d";
 import { generateToken, hashPassword } from "../../utils/security";
+import { paginationWrapper } from "../../utils/pagination";
 
 import Database from "..";
 import Log from "../../utils/log";
@@ -21,12 +23,31 @@ class Student {
   /**
    * Get all students
    */
-  public static getAll(): Promise<StudentModel[]> {
+  public static getAll(pagination?: PaginationOutput): Promise<[ StudentModel[], count: number ]> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
 
       try {
+        // Get pagination
+        if (pagination && !isObjectEmpty(pagination)) {
+          const { query, countQuery, values, countValues } = paginationWrapper(db, {
+            query: "SELECT * FROM students ORDER BY id DESC",
+            request: pagination
+          });
+
+          const mainResult = await db.query<StudentModel[]>(query, values);
+          const countResult = await db.query<[{ count: bigint }]>(countQuery, countValues);
+
+          // If no results
+          if (mainResult.length === 0) {
+            Log.e("No students found");
+            return reject(ErrorTypes.DB_EMPTY_RESULT);
+          }
+
+          return resolve([mainResult, Number(countResult[0].count) ]);
+        }
+        
         // Get all students
         const result = await db.query<StudentModel[]>(`SELECT * FROM students ORDER BY id DESC`);
 
@@ -37,7 +58,7 @@ class Student {
         }
 
         // Resolve promise
-        resolve(result);
+        resolve([ result, result.length ]);
       }
       
       // Log error and reject promise
