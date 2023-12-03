@@ -54,7 +54,7 @@ async function getProducts(context: ElysiaContext) {
     // If error is DB_EMPTY_RESULT
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
       context.set.status = 404;
-      return response.error(Strings.PRODUCTS_NOT_FOUND);
+      return response.error(context.params.slug ? Strings.PRODUCT_NOT_FOUND : Strings.PRODUCTS_NOT_FOUND);
     }
   }
 }
@@ -73,7 +73,12 @@ async function putProducts(context: ElysiaContext) {
   }
 
   try {
-    await Product.updateKey(slug, key as ProductsColumn, value);
+    if (key) {
+      await Product.updateKey(slug, key as ProductsColumn, value);
+    } else {
+      await Product.update(slug, context.body);
+    }
+
     return response.success(Strings.PRODUCT_UPDATED);
   }
   
@@ -82,7 +87,7 @@ async function putProducts(context: ElysiaContext) {
     // If error is DB_ERROR
     if (err === ErrorTypes.DB_ERROR) {
       context.set.status = 500;
-      return response.error(Strings.PRODUCTS_GET_ERROR);
+      return response.error(Strings.PRODUCT_PUT_ERROR);
     }
 
     // If error is DB_EMPTY_RESULT

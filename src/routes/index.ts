@@ -19,7 +19,7 @@ const routes: AppRoutes[] = [
   { path: "/env", methods: ["GET", "POST"], handler: env, auth: { POST: AuthType.ADMIN }},
 
   { path: "/events/next", methods: ["GET"], handler: events },
-  { path: "/events/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: events, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN  }},
+  { path: "/events/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: events, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/events", methods: ["GET", "POST"], handler: events, auth: { POST: AuthType.ADMIN }},
 
   { path: "/forgot", methods: ["POST"], handler: forgot },
@@ -34,7 +34,7 @@ const routes: AppRoutes[] = [
   { path: "/photos", methods: ["POST"], handler: photos },
 
   { path: "/products/:slug/:key", methods: ["PUT", "OPTIONS"], handler: products, auth: { PUT: AuthType.ADMIN }},
-  { path: "/products/:slug", methods: ["GET"], handler: products },
+  { path: "/products/:slug", methods: ["GET", "PUT", "OPTIONS"], handler: products, auth: { PUT: AuthType.ADMIN }},
   { path: "/products", methods: ["GET"], handler: products },
   
   { path: "/students/:student_id", methods: ["PUT"], handler: students, auth: { POST: AuthType.ADMIN }},

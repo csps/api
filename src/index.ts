@@ -39,7 +39,7 @@ for (const route of routes) {
   app.all(route.path, async (context: ElysiaContext) => {
     // Get requested route role
     const routeRole = route.auth ? route.auth[context.request.method as HttpMethod] : null;
-    
+
     // Check for route authorization requirements
     if (routeRole !== null && routeRole in [AuthType.STUDENT, AuthType.ADMIN] && await getRole(context) !== routeRole) {
       context.set.status = 401;

@@ -6,6 +6,7 @@ import { PaginationOutput } from "../../types/request";
 import { isObjectEmpty } from "../../utils/string";
 import { paginationWrapper } from "../../utils/pagination";
 
+import Photo from "./photo";
 import Log from "../../utils/log";
 import Database from "..";
 
@@ -129,6 +130,46 @@ class Product {
       // Log error and reject promise
       catch (e) {
         Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Update product
+   */
+  public static update(id: string | number, product: ProductModel & { request_photo?: File, slug_input: string }): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = await Database.getConnection();
+      const isSlug = typeof id === 'string';
+      await db.beginTransaction();
+
+      try {
+        let photoHash = product.photos_hash;
+
+        // If has uploaded photo
+        if (product.request_photo) {
+          // Upload photo
+          photoHash = await Photo.insert({ db, photo: product.request_photo });
+          // Update product photo hash
+          await db.query<MariaUpdateResult>(`UPDATE products SET photos_hash = ? WHERE id = ?`, [photoHash, id]);
+        }
+
+        await db.query<MariaUpdateResult>(`
+          UPDATE products SET name = ?, slug = ?, photos_hash = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE ${isSlug ? 'slug' : 'id'} = ?
+        `, [
+          product.name, product.slug_input, photoHash,
+          product.description, product.stock, product.price,
+          product.max_quantity, id
+        ]);
+
+        await db.commit();
+        resolve();
+      }
+
+      catch (error) {
+        Log.e(error);
+        await db.rollback();
         reject(ErrorTypes.DB_ERROR);
       }
     });
