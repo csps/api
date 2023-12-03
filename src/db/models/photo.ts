@@ -76,14 +76,13 @@ class Photo {
 
         // Default query
         let query = "INSERT INTO photos (hash, name, type, data, date_stamp) VALUES (?, ?, ?, ?, NOW())";
-        let data = [ photo.name || null, photo.type, Buffer.from(await photo.arrayBuffer()) ];
+        let data = [hash, photo.name || null, photo.type, Buffer.from(await photo.arrayBuffer())];
   
         // If reference is defined
         if (reference) {
           // Query (reference)
           query = "INSERT INTO gcash_uploads (hash, reference, name, type, data, date_stamp) VALUES (?, ?, ?, ?, ?, NOW())";
           // Add reference to data at the beginning
-          data.unshift(hash);
           data.unshift(reference);
         }
 
