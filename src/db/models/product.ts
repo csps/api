@@ -3,12 +3,13 @@ import { ErrorTypes } from "../../types/enums";
 import { MariaUpdateResult } from "../../types";
 import { ProductsColumn } from "../structure.d";
 import { PaginationOutput } from "../../types/request";
-import { isObjectEmpty } from "../../utils/string";
+import { isNumber, isObjectEmpty } from "../../utils/string";
 import { paginationWrapper } from "../../utils/pagination";
 
 import Photo from "./photo";
 import Log from "../../utils/log";
 import Database from "..";
+import Strings from "../../config/strings";
 
 /**
  * Product Model
@@ -136,9 +137,47 @@ class Product {
   }
 
   /**
+   * Add new product
+   */
+  public static insert(product: ProductModel & { request_photo: File, new_slug: string }): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Validate
+      const error = Product.validate(product);
+      if (error) return reject(error);
+
+      const db = await Database.getConnection();
+      await db.beginTransaction();
+
+      try {
+        // Upload photo
+        const photoHash = await Photo.insert({ db, photo: product.request_photo });
+        // Insert product
+        const result = await db.query<MariaUpdateResult>(`INSERT INTO products VALUES (NULL, ?, ?, ?, ?, 0, ?, ?, ?, 0, NOW())`, [
+          product.name, product.new_slug, photoHash, product.description, product.stock, product.price, product.max_quantity
+        ]);
+
+        // If no results
+        if (result.affectedRows === 0) {
+          Log.e("Insert product failed: No product found");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        await db.commit();
+        resolve();
+      }
+
+      catch (error) {
+        Log.e(error);
+        await db.rollback();
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
    * Update product
    */
-  public static update(id: string | number, product: ProductModel & { request_photo?: File, slug_input: string }): Promise<void> {
+  public static update(id: string | number, product: ProductModel & { request_photo?: File, new_slug?: string }): Promise<void> {
     return new Promise(async (resolve, reject) => {
       const db = await Database.getConnection();
       const isSlug = typeof id === 'string';
@@ -158,7 +197,7 @@ class Product {
         await db.query<MariaUpdateResult>(`
           UPDATE products SET name = ?, slug = ?, photos_hash = ?, description = ?, stock = ?, price = ?, max_quantity = ? WHERE ${isSlug ? 'slug' : 'id'} = ?
         `, [
-          product.name, product.slug_input, photoHash,
+          product.name, product.new_slug, photoHash,
           product.description, product.stock, product.price,
           product.max_quantity, id
         ]);
@@ -257,6 +296,39 @@ class Product {
         reject(ErrorTypes.DB_ERROR);
       }
     });
+  }
+
+  /**
+   * Validate Product Data
+   * @param data Raw product Data
+   * @param files File Array
+   */
+  public static validate(data: ProductModel & { request_photo: File }, isUpdate = false) {
+    // If name is empty
+    if (!data.name) return [Strings.PRODUCT_EMPTY_NAME, "name"];
+    // If Description is empty
+    if (!data.description) return [Strings.PRODUCT_EMPTY_DESCRIPTION, 'description'];
+    // If Price is empty
+    if (!data.price) return [Strings.PRODUCT_EMPTY_PRICE, 'price'];
+    // If Price is not in correct format
+    if (!isNumber(data.price)) return [Strings.PRODUCT_INVALID_PRICE, "price"];
+    // If Price is less than 0
+    if (data.price < 0) return [Strings.PRODUCT_LIMIT_PRICE, "price"];
+    // If Stock is empty
+    if (!data.stock) return [Strings.PRODUCT_EMPTY_STOCK, "stock"];
+    // If Stock is not in correct format
+    if (!isNumber(data.stock)) return [Strings.PRODUCT_INVALID_STOCK, "stock"];
+    // If Stock is less than 0
+    if (data.stock < 0) return [Strings.PRODUCT_LIMIT_STOCK, "stock"];
+    // If max quantity is not in correct format
+    if (!isNumber(data.max_quantity)) return [Strings.PRODUCT_INVALID_MAX_QUANTITY, "max_quantity"];
+    // If max_quantity is less than 0
+    if (data.max_quantity < 0) return [Strings.PRODUCT_LIMIT_MAX_QUANTITY, "max_quantity"];
+    // Check for thumbnail
+    if (!data.request_photo) return [Strings.PRODUCT_EMPTY_THUMBNAIL, "thumbnail"];
+
+    // ------------- Variations Pattern: [1-2, 2-3, 3-4] => [variations_id, stock] ------------- //
+    // TODO: Check if variations is valid
   }
 }
 

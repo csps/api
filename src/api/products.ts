@@ -17,6 +17,8 @@ export function products(context: ElysiaContext): Promise<ResponseBody | undefin
   switch (context.request.method) {
     case "GET":
       return getProducts(context);
+    case "POST":
+      return postProducts(context);
     case "PUT":
       return putProducts(context);
     case "OPTIONS":
@@ -55,6 +57,39 @@ async function getProducts(context: ElysiaContext) {
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
       context.set.status = 404;
       return response.error(context.params.slug ? Strings.PRODUCT_NOT_FOUND : Strings.PRODUCTS_NOT_FOUND);
+    }
+  }
+}
+
+/**
+ * POST /products
+ * @param context
+ */
+async function postProducts(context: ElysiaContext) {
+  try {
+    // Insert product
+    await Product.insert(context.body);
+    return response.success(Strings.PRODUCT_CREATED);
+  }
+  
+  // If error
+  catch (err) {
+    // if list of errors
+    if (Array.isArray(err)) {
+      context.set.status = 400;
+      return response.error(err[0], err[1]);
+    }
+
+    // If error is DB_ERROR
+    if (err === ErrorTypes.DB_ERROR) {
+      context.set.status = 500;
+      return response.error(Strings.PRODUCT_POST_ERROR);
+    }
+
+    // If error is DB_EMPTY_RESULT
+    if (err === ErrorTypes.DB_EMPTY_RESULT) {
+      context.set.status = 500;
+      return response.error(Strings.PRODUCT_POST_ERROR);
     }
   }
 }
