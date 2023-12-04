@@ -121,6 +121,31 @@ class Order {
   }
 
   /**
+   * Get order by unqiue
+   * @param uniqueId Order unique id
+   */
+  public static async byUniqueId(uniqueId: string) {
+    // Get order
+    const [orders, count] = await Order.getAll({
+      limit: "1",
+      page: "1",
+      search: {
+        key: [OrdersColumn.UNIQUE_ID as string],
+        value: [uniqueId]
+      }
+    });
+
+    // If no order found
+    if (count === 0 || orders.length === 0) {
+      Log.e(`Order #${uniqueId} not found`);
+      throw ErrorTypes.DB_EMPTY_RESULT;
+    }
+
+    // Return order
+    return orders[0];
+  }
+
+  /**
    * Insert order data to the database
    */
   public static insert(context: ElysiaContext): Promise<void> {

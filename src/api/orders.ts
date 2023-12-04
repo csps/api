@@ -32,9 +32,13 @@ export function orders(context: ElysiaContext): Promise<ResponseBody | undefined
  */
 async function getOrders(context: ElysiaContext) {
   // Get params
-  const { reference} = context.params || {};
+  const { reference, uniqueId } = context.params || {};
 
   try {
+    if (uniqueId) {
+      const order = await Order.byUniqueId(uniqueId);
+      return response.success(Strings.ORDER_FOUND, order);
+    }
 
     if (reference) {
       const order = await Order.byReference(reference);
