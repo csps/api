@@ -175,7 +175,7 @@ class Student {
    * @param token Reset token
    * @param password New password
    */
-  public static updatePassword(token: string, password: string): Promise<StudentModel> {
+  public static updatePasswordFromToken(token: string, password: string): Promise<StudentModel> {
     return new Promise(async (resolve, reject) => {
       // Validate password
       if (!password) {

@@ -99,7 +99,7 @@ async function postReset(context: ElysiaContext) {
 
   try {
     // Update password
-    const student = await Student.updatePassword(token, new_password);
+    const student = await Student.updatePasswordFromToken(token, new_password);
 
     // Send email
     sendEmail({
