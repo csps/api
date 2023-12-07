@@ -232,6 +232,42 @@ class Student {
   }
 
   /**
+   * Update student's password
+   * @param student_id Student ID
+   * @param passwowrd New password
+   */
+  public static updatePassword(student_id: string, password: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Hash password
+        const hash = await hashPassword(password);
+        // Update password
+        const result = await db.query<MariaUpdateResult>(
+          `UPDATE students SET password = ? WHERE student_id = ?`, [ hash, student_id ]
+        );
+
+        // If no affected rows
+        if (result.affectedRows === 0) {
+          Log.e("Student update failed: No rows affected");
+          return reject(ErrorTypes.DB_EMPTY_RESULT);
+        }
+
+        // Resolve promise
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
    * Insert student data to the database
    * @param student Student data
    */

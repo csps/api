@@ -166,6 +166,10 @@ const Strings = {
   STUDENT_RESET_PASSWORD_UPDATE_EMPTY: "Failed to update password.",
   STUDENT_UPDATE_ERROR: "Something went wrong while updating information :(",
   STUDENT_NOT_EXIST: "Student does not exist!",
+  STUDENT_PASSWORD_UPDATED: "Password updated!",
+  STUDENT_PASSWORD_UPDATE_ERROR: "Something went wrong while updating password.",
+  STUDENT_PASSWORD_MISMATCH: "Passwords doesn't match!",
+  STUDENT_PASSWORD_TOO_SHORT: "Password must be at least 8 characters!",
 
   TUTORIALS_GET_ERROR: "Something went wrong while fetching tutorials.",
   TUTORIALS_NOT_FOUND: "No tutorials found!",

@@ -19,6 +19,8 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
       return postStudents(context);
     case "PUT":
       return putStudents(context);
+    case "OPTIONS":
+      return response.success();
   }
 
   return status501(context);
@@ -80,6 +82,52 @@ async function postStudents(context: ElysiaContext) {
 async function putStudents(context: ElysiaContext) {
   // Get student_id from request params
   const { student_id } = context.params || {};
+
+  // If updating password
+  if (context.path.endsWith("/password")) {
+    try {
+      const { pass1, pass2 } = context.body || {};
+      const p1 = pass1.trim();
+      const p2 = pass2.trim();
+
+      // If password is empty
+      if (!p1 || !p2) {
+        context.set.status = 400;
+        return response.error(Strings.STUDENT_EMPTY_PASSWORD);
+      }
+      
+      // If passwords do not match
+      if (p1 !== p2) {
+        context.set.status = 400;
+        return response.error(Strings.STUDENT_PASSWORD_MISMATCH);
+      }
+
+      // If password is too short
+      if (p1.length < 8) {
+        context.set.status = 400;
+        return response.error(Strings.STUDENT_PASSWORD_TOO_SHORT);
+      }
+
+      // Update student password
+      await Student.updatePassword(context.user.student_id, p1);
+      // If no error, student password is updated
+      return response.success(Strings.STUDENT_PASSWORD_UPDATED);
+    }
+
+    catch (err) {
+      if (err === ErrorTypes.DB_EMPTY_RESULT) {
+        context.set.status = 404;
+        return response.error(Strings.STUDENT_NOT_FOUND);
+      }
+
+      if (err === ErrorTypes.DB_ERROR) {
+        context.set.status = 500;
+        return response.error(Strings.STUDENT_PASSWORD_UPDATE_ERROR);
+      }
+    }
+
+    return response.error(Strings.STUDENT_UPDATE_ERROR);
+  }
 
   // If student_id is empty
   if (!student_id) {

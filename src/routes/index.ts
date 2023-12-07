@@ -38,7 +38,8 @@ const routes: AppRoutes[] = [
   { path: "/products/:slug", methods: ["GET", "PUT", "OPTIONS"], handler: products, auth: { PUT: AuthType.ADMIN }},
   { path: "/products", methods: ["GET", "POST"], handler: products, auth: { POST: AuthType.ADMIN }},
   
-  { path: "/students/:student_id", methods: ["PUT"], handler: students, auth: { POST: AuthType.ADMIN }},
+  { path: "/students/password", methods: ["PUT", "OPTIONS"], handler: students, auth: { PUT: AuthType.STUDENT }},
+  { path: "/students/:student_id", methods: ["PUT", "OPTIONS"], handler: students, auth: { POST: AuthType.ADMIN }},
   { path: "/students", methods: ["GET", "POST"], handler: students, auth: { POST: AuthType.ADMIN }},
 
   { path: "/reset/:token", methods: ["GET"], handler: reset },
