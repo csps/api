@@ -46,11 +46,11 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
       isRequiredColumn = key.startsWith('*');
 
       if (isRequiredColumn) {
-        if (requiredCount > 0) {
+        if (requiredCount > 0 || (requiredCount === 0 && !isFirstColumn)) {
           condition += ' AND ';
         }
         
-        condition += `${db.escapeId(key.slice(1))} LIKE ? `;
+        condition += ` ${db.escapeId(key.slice(1))} LIKE ? `;
         requiredCount++;
         continue;
       }

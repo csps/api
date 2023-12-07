@@ -1,11 +1,11 @@
 import type { ElysiaContext, ResponseBody } from "../types";
 import { ErrorTypes } from "../types/enums";
 import { status501 } from "../routes";
+import { OrdersColumn } from "../db/structure";
 
 import Order from "../db/models/order";
 import response from "../utils/response";
 import Strings from "../config/strings";
-import { OrdersColumn } from "../db/structure";
 
 /**
  * Orders API
@@ -35,6 +35,11 @@ async function getOrders(context: ElysiaContext) {
   const { reference, uniqueId } = context.params || {};
 
   try {
+    if (context.path === "/orders" && context.user?.student_id) {
+      const orders = await Order.byStudentId(context.user.student_id, context.query);
+      return response.success(Strings.ORDERS_FOUND, ...orders);
+    }
+
     if (uniqueId) {
       const order = await Order.byUniqueId(uniqueId);
       return response.success(Strings.ORDER_FOUND, order);

@@ -1,6 +1,6 @@
 import { generateReference, generateToken } from "../../utils/security";
 import { ElysiaContext, MariaUpdateResult } from "../../types";
-import { ErrorTypes, ModeOfPayment, OrderStatus } from "../../types/enums";
+import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { FullOrderModel } from "../../types/models";
 import { OrderRequest, PaginationOutput } from "../../types/request";
 import { getLocalDate } from "../../utils/date";
@@ -49,7 +49,7 @@ class Order {
   /**
    * Get all orders
    */
-  public static getAll(pagination?: PaginationOutput): Promise<[FullOrderModel[], count: number] > {
+  public static getAll(pagination?: PaginationOutput): Promise<[FullOrderModel[], count: number]> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
@@ -93,6 +93,32 @@ class Order {
         reject(ErrorTypes.DB_ERROR);
       }
     });
+  }
+
+  /**
+   * Get orders by student id
+   */
+  public static async byStudentId(studentId: string, pagination: PaginationOutput): Promise<[FullOrderModel[], count: number]> {
+    const search  = typeof pagination.search === "string" ?
+      JSON.parse(atob(pagination.search)) : pagination.search;
+
+    const orders = await Order.getAll({
+      limit: pagination.limit,
+      page: pagination.page,
+      sort: pagination.sort,
+      search: {
+        key: [...search.key, `*${FullOrderEnum.student_id}`],
+        value: [...search.value, studentId]
+      }
+    });
+
+    // If no order found
+    if (orders[1] === 0 || orders[0].length === 0) {
+      throw ErrorTypes.DB_EMPTY_RESULT;
+    }
+
+    // Return order
+    return orders;
   }
 
   /**
