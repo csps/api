@@ -10,18 +10,20 @@
     "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
     "chalk": "^5.3.0",
-    "elysia": "^0.8.6",
+    "elysia": "^0.8.8",
     "elysia-helmet": "^1.0.1",
     "elysia-ip": "^0.0.5",
     "juice": "^10.0.0",
     "mariadb": "^3.2.3",
     "nodemailer": "^6.9.8",
     "p-queue": "^8.0.1",
-    "pug": "^3.0.2"
+    "pug": "^3.0.2",
+    "qrcode": "^1.5.3"
   },
   "devDependencies": {
     "@types/nodemailer": "^6.4.14",
     "@types/pug": "2.0.10",
+    "@types/qrcode": "^1.5.5",
     "bun-types": "1.0.20"
   },
   "module": "src/index.js"
