@@ -10,3 +10,4 @@ export * from "./photos";
 export * from "./products";
 export * from "./reset";
 export * from "./students";
+export * from "./qrcode";

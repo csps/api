@@ -3,7 +3,7 @@ import { AuthType } from "../types/enums";
 
 import {
   announcements, courses, env, events, example, forgot,
-  login, orders, photos, products, reset, students
+  login, orders, photos, products, reset, students, qrcode
 } from "../api"
 
 const routes: AppRoutes[] = [
@@ -37,6 +37,8 @@ const routes: AppRoutes[] = [
   { path: "/products/:slug/:key", methods: ["PUT", "OPTIONS"], handler: products, auth: { PUT: AuthType.ADMIN }},
   { path: "/products/:slug", methods: ["GET", "PUT", "OPTIONS"], handler: products, auth: { PUT: AuthType.ADMIN }},
   { path: "/products", methods: ["GET", "POST"], handler: products, auth: { POST: AuthType.ADMIN }},
+
+  { path: "/qrcode" , methods: ['GET'], handler: qrcode },
   
   { path: "/students/password", methods: ["PUT", "OPTIONS"], handler: students, auth: { PUT: AuthType.STUDENT }},
   { path: "/students/:student_id", methods: ["PUT", "OPTIONS"], handler: students, auth: { POST: AuthType.ADMIN }},
