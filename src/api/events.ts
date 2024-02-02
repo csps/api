@@ -51,7 +51,6 @@ async function getEvents(context: ElysiaContext) {
 
     // If error is DB_EMPTY_RESULT
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
-      context.set.status = 404;
       return response.error(Strings.EVENTS_NOT_FOUND);
     }
   }
@@ -164,7 +163,6 @@ async function deleteEvents(context: ElysiaContext) {
 
     // If error is DB_EMPTY_RESULT
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
-      context.set.status = 404;
       return response.error(Strings.EVENT_NOT_FOUND);
     }
   }
