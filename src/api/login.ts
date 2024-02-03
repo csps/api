@@ -65,9 +65,7 @@ async function getLogin(context: ElysiaContext) {
     // Get Role
     const role = payload.role as AuthType;
     // If token is valid, get student
-    const student = await Student.getByStudentId(
-      role === AuthType.ADMIN ? payload.admin_id as string : payload.student_id as string
-    );
+    const student = await Student.getByStudentId(payload.student_id as string);
 
     // If student is not found
     if (!student) {
@@ -141,7 +139,7 @@ async function postLogin(context: ElysiaContext) {
     }
   
     // Data to be stored in the token
-    const data = { role: type === AuthType.ADMIN ? AuthType.ADMIN : AuthType.STUDENT, ...user };
+    const data = { role: type == AuthType.ADMIN ? AuthType.ADMIN : AuthType.STUDENT, ...user };
     // Create access token (1 day)
     const accessToken = await createSessionToken(false, data, "1d");
     // Create refresh token (15 days)
