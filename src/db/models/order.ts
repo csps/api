@@ -310,7 +310,7 @@ class Order {
             order: {
               student: `${request.student_first_name} ${request.student_last_name}`,
               date_time: getReadableDate(new Date()),
-              mode_of_payment: request.mode_of_payment === ModeOfPayment.WALK_IN ? "Cash" : "GCash",
+              mode_of_payment: request.mode_of_payment == ModeOfPayment.WALK_IN ? "Cash" : "GCash",
               name: product.name,
               variation: product.variations?.find(v => v.id == request.variations_id)?.name || "Standard",
               price: product.price,
