@@ -73,8 +73,8 @@ async function getOrders(context: ElysiaContext) {
 async function postOrders(context: ElysiaContext) {
   try {
     // Create order
-    const order = await Order.insert(context);
-    return response.success(Strings.ORDER_CREATED, order);
+    await Order.insert(context);
+    return response.success(Strings.ORDER_CREATED);
   }
 
   catch (err) {

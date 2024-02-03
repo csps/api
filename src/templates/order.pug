@@ -1,0 +1,60 @@
+div
+  strong.title #{title}
+  p Hi #{order.student},
+  p We have received your order on 
+    span.highlight #{order.date_time}
+    |  via 
+    span.highlight #{order.mode_of_payment}
+    | . To complete your purchase, please visit our office at room 540 during our school hours at your earliest convenience.
+    |  When you arrive, 
+    span.highlight kindly present this email as proof of your reservation
+    | . We currently accept 
+    span.highlight cash
+    |  as payment method. Once the payment is made, 
+    span.highlight you will receive a receipt via email
+    |  for your records. Please ensure that the item matches your selection before leaving. 
+
+  p For any inquiries or if you require assistance, please do not hesitate to reply to this email. 
+    |  We are delighted to have you as a customer and look forward to serving you. 
+    |  Enjoy your new merchandise from CSP-S!
+
+  br
+
+  div
+    table
+      tr
+        td
+          img(src=order.thumbnail_url, height="150px", style="max-width:160px", data-bit="iit")
+        td
+          strong.text-primary.text-base #{order.name}
+          br
+          div.py-2 #{order.variation}
+        td
+          span ₱ #{order.price}.00 × #{order.quantity}
+
+    br
+    div.divider
+    br
+
+    table
+      tr
+        td Payment Method
+        td.text-right #{order.mode_of_payment}
+      
+      tr
+        td.py-4 Reference No.
+        td.text-right #{order.reference}
+
+    div.divider
+    br
+
+    table
+      tr
+        td
+          strong.text-lg Total
+        td.text-right.text-lg
+          strong ₱ #{order.total}.00
+
+    br
+    div.divider
+    br

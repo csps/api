@@ -1,9 +1,9 @@
 import { generateReference, generateToken } from "../../utils/security";
 import { ElysiaContext, MariaUpdateResult } from "../../types";
-import { ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
+import { EmailType, ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { FullOrderModel } from "../../types/models";
 import { OrderRequest, PaginationOutput } from "../../types/request";
-import { getLocalDate } from "../../utils/date";
+import { getLocalDate, getReadableDate } from "../../utils/date";
 import { isEmail, isObjectEmpty } from "../../utils/string";
 import { paginationWrapper } from "../../utils/pagination";
 import { OrdersColumn } from "../structure.d";
@@ -14,6 +14,7 @@ import Log from "../../utils/log";
 import Strings from "../../config/strings";
 import Student from "./student";
 import Photo from "./photo";
+import { sendEmail } from "../../utils/email";
 
 /**
  * Order model
@@ -173,8 +174,9 @@ class Order {
 
   /**
    * Insert order data to the database
+   * @returns student's email
    */
-  public static insert(context: ElysiaContext): Promise<void> {
+  public static insert(context: ElysiaContext): Promise<string> {
     return new Promise(async (resolve, reject) => {
       // Get order request
       const request: OrderRequest = context.body;
@@ -292,15 +294,37 @@ class Order {
             return reject(e);
           }
         }
-        
+
         // Commit transaction
         await db.commit();
         // Deduct stock based on requested quantity
         await Product.updateStock(Number(request.products_id), -request.quantity);
+
+        // Send order email
+        sendEmail({
+          type: EmailType.ORDER,
+          subject: Strings.EMAIL_ORDER_SUBJECT.replace("{reference}", reference),
+          title: Strings.EMAIL_ORDER_TITLE,
+          to: request.student_email ?? "",
+          data: {
+            order: {
+              student: `${request.student_first_name} ${request.student_last_name}`,
+              date_time: getReadableDate(new Date()),
+              mode_of_payment: request.mode_of_payment === ModeOfPayment.WALK_IN ? "Cash" : "GCash",
+              name: product.name,
+              variation: product.variations?.find(v => v.id == request.variations_id)?.name || "Standard",
+              price: product.price,
+              total: product.price * request.quantity,
+              quantity: request.quantity,
+              reference: reference,
+            }
+          }
+        });
+
         // Log success
         Log.i(`Student #${studentID} ordered product #${request.products_id} with reference #${reference}`);
         // Resolve promise
-        resolve();
+        resolve(request.student_email || "");
       }
 
       catch (err) {

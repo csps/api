@@ -62,12 +62,13 @@ export function getLocalDate(date: Date) {
  * Convert date to readable format
  * @param date YYYY-MM-DD HH:MM:SS format
  */
-export function getReadableDate(date: string, isMonthShort?: boolean) {
-  const dateObj = new Date(date);
-  const month = dateObj.toLocaleString('default', { month: isMonthShort ? 'short' : 'long' });
-  const day = dateObj.getDate();
-  const year = dateObj.getFullYear();
-  const time = dateObj.toLocaleString('default', { hour: 'numeric', minute: 'numeric', hour12: true });
+export function getReadableDate(date: string | Date, isMonthShort?: boolean) {
+  if (typeof date === 'string') date = new Date(date);
+
+  const month = date.toLocaleString('default', { month: isMonthShort ? 'short' : 'long' });
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const time = date.toLocaleString('default', { hour: 'numeric', minute: 'numeric', hour12: true });
   return `${month} ${day}, ${year} at ${time}`;
 }
 
