@@ -9,7 +9,7 @@ const Strings = {
   GENERAL_INVALID_REQUEST: "Invalid request!",
   GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSP-S server admin.",
   GENERAL_SESSION_ERROR: "Session Error! Please logout and login again.",
-  GENERAL_SESSION_EXPIRED: "Session Expired! Please logout and login again.",
+  GENERAL_SESSION_EXPIRED: "Session Expired! Please login again.",
   GENERAL_NO_SESSION: "No session found!",
   GENERAL_UNAUTHORIZED: "Unauthorized access!",
   GENERAL_INCORRECT_VALUE: "Incorrect value!",

@@ -1,6 +1,8 @@
 import type { ElysiaContext, ResponseBody } from "../types";
 import { AuthType, ErrorTypes } from "../types/enums";
+import { createSessionToken } from "../utils/security";
 import { status501 } from "../routes";
+import { jwtVerify } from "jose";
 
 import response from "../utils/response";
 import Strings from "../config/strings";
@@ -30,30 +32,42 @@ export function login(context: ElysiaContext): Promise<ResponseBody | undefined>
  * @param context Elysia context
  */
 async function getLogin(context: ElysiaContext) {
-  // Get token from cookie
-  const { token } = context.cookie;
+  // Get autorization header
+  const { authorization } = context.headers;
 
   // If token is not specified
-  if (!token) {
+  if (!authorization) {
     context.set.status = 200;
     return response.error(Strings.GENERAL_NO_SESSION);
   }
 
+  // Get token from authorization header
+  const token = authorization.split(" ")[1];
+  
+  // Don't proceed if token is not specified or not starting with "ey"
+  if (!token || !token.startsWith("ey")) {
+    context.set.status = 400;
+    return response.error(Strings.LOGIN_INVALID_TOKEN);
+  }
+
   try {
     // Verify token
-    const decoded = await context.jwt.verify(token);
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.SECRET_KEY), {
+      algorithms: ["HS256"]
+    });
     
     // If token is invalid
-    if (!decoded) {
+    if (!payload) {
       context.set.status = 401;
       return response.error(Strings.LOGIN_INVALID_TOKEN);
     }
 
     // Get Role
-    const role = decoded.admin_id ? AuthType.ADMIN : AuthType.STUDENT;
-
+    const role = payload.role as AuthType;
     // If token is valid, get student
-    const student = await Student.getByStudentId(role === AuthType.ADMIN ? decoded.admin_id : decoded.student_id);
+    const student = await Student.getByStudentId(
+      role === AuthType.ADMIN ? payload.admin_id as string : payload.student_id as string
+    );
 
     // If student is not found
     if (!student) {
@@ -79,7 +93,7 @@ async function getLogin(context: ElysiaContext) {
       context.set.status = 404;
       return response.error(Strings.LOGIN_FAILED);
     }
-
+    
     Log.e(err);
   }
 }
@@ -126,19 +140,17 @@ async function postLogin(context: ElysiaContext) {
       return response.error(Strings.LOGIN_FAILED);
     }
   
-    // Generate token
-    const token = await context.jwt.sign({
-      [type == AuthType.ADMIN ? 'admin_id' : 'student_id']: user.student_id
-    });
-  
-    context.setCookie("token", token, {
-      maxAge: 24 * 60 * 60, // 1 day
-    });
-  
+    // Data to be stored in the token
+    const data = { role: type === AuthType.ADMIN ? AuthType.ADMIN : AuthType.STUDENT, ...user };
+    // Create access token (1 day)
+    const accessToken = await createSessionToken(false, data, "1d");
+    // Create refresh token (15 days)
+    const refreshToken = await createSessionToken(true, data, "15d");
+
     // Remove password from user
     delete user.password;
     // Return success and user data
-    return response.success(Strings.LOGIN_SUCCESS, user);
+    return response.success(Strings.LOGIN_SUCCESS, { user, accessToken, refreshToken });
   }
 
   catch (err) {

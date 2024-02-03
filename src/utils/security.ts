@@ -2,6 +2,7 @@ import Bun from "bun";
 
 import { randomBytes } from "crypto";
 import { ElysiaContext } from "../types";
+import { SignJWT } from "jose";
 
 /**
  * Hash a password
@@ -38,6 +39,21 @@ export function generateToken(length = 16): Promise<string> {
       resolve(buf.toString('hex'));
     });
   });
+}
+
+/**
+ * Create a session token
+ * @param isRefreshToken Whether the token is a refresh token
+ * @param data Data to be stored in the token
+ * @param exp Expiry time
+ */
+export async function createSessionToken(isRefreshToken: boolean, data: any, exp: string) {
+  const jwt = new SignJWT({ irt: isRefreshToken ? 1 : 0, ...data });
+
+  jwt.setProtectedHeader({ alg: "HS256" })
+  jwt.setExpirationTime(exp);
+
+  return await jwt.sign(new TextEncoder().encode(process.env.SECRET_KEY));
 }
 
 /**

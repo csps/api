@@ -36,7 +36,6 @@ export type ElysiaContext = {
   path: string;
   request: Request;
   store: {};
-  jwt?: any;
   setCookie?: any;
   response?: ResponseBody;
   ip?: {

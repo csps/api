@@ -111,6 +111,8 @@ class Log {
       success = true;
       message = "[ Photo ]";
     }
+    
+    if (context.request.method === "OPTIONS") return;
 
     // Log the response
     console.log(
