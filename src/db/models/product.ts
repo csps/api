@@ -113,7 +113,7 @@ class Product {
 
         // Get product variations
         const variations = await db.query<ProductVariationModel[]>(
-          `SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id WHERE pv.products_id = ?
+          `SELECT pv.id, pv.products_id, pv.variations_id, pv.photos_hash, pv.stock, v.name FROM product_variations pv INNER JOIN variations v ON pv.variations_id = v.id WHERE pv.products_id = ?
         `, [product[0].id]);
 
         // If no results, resolve without variations
