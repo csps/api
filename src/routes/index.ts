@@ -6,8 +6,12 @@ import {
   login, orders, photos, products, reset, students, qrcode
 } from "../api"
 
+import { login as ictlogin } from "../api/ictcongress2024/login";
+
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
+
+  { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["POST", "OPTIONS"]},
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},

@@ -69,6 +69,7 @@ const Strings = {
 
   LOGIN_TYPE_NOT_SPECIFIED: "Login type is not specified.",
   LOGIN_INVALID_TYPE: "Invalid login type.",
+  LOGIN_EMPTY_USERNAME: "Empty username.",
   LOGIN_EMPTY_STUDENT_ID: "Empty Student ID.",
   LOGIN_EMPTY_PASSWORD: "Empty Password.",
   LOGIN_EMPTY_TOKEN: "Empty Token.",
