@@ -176,3 +176,17 @@ export type VariationModel = {
   id: number,
   name: string,
 }
+
+export type ICTStudentModel = {
+  id: number,
+  campus: string,
+  student_id: string,
+  year_level: number,
+  first_name: string,
+  last_name: string,
+  email: string,
+  tshirt_size: string,
+  present: number,
+  order_date_accepted: string,
+  date_stamp: string,
+}

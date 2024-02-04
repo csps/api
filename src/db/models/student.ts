@@ -41,7 +41,7 @@ class Student {
 
           // If no results
           if (mainResult.length === 0) {
-            Log.e("No students found");
+            Log.i("No students found");
             return reject(ErrorTypes.DB_EMPTY_RESULT);
           }
 

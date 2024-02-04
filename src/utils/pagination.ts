@@ -64,7 +64,7 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
         isFirstColumn = false;
 
         if (i < search.key.length - 1) {
-          condition += ` AND (`;
+          condition += ` OR (`;
         }
 
         continue;
@@ -74,7 +74,7 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
       isFirstCondition = false;
     }
 
-    if (condition.includes('AND (')) {
+    if (condition.includes('OR (')) {
       condition += ` )`;
     }
 
