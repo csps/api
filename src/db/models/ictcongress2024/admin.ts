@@ -124,5 +124,27 @@ class Admin {
       }
     });
   }
+
+  /**
+   * Confirm student
+   * @param student_id Student ID
+   */
+  public static confirmStudent(student_id: string | number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Confirm student
+        await db.query("UPDATE ict2024_students SET order_confirmed = NOW() WHERE student_id = ?", [ student_id ]);
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
 }
 export default Admin;

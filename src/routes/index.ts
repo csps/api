@@ -16,6 +16,7 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET"]},
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"]},
   { path:  "/ictcongress2024/students/:student_id/present", handler: ictstudents, methods: ["POST", "OPTIONS"]},
+  { path:  "/ictcongress2024/students/:student_id/confirm", handler: ictstudents, methods: ["POST", "OPTIONS"]},
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},

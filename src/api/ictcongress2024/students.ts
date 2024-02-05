@@ -15,6 +15,8 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
   switch (context.request.method) {
     case "GET":
       return getStudents(context);
+    case "POST":
+      return postStudents(context);
     case "OPTIONS":
       return response.success();
   }
@@ -41,6 +43,38 @@ async function getStudents(context: ElysiaContext) {
 
       return response.error();
     }
+  }
+
+  return response.success();
+}
+
+/**
+ * POST /ictcongress2024/students/:student_id/(present|confirm)
+ * @param context Elysia context
+ */
+async function postStudents(context: ElysiaContext) {
+  const isPresent = context.path.includes("present");
+  const isConfirm = context.path.includes("confirm");
+
+  const { student_id } = context.params;
+
+  if (!student_id) {
+    return response.error("Student ID is required");
+  }
+
+  // If confirming student
+  if (isConfirm) {
+    try {
+      await Admin.confirmStudent(student_id);
+      return response.success("Order successfully confirmed!");
+    } catch (e) {
+      return response.error(e);
+    }
+  }
+
+  // If marking student as present
+  if (isPresent) {
+    return;
   }
 
   return response.success();
