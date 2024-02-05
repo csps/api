@@ -146,5 +146,68 @@ class Admin {
       }
     });
   }
+
+  /**
+   * Get courses
+   */
+  public static getCourses(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get courses
+        const courses = await db.query("SELECT * FROM ict2024_courses");
+        resolve(courses);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Get campuses
+   */
+  public static getCampuses(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get campuses
+        const campuses = await db.query("SELECT * FROM ict2024_campus");
+        resolve(campuses);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Get t-shirt sizes
+   */
+  public static getTShirtSizes(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get t-shirt sizes
+        const tshirtSizes = await db.query("SELECT * FROM ict2024_tshirt_sizes");
+        resolve(tshirtSizes);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
 }
 export default Admin;

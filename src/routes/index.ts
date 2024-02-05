@@ -8,10 +8,12 @@ import {
 
 import { login as ictlogin } from "../api/ictcongress2024/login";
 import { students as ictstudents } from "../api/ictcongress2024/students";
+import { index as ictconfig } from "../api/ictcongress2024/";
 
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
 
+  { path:  "/ictcongress2024", handler: ictconfig, methods: ["GET"] },
   { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["GET", "POST", "OPTIONS"] },
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET"]},
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"]},
