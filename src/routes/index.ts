@@ -15,7 +15,7 @@ const routes: AppRoutes[] = [
 
   { path:  "/ictcongress2024", handler: ictconfig, methods: ["GET"] },
   { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["GET", "POST", "OPTIONS"] },
-  { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET"]},
+  { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"]},
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"]},
   { path:  "/ictcongress2024/students/:student_id/present", handler: ictstudents, methods: ["POST", "OPTIONS"]},
   { path:  "/ictcongress2024/students/:student_id/confirm", handler: ictstudents, methods: ["POST", "OPTIONS"]},

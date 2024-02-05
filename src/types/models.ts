@@ -190,3 +190,14 @@ export type ICTStudentModel = {
   order_date_accepted: string,
   date_stamp: string,
 }
+
+export type ICTStudentRegisterModel = {
+  student_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  tshirt_size_id: number;
+  campus_id: number;
+  course_id: number;
+  year_level: number;
+}

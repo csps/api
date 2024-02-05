@@ -55,17 +55,17 @@ async function getStudents(context: ElysiaContext) {
 async function postStudents(context: ElysiaContext) {
   const isPresent = context.path.includes("present");
   const isConfirm = context.path.includes("confirm");
+  const student_id = context.params?.student_id;
 
-  const { student_id } = context.params;
-
-  if (!student_id) {
+  // Check for student ID when accessing /present or /confirm
+  if (!student_id && (isPresent || isConfirm)) {
     return response.error("Student ID is required");
   }
 
   // If confirming student
   if (isConfirm) {
     try {
-      await Admin.confirmStudent(student_id);
+      await Admin.confirmStudent(student_id!);
       return response.success("Order successfully confirmed!");
     } catch (e) {
       return response.error(e);
@@ -77,5 +77,12 @@ async function postStudents(context: ElysiaContext) {
     return;
   }
 
-  return response.success();
+  // Register student
+  try {
+    await Admin.registerStudent(await context.body);
+    return response.success("You have successfully registered! Please check your email for your order confirmation. 💛");
+  } catch (e) {
+    console.error(e);
+    return response.error(e);
+  }
 }

@@ -1,7 +1,7 @@
 import { ErrorTypes } from "../../../types/enums";
 import Log from "../../../utils/log";
 import Database from "../..";
-import { ICTStudentModel } from "../../../types/models";
+import { ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
 import { isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
@@ -119,6 +119,59 @@ class Admin {
       // Log error and reject promise
       catch (e) {
         console.error(e);
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Register student
+   */
+  public static registerStudent(student: ICTStudentRegisterModel): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Check for student ID
+        let results = await db.query<ICTStudentModel[]>("SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student.student_id ]);
+
+        // If student exists
+        if (results.length > 0) {
+          return reject("Student ID already registered.");
+        }
+
+        // Check for email
+        results = await db.query<ICTStudentModel[]>("SELECT * FROM ict2024_students WHERE email = ? LIMIT 1", [ student.email ]);
+
+        // If email exists
+        if (results.length > 0) {
+          return reject("Email already registered.");
+        }
+
+        // Register student
+        await db.query(`
+          INSERT INTO ict2024_students (
+            campus_id, student_id, course_id, tshirt_size_id, year_level,
+            first_name, last_name, email, snack_claimed, date_stamp
+          ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW()
+          )`, [
+          student.campus_id,
+          student.student_id,
+          student.course_id,
+          student.tshirt_size_id,
+          student.year_level,
+          student.first_name,
+          student.last_name,
+          student.email
+        ]);
+
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
         Log.e(e);
         reject(ErrorTypes.DB_ERROR);
       }
