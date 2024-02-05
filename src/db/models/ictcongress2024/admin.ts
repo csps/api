@@ -98,7 +98,12 @@ class Admin {
         // Get pagination
         if (pagination && !isObjectEmpty(pagination)) {
           const { query, countQuery, values, countValues } = paginationWrapper(db, {
-            query: `SELECT * FROM ict2024_students WHERE campus_id = ${db.escape(campus_id)}`,
+            query: `
+              SELECT s.*, ts.name as tshirt_size, c.course_name as course FROM ict2024_students s
+              INNER JOIN ict2024_tshirt_sizes ts ON s.tshirt_size_id = ts.id
+              INNER JOIN ict2024_courses c ON s.course_id = c.id
+              WHERE s.campus_id = ${db.escape(campus_id)}
+            `,
             request: pagination
           });
 
