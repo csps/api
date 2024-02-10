@@ -14,11 +14,11 @@ const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
 
   { path:  "/ictcongress2024", handler: ictconfig, methods: ["GET"] },
-  { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["GET", "POST", "OPTIONS"] },
-  { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"]},
-  { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"]},
-  { path:  "/ictcongress2024/students/:student_id/present", handler: ictstudents, methods: ["POST", "OPTIONS"]},
-  { path:  "/ictcongress2024/students/:student_id/confirm", handler: ictstudents, methods: ["POST", "OPTIONS"]},
+  { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, POST: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/:student_id/present", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/:student_id/confirm", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST:AuthType.ICT_ADMIN }},
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},

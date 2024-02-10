@@ -1,7 +1,7 @@
 import type { ElysiaContext, ResponseBody } from "../../types";
 import { createSessionToken } from "../../utils/security";
 import { status501 } from "../../routes";
-import { ErrorTypes } from "../../types/enums";
+import { AuthType, ErrorTypes } from "../../types/enums";
 import { jwtVerify } from "jose";
 import response from "../../utils/response";
 import Strings from "../../config/strings";
@@ -120,7 +120,7 @@ async function postLogin(context: ElysiaContext) {
     const admin = await Admin.getByUsernameAndPassword(username.trim(), password);
 
     // Data to be stored in the token
-    const data = { campus: admin.campus, campus_id: admin.campus_id,  username: admin.username };
+    const data = { role: AuthType.ICT_ADMIN, campus: admin.campus, campus_id: admin.campus_id,  username: admin.username };
     // Create access token (1 day)
     const accessToken = await createSessionToken(false, data, "1d");
     // Create refresh token (15 days)
