@@ -40,7 +40,8 @@ const routes: AppRoutes[] = [
   { path: "/orders/:id/:key", methods: ["PUT", "OPTIONS"], handler: orders, auth: { PUT: AuthType.ADMIN }},
   { path: "/orders/reference/:reference", methods: ["GET"], handler: orders, auth: { "GET": AuthType.ADMIN }},
   { path: "/orders/unique/:uniqueId", methods: ["GET"], handler: orders },
-  { path: "/orders", methods: ["GET", "POST"], handler: orders },
+  { path: "/orders/guest", methods: ["GET"], handler: orders },
+  { path: "/orders", methods: ["GET", "POST"], handler: orders, auth: { GET: [ AuthType.ADMIN, AuthType.STUDENT ] }},
   
   { path: "/photos/:hash", methods: ["GET"], handler: photos },
   { path: "/photos", methods: ["POST"], handler: photos },

@@ -35,22 +35,22 @@ app.onBeforeHandle((context: ElysiaContext) => {
 // Register routes
 for (const route of routes) {
   app.all(route.path, async (context: ElysiaContext) => {
-    // Get requested route role
-    const routeRole = route.auth ? route.auth[context.request.method as HttpMethod] : null;
     // Get request role
     const requestRole = await validateAndGetRole(context);
-
+    // Get requested route role
+    const routeRole: AuthType | AuthType[] | undefined = route.auth ?
+      route.auth[context.request.method as HttpMethod] : undefined;
+    
     // If requestRole is false, meaning the token is expired
     if (requestRole === false) {
       context.set.status = 401;
       return response.error(Strings.GENERAL_SESSION_EXPIRED);
     }
 
-    // Check for route authorization requirements
-    if (routeRole !== null && routeRole in [AuthType.STUDENT, AuthType.ADMIN] && requestRole !== routeRole) {
+    if (!requestRole && routeRole) {
       context.set.status = 401;
       return response.error(Strings.GENERAL_UNAUTHORIZED);
-    }
+    } 
 
     // Check if the route supports the request HTTP method
     if (route.methods.indexOf(context.request.method as HttpMethod) !== -1) {
