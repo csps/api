@@ -3,7 +3,7 @@ import Log from "../../../utils/log";
 import Database from "../..";
 import { ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
-import { isObjectEmpty } from "../../../utils/string";
+import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
 
 type AdminData = {
@@ -144,6 +144,11 @@ class Admin {
         // If student exists
         if (results.length > 0) {
           return reject("Student ID already registered.");
+        }
+
+        // Validate email
+        if (!isEmail(student.email)) {
+          return reject("Invalid email format.");
         }
 
         // Check for email
