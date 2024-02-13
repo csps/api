@@ -189,10 +189,10 @@ class Admin {
   }
 
   /**
-   * Confirm student
+   * Confirm payment
    * @param student_id Student ID
    */
-  public static confirmStudent(student_id: string | number): Promise<void> {
+  public static confirmPaymentByStudentID(student_id: string | number): Promise<void> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 

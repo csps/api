@@ -65,8 +65,8 @@ async function postStudents(context: ElysiaContext) {
   // If confirming student
   if (isConfirm) {
     try {
-      await Admin.confirmStudent(student_id!);
-      return response.success("Order successfully confirmed!");
+      await Admin.confirmPaymentByStudentID(student_id!);
+      return response.success("Payment successfully confirmed!");
     } catch (e) {
       return response.error(e);
     }
