@@ -198,7 +198,7 @@ class Admin {
 
       try {
         // Confirm student
-        await db.query("UPDATE ict2024_students SET order_confirmed = NOW() WHERE student_id = ?", [ student_id ]);
+        await db.query("UPDATE ict2024_students SET payment_confirmed = NOW() WHERE student_id = ?", [ student_id ]);
         resolve();
       }
 
