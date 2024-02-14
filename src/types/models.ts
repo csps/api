@@ -178,17 +178,20 @@ export type VariationModel = {
 }
 
 export type ICTStudentModel = {
-  id: number,
-  campus: string,
-  student_id: string,
-  year_level: number,
-  first_name: string,
-  last_name: string,
-  email: string,
-  tshirt_size: string,
-  present: number,
-  order_date_accepted: string,
-  date_stamp: string,
+  id: number;
+  course: string;
+  campus_id: number;
+  student_id: string;
+  course_id: number;
+  tshirt_size_id: number;
+  year_level: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  attendance?: string;
+  payment_confirmed?: string;
+  snack_claimed: number;
+  date_stamp: string;
 }
 
 export type ICTStudentRegisterModel = {

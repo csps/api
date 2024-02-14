@@ -6,6 +6,7 @@ import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
 import { MariaUpdateResult } from "../../../types";
+import { getReadableDate } from "../../../utils/date";
 
 type AdminData = {
   campus: string;
@@ -198,9 +199,33 @@ class Admin {
       const db = Database.getInstance();
 
       try {
+        // Get current value
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+        );
+
+        // If student ID not found
+        if (result.length === 0) {
+          return reject("Student ID is not registered!");
+        }
+        
+        // If payment already confirmed
+        if (result[0].payment_confirmed) {
+          return reject("Payment already confirmed in " + getReadableDate(result[0].payment_confirmed));
+        }
+
         // Confirm student
-        await db.query("UPDATE ict2024_students SET payment_confirmed = NOW() WHERE student_id = ?", [ student_id ]);
-        resolve();
+        const updateResult = await db.query<MariaUpdateResult>(
+          "UPDATE ict2024_students SET payment_confirmed = NOW() WHERE student_id = ?", [ student_id ]
+        );
+
+        // If student successfully confirmed
+        if (updateResult.affectedRows > 0) {
+          return resolve();
+        }
+
+        // Last resort error
+        return reject("Oops! Can't confirm payment. Please try again.");
       }
 
       // Log error and reject promise
@@ -220,18 +245,33 @@ class Admin {
       const db = Database.getInstance();
 
       try {
+        // Get current value
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+        );
+
+        // If student ID not found
+        if (result.length === 0) {
+          return reject("Student ID is not registered!");
+        }
+
+        // If student already marked as present
+        if (result[0].attendance) {
+          return reject("Student already marked as present in " + getReadableDate(result[0].attendance));
+        }
+
         // Mark student as present
-        const result = await db.query<MariaUpdateResult>(
+        const updateResult = await db.query<MariaUpdateResult>(
           "UPDATE ict2024_students SET attendance = NOW() WHERE student_id = ?", [ student_id ]
         );
         
         // If student successfully marked as present
-        if (result.affectedRows > 0) {
+        if (updateResult.affectedRows > 0) {
           return resolve();
         }
 
-        // If student ID not found
-        reject("Student ID is not registered!");
+        // Last resort error
+        return reject("Oops! Can't mark student as present. Please try again.");
       }
 
       // Log error and reject promise
@@ -251,18 +291,33 @@ class Admin {
       const db = Database.getInstance();
 
       try {
+        // Get current value
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+        );
+
+        // If student ID not found
+        if (result.length === 0) {
+          return reject("Student ID is not registered!");
+        }
+
+        // If snack already claimed
+        if (result[0].snack_claimed) {
+          return reject("Snack already claimed!");
+        }
+
         // Claim snack
-        const result = await db.query<MariaUpdateResult>(
+        const updateResult = await db.query<MariaUpdateResult>(
           "UPDATE ict2024_students SET snack_claimed = 1 WHERE student_id = ?", [ student_id ]
         );
         
-        // If snack successfully claimed
-        if (result.affectedRows > 0) {
+         // If snack successfully claimed
+        if (updateResult.affectedRows > 0) {
           return resolve();
         }
 
-        // If student ID not found
-        reject("Student ID is not registered!");
+        // Last resort error
+        return reject("Oops! Can't claim snack. Please try again.");
       }
 
       // Log error and reject promise
