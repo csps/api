@@ -56,10 +56,11 @@ async function getStudents(context: ElysiaContext) {
 async function postStudents(context: ElysiaContext) {
   const isMarkPresent = context.path.includes("mark-present");
   const isPaymentConfirm = context.path.includes("payment-confirm");
+  const isClaimSnack = context.path.includes("claim-snack");
   const student_id = context.params?.student_id;
 
-  // Check for student ID when accessing /present or /confirm
-  if (!student_id && (isMarkPresent || isPaymentConfirm)) {
+  // Check for student ID
+  if (!student_id && (isMarkPresent || isPaymentConfirm || isClaimSnack)) {
     return response.error("Student ID is required");
   }
 
@@ -78,6 +79,16 @@ async function postStudents(context: ElysiaContext) {
     try {
       await Admin.markStudentAsPresent(student_id!);
       return response.success(`Student ID (${student_id}) successfully marked as present!`);
+    } catch (e) {
+      return response.error(e);
+    }
+  }
+
+  // If claiming snack
+  if (isClaimSnack) {
+    try {
+      await Admin.claimSnackByStudentID(student_id!);
+      return response.success(`Student ID (${student_id}) successfully claimed snack!`);
     } catch (e) {
       return response.error(e);
     }

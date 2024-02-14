@@ -243,6 +243,37 @@ class Admin {
   }
 
   /**
+   * Claim snack by student ID
+   * @param student_id Student ID
+   */
+  public static claimSnackByStudentID(student_id: string | number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Claim snack
+        const result = await db.query<MariaUpdateResult>(
+          "UPDATE ict2024_students SET snack_claimed = 1 WHERE student_id = ?", [ student_id ]
+        );
+        
+        // If snack successfully claimed
+        if (result.affectedRows > 0) {
+          return resolve();
+        }
+
+        // If student ID not found
+        reject("Student ID is not registered!");
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+  
+  /**
    * Get courses
    */
   public static getCourses(): Promise<any> {
