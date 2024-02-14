@@ -49,21 +49,21 @@ async function getStudents(context: ElysiaContext) {
 }
 
 /**
- * POST /ictcongress2024/students/:student_id/(present|confirm)
+ * POST /ictcongress2024/students/:student_id/(present|payment-confirm)
  * @param context Elysia context
  */
 async function postStudents(context: ElysiaContext) {
   const isPresent = context.path.includes("present");
-  const isConfirm = context.path.includes("confirm");
+  const isPaymentConfirm = context.path.includes("payment-confirm");
   const student_id = context.params?.student_id;
 
   // Check for student ID when accessing /present or /confirm
-  if (!student_id && (isPresent || isConfirm)) {
+  if (!student_id && (isPresent || isPaymentConfirm)) {
     return response.error("Student ID is required");
   }
 
-  // If confirming student
-  if (isConfirm) {
+  // If confirming payment for student
+  if (isPaymentConfirm) {
     try {
       await Admin.confirmPaymentByStudentID(student_id!);
       return response.success("Payment successfully confirmed!");

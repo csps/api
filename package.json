@@ -8,10 +8,10 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "elysia": "^0.8.16",
+    "elysia": "^0.8.17",
     "elysia-helmet": "^1.0.2",
     "elysia-ip": "^0.0.7",
-    "jose": "^5.2.1",
+    "jose": "^5.2.2",
     "juice": "^10.0.0",
     "mariadb": "^3.2.3",
     "nodemailer": "^6.9.9",
