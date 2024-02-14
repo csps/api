@@ -5,6 +5,7 @@ import { ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models"
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
+import { MariaUpdateResult } from "../../../types";
 
 type AdminData = {
   campus: string;
@@ -200,6 +201,37 @@ class Admin {
         // Confirm student
         await db.query("UPDATE ict2024_students SET payment_confirmed = NOW() WHERE student_id = ?", [ student_id ]);
         resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Mark student as present for the event
+   * @param student_id Student ID
+   */
+  public static markStudentAsPresent(student_id: string | number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Mark student as present
+        const result = await db.query<MariaUpdateResult>(
+          "UPDATE ict2024_students SET attendance = NOW() WHERE student_id = ?", [ student_id ]
+        );
+        
+        // If student successfully marked as present
+        if (result.affectedRows > 0) {
+          return resolve();
+        }
+
+        // If student ID not found
+        reject("Student ID is not registered!");
       }
 
       // Log error and reject promise

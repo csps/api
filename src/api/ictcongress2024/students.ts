@@ -29,10 +29,10 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
  * @param context Elysia context
  */
 async function getStudents(context: ElysiaContext) {
-  if (!!context.query) {
+  // If has query
+  if (Object.keys(context.query).length > 0) {
     try {
       const students = await Admin.searchStudents(context.user.campus_id, context.query as PaginationOutput);
-      // console.log(students);
       return response.success(Strings.STUDENTS_FOUND, ...students);
     }
 
@@ -45,7 +45,8 @@ async function getStudents(context: ElysiaContext) {
     }
   }
 
-  return response.success();
+  context.set.status = 400;
+  return response.error("No params");
 }
 
 /**
@@ -53,12 +54,12 @@ async function getStudents(context: ElysiaContext) {
  * @param context Elysia context
  */
 async function postStudents(context: ElysiaContext) {
-  const isPresent = context.path.includes("present");
+  const isMarkPresent = context.path.includes("mark-present");
   const isPaymentConfirm = context.path.includes("payment-confirm");
   const student_id = context.params?.student_id;
 
   // Check for student ID when accessing /present or /confirm
-  if (!student_id && (isPresent || isPaymentConfirm)) {
+  if (!student_id && (isMarkPresent || isPaymentConfirm)) {
     return response.error("Student ID is required");
   }
 
@@ -73,8 +74,13 @@ async function postStudents(context: ElysiaContext) {
   }
 
   // If marking student as present
-  if (isPresent) {
-    return;
+  if (isMarkPresent) {
+    try {
+      await Admin.markStudentAsPresent(student_id!);
+      return response.success(`Student ID (${student_id}) successfully marked as present!`);
+    } catch (e) {
+      return response.error(e);
+    }
   }
 
   // Register student
