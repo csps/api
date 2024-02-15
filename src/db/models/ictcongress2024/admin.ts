@@ -144,7 +144,9 @@ class Admin {
 
       try {
         // Check for student ID
-        let results = await db.query<ICTStudentModel[]>("SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student.student_id ]);
+        let results = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student.student_id ]
+        );
 
         // If student exists
         if (results.length > 0) {
@@ -166,7 +168,9 @@ class Admin {
         }
 
         // Check for email
-        results = await db.query<ICTStudentModel[]>("SELECT * FROM ict2024_students WHERE email = ? LIMIT 1", [ student.email ]);
+        results = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE email = ? LIMIT 1", [ student.email ]
+        );
 
         // If email exists
         if (results.length > 0) {
@@ -180,17 +184,19 @@ class Admin {
             first_name, last_name, email, discount_code, snack_claimed, date_stamp
           ) VALUES (
             ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW()
-          )`, [
-          student.campus_id,
-          student.student_id,
-          student.course_id,
-          student.tshirt_size_id,
-          student.year_level,
-          student.first_name,
-          student.last_name,
-          student.email,
-          student.discount_code
-        ]);
+          )`,
+          [
+            student.campus_id,
+            student.student_id,
+            student.course_id,
+            student.tshirt_size_id,
+            student.year_level,
+            student.first_name,
+            student.last_name,
+            student.email,
+            student.discount_code
+          ]
+        );
 
         resolve();
       }
@@ -524,7 +530,7 @@ class Admin {
   /**
    * Get t-shirt sizes
    */
-  public static getTShirtSizes(id?: number): Promise<any> {
+  public static getTShirtSizes(id?: number): Promise<ICTShirtSize | ICTShirtSize[]> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 

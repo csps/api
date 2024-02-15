@@ -108,7 +108,7 @@ async function postStudents(context: ElysiaContext) {
   // Register student
   try {
     await Admin.registerStudent(await context.body);
-    return response.success("You have successfully registered! Please check your email for your order confirmation. 💛");
+    return response.success("You have successfully registered! 💛"); // TODO: Add more info
   } catch (e) {
     console.error(e);
     return response.error(e);
