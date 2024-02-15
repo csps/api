@@ -57,6 +57,7 @@ async function postStudents(context: ElysiaContext) {
   const isMarkPresent = context.path.includes("mark-present");
   const isPaymentConfirm = context.path.includes("payment-confirm");
   const isClaimSnack = context.path.includes("claim-snack");
+  const isClaimTshirt = context.path.includes("claim-tshirt");
   const student_id = context.params?.student_id;
 
   // Check for student ID
@@ -89,6 +90,16 @@ async function postStudents(context: ElysiaContext) {
     try {
       await Admin.claimSnackByStudentID(student_id!);
       return response.success(`Student ID (${student_id}) successfully claimed snack!`);
+    } catch (e) {
+      return response.error(e);
+    }
+  }
+
+  // If claiming t-shirt
+  if (isClaimTshirt) {
+    try {
+      await Admin.claimTShirtByStudentID(student_id!);
+      return response.success(`Student ID (${student_id}) successfully claimed t-shirt!`);
     } catch (e) {
       return response.error(e);
     }

@@ -1,7 +1,7 @@
 import { EmailType, ErrorTypes } from "../../../types/enums";
 import Log from "../../../utils/log";
 import Database from "../..";
-import { ICTCampus, ICTCourse, ICTDiscountCode, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
+import { ICTCampus, ICTCourse, ICTDiscountCode, ICTShirtSize, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
@@ -9,6 +9,7 @@ import { MariaUpdateResult } from "../../../types";
 import { getReadableDate } from "../../../utils/date";
 import { sendEmail } from "../../../utils/email";
 import { generateICTCongressReference } from "../../../utils/security";
+import Strings from "../../../config/strings";
 
 type AdminData = {
   campus: string;
@@ -223,7 +224,7 @@ class Admin {
         
         // If payment already confirmed
         if (result[0].payment_confirmed) {
-          return reject("Payment already confirmed in " + getReadableDate(result[0].payment_confirmed));
+          return reject("Payment already confirmed on " + getReadableDate(result[0].payment_confirmed));
         }
 
         // Confirm student
@@ -293,7 +294,7 @@ class Admin {
 
         // If student already marked as present
         if (result[0].attendance) {
-          return reject("Student already marked as present in " + getReadableDate(result[0].attendance));
+          return reject("Student already marked as present on " + getReadableDate(result[0].attendance));
         }
 
         // Mark student as present
@@ -354,6 +355,66 @@ class Admin {
 
         // Last resort error
         return reject("Oops! Can't claim snack. Please try again.");
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Claim t-shirt by student ID
+   * @param student_id Student ID
+   */
+  public static claimTShirtByStudentID(student_id: string | number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get current value
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+        );
+
+        // If student ID not found
+        if (result.length === 0) {
+          return reject("Student ID is not registered!");
+        }
+
+        // If t-shirt already claimed
+        if (result[0].tshirt_claimed) {
+          return reject("T-shirt already claimed on " + getReadableDate(result[0].tshirt_claimed));
+        }
+
+        // Claim t-shirt
+        const updateResult = await db.query<MariaUpdateResult>(
+          "UPDATE ict2024_students SET tshirt_claimed = NOW() WHERE student_id = ?", [ student_id ]
+        );
+        
+         // If t-shirt successfully claimed
+        if (updateResult.affectedRows > 0) {
+          // Send QR code
+          sendEmail({
+            to: result[0].email,
+            subject: "ICT congress 2024 Attendance QR Code",
+            type: EmailType.ICT_QR,
+            title: "Your ICT congress 2024 Attendance QR Code",
+            data: {
+              first_name: result[0].first_name,
+              last_name: result[0].last_name,
+              qrcode_url: `${Strings.DOMAIN_API}/qrcode?q=${generateICTCongressReference(result[0].id)}`,
+            }
+          });
+
+          // Resolve
+          return resolve();
+        }
+
+        // Last resort error
+        return reject("Oops! Can't claim t-shirt. Please try again.");
       }
 
       // Log error and reject promise
@@ -463,13 +524,22 @@ class Admin {
   /**
    * Get t-shirt sizes
    */
-  public static getTShirtSizes(): Promise<any> {
+  public static getTShirtSizes(id?: number): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get t-shirt sizes
-        const tshirtSizes = await db.query("SELECT * FROM ict2024_tshirt_sizes");
+        const tshirtSizes = await db.query<ICTShirtSize[]>(
+          "SELECT * FROM ict2024_tshirt_sizes" + (id ? " WHERE id = ?" : ""), id ? [id] : undefined
+        );
+
+        // If id is provided
+        if (id) {
+          return resolve(tshirtSizes[0]);
+        }
+
+        // Otherwise, return all t-shirt sizes
         resolve(tshirtSizes);
       }
 

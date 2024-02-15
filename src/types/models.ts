@@ -190,6 +190,7 @@ export type ICTStudentModel = {
   discount_code: string;
   attendance?: string;
   payment_confirmed?: string;
+  tshirt_claimed?: string;
   snack_claimed: number;
   date_stamp: string;
 }
@@ -212,8 +213,9 @@ export type ICTCourse = {
   course_name: string;
 }
 
-export type ICTSize = {
+export type ICTShirtSize = {
   id: number;
+  code: string;
   name: string;
 }
 

@@ -4,7 +4,8 @@ import Config from ".";
  * String constants
  */
 const Strings = {
-  DOMAIN: "https://ucmncsps.org",
+  DOMAIN: process.env.NODE_ENV == "dev" ? "http://localhost:4000" : "https://ucmncsps.org",
+  DOMAIN_API: process.env.NODE_ENV == "dev" ? "http://localhost:3000" : "https://ucmncsps.org/api",
 
   GENERAL_INVALID_REQUEST: "Invalid request!",
   GENERAL_SYSTEM_ERROR: "Oops! A system error occured. Please contact the CSP-S server admin.",
