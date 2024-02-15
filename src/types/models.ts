@@ -179,7 +179,6 @@ export type VariationModel = {
 
 export type ICTStudentModel = {
   id: number;
-  course: string;
   campus_id: number;
   student_id: string;
   course_id: number;
@@ -203,4 +202,21 @@ export type ICTStudentRegisterModel = {
   campus_id: number;
   course_id: number;
   year_level: number;
+}
+
+export type ICTCourse = {
+  id: number;
+  course: string;
+  course_name: string;
+}
+
+export type ICTSize = {
+  id: number;
+  name: string;
+}
+
+export type ICTCampus = {
+  id: number;
+  campus: string;
+  campus_name: string;
 }

@@ -1,0 +1,51 @@
+strong.title #{title}
+table
+  tbody
+    tr
+      td
+        span Reference No.
+      td.text-right
+        span #{reference}
+    tr
+      td
+        span Student ID
+      td.text-right
+        span #{student_id}
+    tr
+      td
+        span Name
+      td.text-right
+        span #{first_name} #{last_name}
+    tr
+      td
+        span Campus
+      td.text-right
+        span #{campus}
+    tr
+      td
+        span Course
+      td.text-right
+        span #{course} #{year_level}
+    tr
+      td
+        span Price
+      td.text-right
+        span ₱ #{price}.00
+    tr
+      td
+        span Registered
+      td.text-right
+        span #{registered}
+    tr
+      td
+        span Payment Confirmed
+      td.text-right
+        span #{payment_confirmed}
+    tr
+      td(colspan="2")
+        div.mt-2.border
+    tr
+      td.subheader
+        span Total
+      td.subheader.text-right
+        span ₱ #{total}

@@ -28,6 +28,14 @@ export function generateReference(start: number) {
 }
 
 /**
+ * Generate reference number for ICT Congress
+ * @param start Starting number
+ */
+export function generateICTCongressReference(start: number) {
+  return `CSPSICT2024${Math.abs(start).toString().padStart(4, '0')}`;
+}
+
+/**
  * Generate secure token
  */
 export function generateToken(length = 16): Promise<string> {

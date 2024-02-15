@@ -1,12 +1,14 @@
-import { ErrorTypes } from "../../../types/enums";
+import { EmailType, ErrorTypes } from "../../../types/enums";
 import Log from "../../../utils/log";
 import Database from "../..";
-import { ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
+import { ICTCampus, ICTCourse, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
 import { MariaUpdateResult } from "../../../types";
 import { getReadableDate } from "../../../utils/date";
+import { sendEmail } from "../../../utils/email";
+import { generateICTCongressReference } from "../../../utils/security";
 
 type AdminData = {
   campus: string;
@@ -221,6 +223,30 @@ class Admin {
 
         // If student successfully confirmed
         if (updateResult.affectedRows > 0) {
+          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+          const course = await Admin.getCourses(result[0].course_id) as ICTCourse;
+
+          // Send receipt
+          sendEmail({
+            to: result[0].email,
+            subject: "Your ICT Congress 2024 payment receipt",
+            type: EmailType.ICT_RECEIPT,
+            title: "Receipt for ICT Congress 2024",
+            data: {
+              reference: generateICTCongressReference(Number(updateResult.insertId)),
+              student_id: result[0].student_id,
+              first_name: result[0].first_name,
+              last_name: result[0].last_name,
+              campus: campus.campus_name,
+              course: course.course_name,
+              year_level: result[0].year_level,
+              price: process.env.ICT_CONGRESS_PRICE,
+              total: process.env.ICT_CONGRESS_PRICE,
+              registered: getReadableDate(result[0].date_stamp),
+              payment_confirmed: getReadableDate(new Date()),
+            }
+          });
+
           return resolve();
         }
 
@@ -331,13 +357,22 @@ class Admin {
   /**
    * Get courses
    */
-  public static getCourses(): Promise<any> {
+  public static getCourses(id?: number): Promise<ICTCourse | ICTCourse[]> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get courses
-        const courses = await db.query("SELECT * FROM ict2024_courses");
+        const courses = await db.query<ICTCourse[]>(
+          "SELECT * FROM ict2024_courses" + (id ? " WHERE id = ?" : ""), id ? [id] : undefined
+        );
+
+        // If id is provided
+        if (id) {
+          return resolve(courses[0]);
+        }
+
+        // Otherwise, return all courses
         resolve(courses);
       }
 
@@ -352,13 +387,22 @@ class Admin {
   /**
    * Get campuses
    */
-  public static getCampuses(): Promise<any> {
+  public static getCampuses(id?: number): Promise<ICTCampus | ICTCampus[]> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get campuses
-        const campuses = await db.query("SELECT * FROM ict2024_campus");
+        const campuses = await db.query<ICTCampus[]>(
+          "SELECT * FROM ict2024_campus" + (id ? " WHERE id = ?" : ""), id ? [id] : undefined
+        );
+
+        // If id is provided
+        if (id) {
+          return resolve(campuses[0]);
+        }
+        
+        // Otherwise, return all courses
         resolve(campuses);
       }
 

@@ -21,7 +21,7 @@ export type ResponseBody = {
 };
 
 export type MariaUpdateResult = {
-  insertId: number,
+  insertId: bigint,
   affectedRows: number,
   warningStatus: number
 };
