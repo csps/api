@@ -1,7 +1,7 @@
 import { EmailType, ErrorTypes } from "../../../types/enums";
 import Log from "../../../utils/log";
 import Database from "../..";
-import { ICTCampus, ICTCourse, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
+import { ICTCampus, ICTCourse, ICTDiscountCode, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
@@ -155,6 +155,15 @@ class Admin {
           return reject("Invalid email format.");
         }
 
+        // Check for discount code
+        if (student.discount_code.length > 0) {
+          try {
+            await Admin.isDiscountCodeValid(student.discount_code);
+          } catch (error) {
+            return reject(error);
+          }
+        }
+
         // Check for email
         results = await db.query<ICTStudentModel[]>("SELECT * FROM ict2024_students WHERE email = ? LIMIT 1", [ student.email ]);
 
@@ -167,9 +176,9 @@ class Admin {
         await db.query(`
           INSERT INTO ict2024_students (
             campus_id, student_id, course_id, tshirt_size_id, year_level,
-            first_name, last_name, email, snack_claimed, date_stamp
+            first_name, last_name, email, discount_code, snack_claimed, date_stamp
           ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW()
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW()
           )`, [
           student.campus_id,
           student.student_id,
@@ -178,7 +187,8 @@ class Admin {
           student.year_level,
           student.first_name,
           student.last_name,
-          student.email
+          student.email,
+          student.discount_code
         ]);
 
         resolve();
@@ -350,6 +360,42 @@ class Admin {
       catch (e) {
         Log.e(e);
         reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Check if discount code is valid
+   * @param discount_code Discount code
+   */
+  public static isDiscountCodeValid(discount_code: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get discount code
+        const result = await db.query<ICTDiscountCode[]>(
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code ]
+        );
+
+        // If discount code not found
+        if (result.length === 0) {
+          return reject("Discount code not found :(");
+        }
+
+        // If discount has expired
+        if (new Date(result[0].expiration) < new Date()) {
+          return reject("Discount code is expired :(");
+        }
+
+        // If discount code is valid
+        resolve(true);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't validate discount code. Please try again later.");
       }
     });
   }
