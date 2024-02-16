@@ -102,7 +102,7 @@ class Admin {
       try {
         // Get pagination
         if (pagination && !isObjectEmpty(pagination)) {
-          const { query, countQuery, values, countValues } = paginationWrapper(db, {
+          const { query, countQuery, values, countValues, search } = paginationWrapper(db, {
             query: `
               SELECT s.*, ts.name as tshirt_size, c.course_name as course FROM ict2024_students s
               INNER JOIN ict2024_tshirt_sizes ts ON s.tshirt_size_id = ts.id
@@ -118,8 +118,7 @@ class Admin {
 
           // If no students found
           if (students.length === 0) {
-            // Log.i(`[ICT Congress 2024] No students found in the "${pagination}".`);
-            return reject(ErrorTypes.DB_EMPTY_RESULT);
+            return reject(`No students found${search ? " for " + search : ""}`);
           }
 
           resolve([students, Number(count[0].count) ]);
@@ -128,9 +127,9 @@ class Admin {
 
       // Log error and reject promise
       catch (e) {
-        console.error(e);
         Log.e(e);
-        reject(ErrorTypes.DB_ERROR);
+        console.error(e);
+        reject("An server error occured. Please try again later.");
       }
     });
   }
@@ -431,6 +430,54 @@ class Admin {
         reject(ErrorTypes.DB_ERROR);
       }
     });
+  }
+
+  /**
+   * Get pending orders count
+   */
+  public static getPendingOrdersCount(campus_id: number): Promise<number> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Query pending orders
+        const result = await db.query<[{ count: bigint }]>(
+          "SELECT COUNT(*) as count FROM ict2024_students WHERE payment_confirmed IS NULL"
+        );
+
+        // Get count
+        resolve(Number(result[0].count));
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't get pending orders. Please try again later.");
+      }
+    });
+  }
+
+  /**
+   * Remove students with pending orders
+   * @param campus_id Campus ID
+   */
+  public static removePendingOrders(campus_id: number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Remove pending orders
+        await db.query("DELETE FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [ campus_id ]);
+        resolve();
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't remove pending orders. Please try again later.");
+      }
+    });
+     
   }
 
   /**

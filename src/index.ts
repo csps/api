@@ -35,12 +35,17 @@ app.onBeforeHandle((context: ElysiaContext) => {
 // Register routes
 for (const route of routes) {
   app.all(route.path, async (context: ElysiaContext) => {
+    // If preflight request, return 200 OK
+    if (context.request.method === "OPTIONS") {
+      return context.set.status = 200;
+    }
+
     // Get request role
     const requestRole = await validateAndGetRole(context);
     // Get requested route role
     const routeRole: AuthType | AuthType[] | undefined = route.auth ?
       route.auth[context.request.method as HttpMethod] : undefined;
-    
+
     // If requestRole is false, meaning the token is expired
     if (requestRole === false) {
       context.set.status = 401;
@@ -55,10 +60,6 @@ for (const route of routes) {
     // Check if the route supports the request HTTP method
     if (route.methods.indexOf(context.request.method as HttpMethod) !== -1) {
       return route.handler(context);
-    }
-
-    if (context.request.method === "OPTIONS") {
-      return context.set.status = 200;
     }
 
     // Otherwise, return 501 Not Implemented

@@ -69,7 +69,7 @@ async function getLogin(context: ElysiaContext) {
 
     // If student is not found
     if (!student) {
-      context.set.status = 404;
+      context.set.status = 401;
       return response.error(Strings.LOGIN_FAILED);
     }
 
@@ -88,7 +88,7 @@ async function getLogin(context: ElysiaContext) {
 
     // If error is DB_EMPTY_RESULT
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
-      context.set.status = 404;
+      context.set.status = 401;
       return response.error(Strings.LOGIN_FAILED);
     }
     

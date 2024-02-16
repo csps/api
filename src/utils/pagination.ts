@@ -11,6 +11,7 @@ type PaginationResult = {
   values: any[];
   countQuery: string;
   countValues: any[];
+  search?: string;
 }
 
 type Search = {
@@ -109,6 +110,7 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
   }
 
   return {
-    countQuery, query, values, countValues
+    countQuery, query, values, countValues,
+    search: values[0].toString().replaceAll("%", "")
   };
 }
