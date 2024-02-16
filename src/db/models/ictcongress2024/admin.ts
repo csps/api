@@ -610,24 +610,19 @@ class Admin {
    * Get price w/ discount code if available
    * @param discount_code 
    */
-  public static getPrice(discount_code?: string) {
+  public static getPrice(discount_code: string) {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get discount code
         const result = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code ?? "" ]
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code ]
         );
 
         // If discount code not found
         if (result.length === 0) {
           return reject("Discount code not found :(");
-        }
-
-        // If discount has expired
-        if (new Date(result[0].expiration) < new Date()) {
-          return reject("Discount code is expired :(");
         }
 
         // Get price
