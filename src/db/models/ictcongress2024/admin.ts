@@ -328,6 +328,11 @@ class Admin {
           return reject("Student ID is not registered!");
         }
 
+        // If student still pending payment
+        if (!result[0].payment_confirmed) {
+          return reject("Student's payment is still pending.");
+        }
+
         // If student already marked as present
         if (result[0].attendance) {
           return reject("You're already marked as present on " + getReadableDate(result[0].attendance));
@@ -374,6 +379,11 @@ class Admin {
           return reject("Student ID is not registered!");
         }
 
+        // If student still pending payment
+        if (!result[0].payment_confirmed) {
+          return reject("Student's payment is still pending.");
+        }
+
         // If snack already claimed
         if (result[0].snack_claimed) {
           return reject("Snack already claimed!");
@@ -418,6 +428,11 @@ class Admin {
         // If student ID not found
         if (result.length === 0) {
           return reject("Student ID is not registered!");
+        }
+
+        // If student still pending payment
+        if (!result[0].payment_confirmed) {
+          return reject("Student's payment is still pending.");
         }
 
         // If t-shirt already claimed
