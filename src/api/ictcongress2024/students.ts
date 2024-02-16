@@ -37,11 +37,7 @@ async function getStudents(context: ElysiaContext) {
     }
 
     catch (e) {
-      if (e == ErrorTypes.DB_EMPTY_RESULT) {
-        return response.error("No students found");
-      }
-
-      return response.error();
+      return response.error(e);
     }
   }
 
@@ -54,6 +50,18 @@ async function getStudents(context: ElysiaContext) {
  * @param context Elysia context
  */
 async function postStudents(context: ElysiaContext) {
+  // If no operation param, register student
+  if (!context.params) {
+    try {
+      await Admin.registerStudent(await context.body);
+      return response.success("You have successfully registered! 💛"); // TODO: Add more info
+    } catch (e) {
+      console.error(e);
+      return response.error(e);
+    }
+  }
+
+  // Get student op
   const op = context.params["operation"];
 
   const isMarkPresent = op === "mark-present";
@@ -108,12 +116,6 @@ async function postStudents(context: ElysiaContext) {
     }
   }
 
-  // Register student
-  try {
-    await Admin.registerStudent(await context.body);
-    return response.success("You have successfully registered! 💛"); // TODO: Add more info
-  } catch (e) {
-    console.error(e);
-    return response.error(e);
-  }
+  // If no operation found
+  return response.error("Invalid student operation!");
 }
