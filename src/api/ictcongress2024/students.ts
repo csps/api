@@ -50,14 +50,16 @@ async function getStudents(context: ElysiaContext) {
 }
 
 /**
- * POST /ictcongress2024/students/:student_id/(present|payment-confirm)
+ * POST /ictcongress2024/students/:student_id/:operation
  * @param context Elysia context
  */
 async function postStudents(context: ElysiaContext) {
-  const isMarkPresent = context.path.includes("mark-present");
-  const isPaymentConfirm = context.path.includes("payment-confirm");
-  const isClaimSnack = context.path.includes("claim-snack");
-  const isClaimTshirt = context.path.includes("claim-tshirt");
+  const op = context.params["operation"];
+
+  const isMarkPresent = op === "mark-present";
+  const isPaymentConfirm = op === "payment-confirm";
+  const isClaimSnack = op === "claim-snack";
+  const isClaimTshirt = op === "claim-tshirt";
   const student_id = context.params?.student_id;
 
   // Check for student ID

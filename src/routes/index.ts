@@ -9,18 +9,17 @@ import {
 import { login as ictlogin } from "../api/ictcongress2024/login";
 import { students as ictstudents } from "../api/ictcongress2024/students";
 import { index as ictconfig } from "../api/ictcongress2024/";
+import { ictprice } from "../api/ictcongress2024/price";
 
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
 
   { path:  "/ictcongress2024", handler: ictconfig, methods: ["GET"] },
   { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/price/:discount_code", handler: ictprice, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/students/:student_id/mark-present", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/students/:student_id/payment-confirm", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST:AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/students/:student_id/claim-snack", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST:AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/students/:student_id/claim-tshirt", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST:AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/:student_id/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},
