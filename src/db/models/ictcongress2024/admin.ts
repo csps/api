@@ -213,7 +213,7 @@ class Admin {
    * Confirm payment
    * @param student_id Student ID
    */
-  public static confirmPaymentByStudentID(student_id: string | number): Promise<void> {
+  public static confirmPaymentByStudentID(student_id: string | number, rfid?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
@@ -235,7 +235,8 @@ class Admin {
 
         // Confirm student
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET payment_confirmed = NOW() WHERE student_id = ?", [ student_id ]
+          `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE student_id = ?`,
+          [ rfid ?? null, student_id ]
         );
 
         // If student successfully confirmed

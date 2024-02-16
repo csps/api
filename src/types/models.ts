@@ -181,6 +181,7 @@ export type ICTStudentModel = {
   id: number;
   campus_id: number;
   student_id: string;
+  rfid?: string;
   course_id: number;
   tshirt_size_id: number;
   year_level: string;

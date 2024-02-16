@@ -61,6 +61,7 @@ async function postStudents(context: ElysiaContext) {
   const isClaimSnack = op === "claim-snack";
   const isClaimTshirt = op === "claim-tshirt";
   const student_id = context.params?.student_id;
+  const rfid = context.body?.rfid;
 
   // Check for student ID
   if (!student_id && (isMarkPresent || isPaymentConfirm || isClaimSnack)) {
@@ -70,7 +71,7 @@ async function postStudents(context: ElysiaContext) {
   // If confirming payment for student
   if (isPaymentConfirm) {
     try {
-      await Admin.confirmPaymentByStudentID(student_id!);
+      await Admin.confirmPaymentByStudentID(student_id!, rfid);
       return response.success("Payment successfully confirmed!");
     } catch (e) {
       return response.error(e);
