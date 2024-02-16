@@ -304,7 +304,7 @@ class Admin {
       // Log error and reject promise
       catch (e) {
         Log.e(e);
-        reject(ErrorTypes.DB_ERROR);
+        reject("An error occured while confirming payment. Please try again later.");
       }
     });
   }
@@ -661,7 +661,7 @@ class Admin {
       try {
         // Get discount code
         const result = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code ]
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code.length > 0 ? discount_code : "-" ]
         );
 
         // If discount code not found
