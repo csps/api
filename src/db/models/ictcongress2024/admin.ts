@@ -90,6 +90,35 @@ class Admin {
   }
 
   /**
+   * Get student by RFID
+   * @param rfid Student's RFID
+   */
+  public static getStudentByRFID(rfid: string): Promise<ICTStudentModel> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get student by RFID
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE rfid = ? LIMIT 1", [ rfid ]
+        );
+
+        if (result.length === 0) {
+          return reject("Student not found.");
+        }
+
+        resolve(result[0]);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Error retrieving student.");
+      }
+    });
+  }
+
+  /**
    * Search
    * @param campus_id Campus
    * @param search Search
@@ -301,7 +330,7 @@ class Admin {
 
         // If student already marked as present
         if (result[0].attendance) {
-          return reject("Student already marked as present on " + getReadableDate(result[0].attendance));
+          return reject("You're already marked as present on " + getReadableDate(result[0].attendance));
         }
 
         // Mark student as present
