@@ -242,6 +242,7 @@ class Admin {
         if (updateResult.affectedRows > 0) {
           const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
           const course = await Admin.getCourses(result[0].course_id) as ICTCourse;
+          const price = await Admin.getPrice(result[0].discount_code);
 
           // Send receipt
           sendEmail({
@@ -257,8 +258,8 @@ class Admin {
               campus: campus.campus_name,
               course: course.course_name,
               year_level: result[0].year_level,
-              price: process.env.ICT_CONGRESS_PRICE,
-              total: process.env.ICT_CONGRESS_PRICE,
+              price: price,
+              total: price,
               registered: getReadableDate(result[0].date_stamp),
               payment_confirmed: getReadableDate(new Date()),
             }
@@ -553,6 +554,42 @@ class Admin {
       catch (e) {
         Log.e(e);
         reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
+
+  /**
+   * Get price w/ discount code if available
+   * @param discount_code 
+   */
+  public static getPrice(discount_code?: string) {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get discount code
+        const result = await db.query<ICTDiscountCode[]>(
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code ?? "" ]
+        );
+
+        // If discount code not found
+        if (result.length === 0) {
+          return reject("Discount code not found :(");
+        }
+
+        // If discount has expired
+        if (new Date(result[0].expiration) < new Date()) {
+          return reject("Discount code is expired :(");
+        }
+
+        // Get price
+        resolve(result[0].price);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't validate discount code. Please try again later.");
       }
     });
   }

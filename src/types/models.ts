@@ -228,5 +228,6 @@ export type ICTCampus = {
 export type ICTDiscountCode = {
   id: number;
   code: number;
+  price: number;
   expiration: string;
 }
