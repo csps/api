@@ -240,6 +240,7 @@ class Admin {
   /**
    * Confirm payment
    * @param student_id Student ID
+   * @param rfid RFID
    */
   public static confirmPaymentByStudentID(student_id: string | number, rfid?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
@@ -311,21 +312,23 @@ class Admin {
 
   /**
    * Mark student as present for the event
-   * @param student_id Student ID
+   * @param qr QR Code data
    */
-  public static markStudentAsPresent(student_id: string | number): Promise<void> {
+  public static markStudentAsPresent(qr: string): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
+        // Get ID
+        const id = await Admin.getIDFromQRData(qr);
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ id ]
         );
 
         // If student ID not found
         if (result.length === 0) {
-          return reject("Student ID is not registered!");
+          return reject("Student not found!");
         }
 
         // If student still pending payment
@@ -340,12 +343,12 @@ class Admin {
 
         // Mark student as present
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET attendance = NOW() WHERE student_id = ?", [ student_id ]
+          "UPDATE ict2024_students SET attendance = NOW() WHERE id = ?", [ id ]
         );
         
         // If student successfully marked as present
         if (updateResult.affectedRows > 0) {
-          return resolve();
+          return resolve(result[0]);
         }
 
         // Last resort error
@@ -355,23 +358,25 @@ class Admin {
       // Log error and reject promise
       catch (e) {
         Log.e(e);
-        reject(ErrorTypes.DB_ERROR);
+        reject(e);
       }
     });
   }
 
   /**
    * Claim snack by student ID
-   * @param student_id Student ID
+   * @param qr QR Code data
    */
-  public static claimSnackByStudentID(student_id: string | number): Promise<void> {
+  public static claimSnackByStudentID(qr: string): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
+        // Get ID
+        const id = await Admin.getIDFromQRData(qr);
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ id ]
         );
 
         // If student ID not found
@@ -391,12 +396,12 @@ class Admin {
 
         // Claim snack
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET snack_claimed = 1 WHERE student_id = ?", [ student_id ]
+          "UPDATE ict2024_students SET snack_claimed = 1 WHERE id = ?", [ id ]
         );
         
          // If snack successfully claimed
         if (updateResult.affectedRows > 0) {
-          return resolve();
+          return resolve(result[0]);
         }
 
         // Last resort error
@@ -406,7 +411,7 @@ class Admin {
       // Log error and reject promise
       catch (e) {
         Log.e(e);
-        reject(ErrorTypes.DB_ERROR);
+        reject(e);
       }
     });
   }
@@ -447,6 +452,9 @@ class Admin {
         
          // If t-shirt successfully claimed
         if (updateResult.affectedRows > 0) {
+          // Log claimed
+          Log.i(`T-shirt claimed by student ID ${student_id}`);
+
           // Send QR code
           sendEmail({
             to: result[0].email,
@@ -678,6 +686,30 @@ class Admin {
         Log.e(e);
         reject("Oops! Can't validate discount code. Please try again later.");
       }
+    });
+  }
+
+  /**
+   * Get ID from QR data
+   * @param qr QR Code data
+   */
+  private static getIDFromQRData(qr: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      // Check if QR code is valid
+      if (!qr.trim().startsWith("CSPSICT2024")) {
+        return reject("Invalid QR code.");
+      }
+
+      // Get ID
+      const id = Number(qr.substring(qr.length - 4));
+
+      // If ID is not a number
+      if (isNaN(id)) {
+        return reject("Malformed QR code.");
+      }
+
+      // Resolve ID
+      resolve(id);
     });
   }
 }

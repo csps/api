@@ -23,6 +23,7 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/qr/:qr/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},

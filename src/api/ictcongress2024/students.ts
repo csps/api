@@ -5,7 +5,6 @@ import Strings from "../../config/strings";
 
 import Admin from "../../db/models/ictcongress2024/admin";
 import { PaginationOutput } from "../../types/request";
-import { ErrorTypes } from "../../types/enums";
 
 /**
  * ICT Congress Students API
@@ -63,21 +62,32 @@ async function postStudents(context: ElysiaContext) {
 
   // Get student op
   const op = context.params["operation"];
+  // Get QR code data
+  const qr = context.params["qr"];
 
+  const isUsingQR = qr !== undefined;
   const isMarkPresent = op === "mark-present";
   const isPaymentConfirm = op === "payment-confirm";
   const isClaimSnack = op === "claim-snack";
   const isClaimTshirt = op === "claim-tshirt";
+
+  // Get student ID param
   const student_id = context.params?.student_id;
+  // Get RFID from body
   const rfid = context.body?.rfid;
 
-  // Check for student ID
-  if (!student_id && (isMarkPresent || isPaymentConfirm || isClaimSnack)) {
-    return response.error("Student ID is required");
+  // For QR code operations
+  if (isMarkPresent || isClaimSnack) {
+    if (isUsingQR && !qr) return response.error("QR code is required");
+  }
+
+  // For student ID operations
+  if (isPaymentConfirm || isClaimTshirt) {
+    if (!student_id && !isUsingQR) return response.error("Student ID is required");
   }
 
   // If confirming payment for student
-  if (isPaymentConfirm) {
+  if (isPaymentConfirm && student_id) {
     try {
       await Admin.confirmPaymentByStudentID(student_id!, rfid);
       return response.success("Payment successfully confirmed!");
@@ -86,31 +96,31 @@ async function postStudents(context: ElysiaContext) {
     }
   }
 
-  // If marking student as present
-  if (isMarkPresent) {
+  // If claiming t-shirt
+  if (isClaimTshirt && student_id) {
     try {
-      await Admin.markStudentAsPresent(student_id!);
-      return response.success(`Student ID (${student_id}) successfully marked as present!`);
+      await Admin.claimTShirtByStudentID(student_id!);
+      return response.success(`Student ID (${student_id}) successfully claimed t-shirt!`);
+    } catch (e) {
+      return response.error(e);
+    }
+  }
+
+  // If marking student as present
+  if (isMarkPresent && isUsingQR) {
+    try {
+      const student = await Admin.markStudentAsPresent(qr!);
+      return response.success(`Student ID (${student.student_id}) successfully marked as present!`);
     } catch (e) {
       return response.error(e);
     }
   }
 
   // If claiming snack
-  if (isClaimSnack) {
+  if (isClaimSnack && isUsingQR) {
     try {
-      await Admin.claimSnackByStudentID(student_id!);
-      return response.success(`Student ID (${student_id}) successfully claimed snack!`);
-    } catch (e) {
-      return response.error(e);
-    }
-  }
-
-  // If claiming t-shirt
-  if (isClaimTshirt) {
-    try {
-      await Admin.claimTShirtByStudentID(student_id!);
-      return response.success(`Student ID (${student_id}) successfully claimed t-shirt!`);
+      const student = await Admin.claimSnackByStudentID(qr!);
+      return response.success(`Student ID (${student.student_id}) successfully claimed snack!`);
     } catch (e) {
       return response.error(e);
     }
