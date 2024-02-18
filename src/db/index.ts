@@ -29,6 +29,7 @@ class Database {
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
+      timezone: "+08:00",
       dateStrings: true,
       port: 3306
     });
