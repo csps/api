@@ -29,7 +29,7 @@ app.onBeforeHandle((context: ElysiaContext) => {
   setHeader(context, "access-control-allow-headers", "Origin, Content-Type, Authorization");
   setHeader(context, "access-control-expose-headers", "Authorization");
   setHeader(context, "access-control-allow-credentials", "true");
-  setHeader(context, "access-control-allow-origin", "http://127.0.0.1:4000");
+  setHeader(context, "access-control-allow-origin", "https://ucmncsps.org");
 });
 
 // Register routes
