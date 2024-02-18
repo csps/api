@@ -12,6 +12,7 @@ type PaginationResult = {
   countQuery: string;
   countValues: any[];
   search?: string;
+  filter?: string;
 }
 
 type Search = {
@@ -82,6 +83,14 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
     query += condition;
   }
 
+  if (request.filter) {
+    query = `SELECT * FROM (${query}) t`;
+    
+    if (request.filter !== "-1") {
+      query += ` WHERE ${db.escapeId(request.filter)} ${request.filterLogic === "2" ? ` != 0 ` : `IS ${request.filterLogic === "1" ? "NOT " : ""}NULL`}`;
+    }
+  }
+
   const countQuery = `SELECT COUNT(*) AS count FROM (${query}) t`;
   const countValues = [...values];
   
@@ -111,6 +120,7 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
 
   return {
     countQuery, query, values, countValues,
-    search: values[0].toString().replaceAll("%", "")
+    search: values[0].toString().replaceAll("%", ""),
+    filter: request.filter?.toString()
   };
 }

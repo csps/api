@@ -50,6 +50,9 @@ export type PaginationRequest = {
 export type PaginationOutput = {
   sort?: string | { key: string[], value: string[] },
   search?: string | { key: string[], value: string[] },
+  filterColumns?: (string | -1)[]
+  filter?: string | number,
+  filterLogic?: string,
   page?: string;
   limit?: string;
 };
