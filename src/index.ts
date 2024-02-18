@@ -4,7 +4,7 @@ import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import { AuthType } from "./types/enums";
 import { setHeader } from "./utils/security";
-import { jwt, validateAndGetRole } from "./session";
+import { validateAndGetRole } from "./session";
 
 import type { ElysiaContext, HttpMethod } from "./types";
 import routes, { status404, status501 } from "./routes";

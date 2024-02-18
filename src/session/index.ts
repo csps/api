@@ -1,4 +1,3 @@
-import { jwt as jwtConfig } from "@elysiajs/jwt";
 import { ElysiaContext } from "../types";
 import { AuthType } from "../types/enums";
 import { jwtVerify } from "jose";
@@ -49,12 +48,3 @@ export async function validateAndGetRole(context: ElysiaContext): Promise<AuthTy
 
   return null;
 }
-
-/**
- * JWT middleware configuration
- */
-export const jwt = () => jwtConfig({
-  name: "jwt",
-  secret: Bun.env.SECRET_KEY,
-  exp: "1d"
-});
