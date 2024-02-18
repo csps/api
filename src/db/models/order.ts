@@ -3,7 +3,7 @@ import { ElysiaContext, MariaUpdateResult } from "../../types";
 import { EmailType, ErrorTypes, FullOrderEnum, ModeOfPayment, OrderStatus } from "../../types/enums";
 import { FullOrderModel } from "../../types/models";
 import { OrderRequest, PaginationOutput } from "../../types/request";
-import { getLocalDate, getReadableDate } from "../../utils/date";
+import { getDatestamp, getLocalDate, getReadableDate } from "../../utils/date";
 import { isEmail, isObjectEmpty } from "../../utils/string";
 import { paginationWrapper } from "../../utils/pagination";
 import { OrdersColumn } from "../structure.d";
@@ -262,7 +262,7 @@ class Order {
           }
 
           // Set student guest id
-          studentGuestId = result.insertId;
+          studentGuestId = Number(result.insertId);
         }
 
         // Insert order
@@ -337,7 +337,7 @@ class Order {
   /**
    * Update order status
    */
-  public static update(id: number, key: OrdersColumn, value: string): Promise<void> {
+  public static update(id: number, key: OrdersColumn, value: string): Promise<FullOrderModel> {
     return new Promise(async (resolve, reject) => {
       // If order ID is not present
       if (!id) return reject(ErrorTypes.REQUEST_ID);
@@ -353,6 +353,7 @@ class Order {
 
       // Get database instance
       const db = Database.getInstance();
+      let isStatusUpdated = false;
 
       try {
         // Check if order exists
@@ -371,12 +372,13 @@ class Order {
           return reject(ErrorTypes.DB_EMPTY_RESULT);
         }
 
-
         if (key == OrdersColumn.STATUS) {
           // Check current status
           const isPendingOrComplete = orders[0].status == OrderStatus.PENDING_PAYMENT || orders[0].status == OrderStatus.COMPLETED;
           // If status is to cancelled, removed, rejected
           const willIncrement = [OrderStatus.CANCELLED_BY_ADMIN, OrderStatus.CANCELLED_BY_USER, OrderStatus.REJECTED, OrderStatus.REMOVED].includes(Number(value));
+          // Set status updated
+          isStatusUpdated = true;
 
           // (Increment) If pending or complete will be cancelled, removed, or rejected
           if (isPendingOrComplete && willIncrement) {
@@ -429,7 +431,9 @@ class Order {
         }
 
         // Update order
-        const result = await db.query<MariaUpdateResult>(`UPDATE orders SET ${db.escapeId(key)} = ?, ${OrdersColumn.EDIT_DATE} = NOW() WHERE id = ?`, [ value, id ]);
+        const result = await db.query<MariaUpdateResult>(
+          `UPDATE orders SET ${db.escapeId(key)} = ?, ${OrdersColumn.EDIT_DATE} = NOW() ${isStatusUpdated ? `, ${OrdersColumn.STATUS_UPDATED} = NOW()` : ''} WHERE id = ?`, [ value, id ]
+        );
 
         // If no rows affected
         if (result.affectedRows === 0) {
@@ -437,8 +441,39 @@ class Order {
           return reject(ErrorTypes.DB_EMPTY_RESULT);
         }
 
+        // If status updated, send email
+        if (isStatusUpdated) {
+          orders[0].status_updated = getDatestamp(new Date());
+
+          // If status is to completed
+          if ((value as unknown as OrderStatus) == OrderStatus.COMPLETED) {
+            // Send order email
+            sendEmail({
+              type: EmailType.RECEIPT,
+              subject: Strings.EMAIL_ORDER_COMPLETED_SUBJECT.replace("{reference}", orders[0].reference),
+              title: Strings.EMAIL_ORDER_TITLE,
+              to: orders[0].email_address,
+              data: {
+                student: `${orders[0].first_name} ${orders[0].last_name}`,
+                student_id: orders[0].student_id,
+                order_placed_date: getReadableDate(orders[0].date_stamp),
+                order_completed_date: getReadableDate(orders[0].status_updated),
+                merch: orders[0].product_name,
+                mode_of_payment: orders[0].mode_of_payment == ModeOfPayment.WALK_IN ? "Cash" : "GCash",
+                name: orders[0].product_name,
+                variation: orders[0].variations_name || "Standard",
+                price: orders[0].product_price,
+                total: orders[0].product_price * orders[0].quantity,
+                quantity: orders[0].quantity,
+                reference: orders[0].reference,
+                qr_code_url: ""
+              }
+            });
+          }
+        }
+
         // Resolve promise
-        resolve();
+        resolve(orders[0]);
       }
 
       catch (err) {
