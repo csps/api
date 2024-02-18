@@ -56,7 +56,7 @@ async function getProducts(context: ElysiaContext) {
     // If error is DB_EMPTY_RESULT
     if (err === ErrorTypes.DB_EMPTY_RESULT) {
       context.set.status = 404;
-      return response.error(context.params.slug ? Strings.PRODUCT_NOT_FOUND : Strings.PRODUCTS_NOT_FOUND);
+      return response.error(context.params?.slug ? Strings.PRODUCT_NOT_FOUND : Strings.PRODUCTS_NOT_FOUND);
     }
   }
 }
