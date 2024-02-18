@@ -33,7 +33,7 @@ async function postRFID(context: ElysiaContext) {
     // Get student
     const student = await Admin.getStudentByRFID(rfid);
     // Mark student as present
-    await Admin.markStudentAsPresent(student.student_id);
+    await Admin.markStudentAsPresent({ rfid });
     // Return success response
     return response.success(`Welcome, ${student.first_name} ${student.last_name}`, student);
   }

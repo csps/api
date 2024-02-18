@@ -109,7 +109,7 @@ async function postStudents(context: ElysiaContext) {
   // If marking student as present
   if (isMarkPresent && isUsingQR) {
     try {
-      const student = await Admin.markStudentAsPresent(qr!);
+      const student = await Admin.markStudentAsPresent({ qr });
       return response.success(`Student ID (${student.student_id}) successfully marked as present!`);
     } catch (e) {
       return response.error(e);
@@ -119,7 +119,7 @@ async function postStudents(context: ElysiaContext) {
   // If claiming snack
   if (isClaimSnack && isUsingQR) {
     try {
-      const student = await Admin.claimSnackByStudentID(qr!);
+      const student = await Admin.claimSnackByStudentID({ qr });
       return response.success(`Student ID (${student.student_id}) successfully claimed snack!`);
     } catch (e) {
       return response.error(e);

@@ -312,18 +312,27 @@ class Admin {
 
   /**
    * Mark student as present for the event
-   * @param qr QR Code data
+   * @param data QR Code data or RFID
    */
-  public static markStudentAsPresent(qr: string): Promise<ICTStudentModel> {
+  public static markStudentAsPresent(data: { qr?: string, rfid?: string }): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
+      if (!data.qr && !data.rfid) {
+        return reject("QR or RFID not provided!");
+      }
+
       const db = Database.getInstance();
 
       try {
-        // Get ID
-        const id = await Admin.getIDFromQRData(qr);
+        let id;
+
+        // If using QR
+        if (data.qr) {
+          id = await Admin.getIDFromQRData(data.qr);
+        }
+
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ id ]
+          `SELECT * FROM ict2024_students WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [ data.qr ? id : data.rfid ]
         );
 
         // If student ID not found
@@ -343,7 +352,7 @@ class Admin {
 
         // Mark student as present
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET attendance = NOW() WHERE id = ?", [ id ]
+          `UPDATE ict2024_students SET attendance = NOW() WHERE ${data.qr ? "id" : "rfid"} = ?`, [ data.qr ? id : data.rfid ]
         );
         
         // If student successfully marked as present
@@ -365,18 +374,23 @@ class Admin {
 
   /**
    * Claim snack by student ID
-   * @param qr QR Code data
+   * @param data QR Code data or RFID
    */
-  public static claimSnackByStudentID(qr: string): Promise<ICTStudentModel> {
+  public static claimSnackByStudentID(data: { qr?: string, rfid?: string }): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
-        // Get ID
-        const id = await Admin.getIDFromQRData(qr);
+        let id;
+
+        // If using QR
+        if (data.qr) {
+          id = await Admin.getIDFromQRData(data.qr);
+        }
+        
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ id ]
+          `SELECT * FROM ict2024_students WHERE id = ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [ data.qr ? id : data.rfid ]
         );
 
         // If student ID not found
@@ -396,7 +410,7 @@ class Admin {
 
         // Claim snack
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET snack_claimed = 1 WHERE id = ?", [ id ]
+          `UPDATE ict2024_students SET snack_claimed = 1 WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [ data.qr ? id : data.rfid ]
         );
         
          // If snack successfully claimed
