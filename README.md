@@ -30,7 +30,7 @@ We welcome contributions from UC Main who are interested in helping us improve a
 
 All rights reserved.
 
-Copyright (c) 2023 **UC Main CSP-S**
+Copyright (c) 2024 **UC Main CSP-S**
 
 The software must **NOT** be modified or distributed without the prior written consent of the copyright holders.
 Any unauthorized reproduction, modification, or distribution of this code will result in legal action.
