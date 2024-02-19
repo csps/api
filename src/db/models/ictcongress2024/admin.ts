@@ -543,7 +543,52 @@ class Admin {
         reject("Oops! Can't remove pending orders. Please try again later.");
       }
     });
-     
+  }
+
+  /**
+   * Remove student record
+   * @param student_id Student's ID
+   */
+  public static removeStudent(student_id: string): Promise<ICTStudentModel> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get student
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+        );
+
+        // If student not found
+        if (result.length === 0) {
+          return reject("Student not found.");
+        }
+
+        // If student already confirmed payment
+        if (result[0].payment_confirmed) {
+          return reject("Cannot remove after the student's payment has already been confirmed.");
+        }
+
+        // Remove pending order
+        const updateResult = await db.query<MariaUpdateResult>(
+          "DELETE FROM ict2024_students WHERE student_id = ?", [ student_id ]
+        );
+
+        // If student successfully removed
+        if (updateResult.affectedRows > 0) {
+          return resolve(result[0]);
+        }
+
+        // Last resort error
+        return reject("Oops! Remove unsuccessful. Please try again.");
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't remove student. Please try again later.");
+      }
+    });
   }
 
   /**

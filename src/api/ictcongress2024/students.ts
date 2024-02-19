@@ -16,6 +16,8 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
       return getStudents(context);
     case "POST":
       return postStudents(context);
+    case "DELETE":
+      return deleteStudents(context);
     case "OPTIONS":
       return response.success();
   }
@@ -128,4 +130,28 @@ async function postStudents(context: ElysiaContext) {
 
   // If no operation found
   return response.error("Invalid student operation!");
+}
+
+/**
+ * DELETE /ictcongress2024/students/:student_id
+ * @param context Elysia context
+ */
+async function deleteStudents(context: ElysiaContext) {
+  // Get student ID param
+  const student_id = context.params?.student_id;
+
+  // If no student ID
+  if (!student_id) {
+    return response.error("Student ID is required");
+  }
+
+  try {
+    // Remove student
+    const student = await Admin.removeStudent(student_id);
+    // Return success
+    return response.success(`Student ${student.first_name} ${student.last_name} (${student_id}) successfully deleted!`);
+  } catch (e) {
+    // Return error
+    return response.error(e);
+  }
 }

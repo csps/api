@@ -21,7 +21,7 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/rfid/:rfid", handler: ictrfid, methods: ["POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/price/:discount_code", handler: ictprice, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["DELETE"], auth: { DELETE: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/qr/:qr/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
