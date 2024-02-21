@@ -593,26 +593,27 @@ class Admin {
 
   /**
    * Get ICT Congress status statistics
+   * @param campus_id Campus ID
    */
-  public static getStatistics(): Promise<ICTStatistics> {
+  public static getStatistics(campus_id: number): Promise<ICTStatistics> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
- 
+
       try {
         // Main query
-        const query = "SELECT COUNT(*) as count FROM ict2024_students WHERE";
+        const query = "SELECT COUNT(*) as count FROM ict2024_students WHERE campus_id = ? AND ";
         // Get count all
-        const countAll = await db.query<[{ count: bigint }]>(query.replace("WHERE", ""));
+        const countAll = await db.query<[{ count: bigint }]>(query.split("AND")[0], [ campus_id ]);
         // Get pending payments count
-        const countPendingPayments = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NULL`);
+        const countPendingPayments = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NULL`, [ campus_id ]);
         // Get present count
-        const countPresent = await db.query<[{ count: bigint }]>(`${query} attendance IS NOT NULL`);
+        const countPresent = await db.query<[{ count: bigint }]>(`${query} attendance IS NOT NULL`, [ campus_id ]);
         // Get snack claimed count
-        const countSnackClaimed = await db.query<[{ count: bigint }]>(`${query} snack_claimed = 1`);
+        const countSnackClaimed = await db.query<[{ count: bigint }]>(`${query} snack_claimed = 1`, [ campus_id ]);
         // Get paytment confirmed count
-        const countPaymentConfirmed = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NOT NULL`);
+        const countPaymentConfirmed = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NOT NULL`, [ campus_id ]);
         // Get T-shirt claimed count
-        const countTShirtClaimed = await db.query<[{ count: bigint }]>(`${query} tshirt_claimed IS NOT NULL`);
+        const countTShirtClaimed = await db.query<[{ count: bigint }]>(`${query} tshirt_claimed IS NOT NULL`, [ campus_id ]);
 
         // Resolve
         resolve({

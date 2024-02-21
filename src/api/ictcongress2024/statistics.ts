@@ -23,7 +23,7 @@ export function ictstatistics(context: ElysiaContext): Promise<ResponseBody | un
 async function getStatistics(context: ElysiaContext) {
   try {
     // Get statistics
-    const statistics = await Admin.getStatistics();
+    const statistics = await Admin.getStatistics(context.user.campus_id);
     // Return success response
     return response.success("Statistics retrieved", statistics);
   }
