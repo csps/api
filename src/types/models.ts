@@ -232,3 +232,12 @@ export type ICTDiscountCode = {
   price: number;
   expiration: string;
 }
+
+export type ICTStatistics = {
+  countAll: number;
+  countPendingPayments: number;
+  countPresent: number;
+  countSnackClaimed: number;
+  countPaymentConfirmed: number;
+  countTShirtClaimed: number;
+}

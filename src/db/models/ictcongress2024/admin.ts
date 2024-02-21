@@ -1,7 +1,7 @@
 import { EmailType, ErrorTypes } from "../../../types/enums";
 import Log from "../../../utils/log";
 import Database from "../..";
-import { ICTCampus, ICTCourse, ICTDiscountCode, ICTShirtSize, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
+import { ICTCampus, ICTCourse, ICTDiscountCode, ICTShirtSize, ICTStatistics, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
@@ -587,6 +587,48 @@ class Admin {
       catch (e) {
         Log.e(e);
         reject("Oops! Can't remove student. Please try again later.");
+      }
+    });
+  }
+
+  /**
+   * Get ICT Congress status statistics
+   */
+  public static getStatistics(): Promise<ICTStatistics> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+ 
+      try {
+        // Main query
+        const query = "SELECT COUNT(*) as count FROM ict2024_students WHERE";
+        // Get count all
+        const countAll = await db.query<[{ count: bigint }]>(query.replace("WHERE", ""));
+        // Get pending payments count
+        const countPendingPayments = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NULL`);
+        // Get present count
+        const countPresent = await db.query<[{ count: bigint }]>(`${query} attendance IS NOT NULL`);
+        // Get snack claimed count
+        const countSnackClaimed = await db.query<[{ count: bigint }]>(`${query} snack_claimed = 1`);
+        // Get paytment confirmed count
+        const countPaymentConfirmed = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NOT NULL`);
+        // Get T-shirt claimed count
+        const countTShirtClaimed = await db.query<[{ count: bigint }]>(`${query} tshirt_claimed IS NOT NULL`);
+
+        // Resolve
+        resolve({
+          countAll: Number(countAll[0].count),
+          countPendingPayments: Number(countPendingPayments[0].count),
+          countPresent: Number(countPresent[0].count),
+          countSnackClaimed: Number(countSnackClaimed[0].count),
+          countPaymentConfirmed: Number(countPaymentConfirmed[0].count), 
+          countTShirtClaimed: Number(countTShirtClaimed[0].count),
+        });
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't get statistics. Please try again later.");
       }
     });
   }

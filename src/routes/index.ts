@@ -12,12 +12,14 @@ import { index as ictconfig } from "../api/ictcongress2024/";
 import { ictprice } from "../api/ictcongress2024/price";
 import { ictpendingorders } from "../api/ictcongress2024/orders";
 import { ictrfid } from "../api/ictcongress2024/rfid";
+import { ictstatistics } from "../api/ictcongress2024/statistics";
 
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
   
   { path:  "/ictcongress2024", handler: ictconfig, methods: ["GET"] },
   { path:  "/ictcongress2024/login", handler: ictlogin, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/statistics", handler: ictstatistics, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/rfid/:rfid", handler: ictrfid, methods: ["POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/price/:discount_code", handler: ictprice, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
