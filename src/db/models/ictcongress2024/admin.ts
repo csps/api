@@ -345,6 +345,11 @@ class Admin {
           return reject("Student's payment is still pending.");
         }
 
+        // If student hasn't claimed the tshirt yet
+        if (!result[0].tshirt_claimed) {
+          return reject("Student hasn't claimed the tshirt yet.");
+        }
+
         // If student already marked as present
         if (result[0].attendance) {
           return reject("You're already marked as present on " + getReadableDate(result[0].attendance));
