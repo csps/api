@@ -1,15 +1,22 @@
+import { join } from "path";
 import { EmailType, ErrorTypes } from "../../../types/enums";
-import Log from "../../../utils/log";
-import Database from "../..";
-import { ICTCampus, ICTCourse, ICTDiscountCode, ICTShirtSize, ICTStatistics, ICTStudentModel, ICTStudentRegisterModel } from "../../../types/models";
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
 import { MariaUpdateResult } from "../../../types";
-import { getReadableDate } from "../../../utils/date";
+import { getDatestamp, getReadableDate } from "../../../utils/date";
 import { sendEmail } from "../../../utils/email";
 import { generateICTCongressReference } from "../../../utils/security";
 import Strings from "../../../config/strings";
+import Log from "../../../utils/log";
+import Database from "../..";
+
+import {
+  ICTCampus, ICTCourse, ICTDiscountCode, ICTShirtSize,
+  ICTStatistics, ICTStudentModel, ICTStudentRegisterModel
+} from "../../../types/models";
+
+import XLSXTemplate from 'xlsx-template';
 
 type AdminData = {
   campus: string;
@@ -70,8 +77,8 @@ class Admin {
         // Get admin by username
         const result = await db.query<AdminData[]>(
           "SELECT c.campus, c.campus_name, s.* FROM ict2024_accounts s INNER JOIN ict2024_campus c ON c.id = s.campus_id WHERE s.username = ? LIMIT 1", [
-            username
-          ]
+          username
+        ]
         );
 
         if (result.length === 0) {
@@ -100,7 +107,7 @@ class Admin {
       try {
         // Get student by RFID
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE rfid = ? LIMIT 1", [ rfid ]
+          "SELECT * FROM ict2024_students WHERE rfid = ? LIMIT 1", [rfid]
         );
 
         if (result.length === 0) {
@@ -150,7 +157,7 @@ class Admin {
             return reject(`No students found${search ? " for " + search : ""}${filter !== "-1" && filter ? ` with ${filter.replaceAll("_", " ")} ` : ""}.`);
           }
 
-          resolve([students, Number(count[0].count) ]);
+          resolve([students, Number(count[0].count)]);
         }
       }
 
@@ -173,7 +180,7 @@ class Admin {
       try {
         // Check for student ID
         let results = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student.student_id ]
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student.student_id]
         );
 
         // If student exists
@@ -197,7 +204,7 @@ class Admin {
 
         // Check for email
         results = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE email = ? LIMIT 1", [ student.email ]
+          "SELECT * FROM ict2024_students WHERE email = ? LIMIT 1", [student.email]
         );
 
         // If email exists
@@ -249,14 +256,14 @@ class Admin {
       try {
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
         );
 
         // If student ID not found
         if (result.length === 0) {
           return reject("Student ID is not registered!");
         }
-        
+
         // If payment already confirmed
         if (result[0].payment_confirmed) {
           return reject("Payment already confirmed on " + getReadableDate(result[0].payment_confirmed));
@@ -265,7 +272,7 @@ class Admin {
         // Confirm student
         const updateResult = await db.query<MariaUpdateResult>(
           `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE student_id = ?`,
-          [ rfid ?? null, student_id ]
+          [rfid ?? null, student_id]
         );
 
         // If student successfully confirmed
@@ -332,7 +339,7 @@ class Admin {
 
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          `SELECT * FROM ict2024_students WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [ data.qr ? id : data.rfid ]
+          `SELECT * FROM ict2024_students WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
         );
 
         // If student ID not found
@@ -357,9 +364,9 @@ class Admin {
 
         // Mark student as present
         const updateResult = await db.query<MariaUpdateResult>(
-          `UPDATE ict2024_students SET attendance = NOW() WHERE ${data.qr ? "id" : "rfid"} = ?`, [ data.qr ? id : data.rfid ]
+          `UPDATE ict2024_students SET attendance = NOW() WHERE ${data.qr ? "id" : "rfid"} = ?`, [data.qr ? id : data.rfid]
         );
-        
+
         // If student successfully marked as present
         if (updateResult.affectedRows > 0) {
           return resolve(result[0]);
@@ -392,10 +399,10 @@ class Admin {
         if (data.qr) {
           id = await Admin.getIDFromQRData(data.qr);
         }
-        
+
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          `SELECT * FROM ict2024_students WHERE id = ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [ data.qr ? id : data.rfid ]
+          `SELECT * FROM ict2024_students WHERE id = ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
         );
 
         // If student ID not found
@@ -415,10 +422,10 @@ class Admin {
 
         // Claim snack
         const updateResult = await db.query<MariaUpdateResult>(
-          `UPDATE ict2024_students SET snack_claimed = 1 WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [ data.qr ? id : data.rfid ]
+          `UPDATE ict2024_students SET snack_claimed = 1 WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
         );
-        
-         // If snack successfully claimed
+
+        // If snack successfully claimed
         if (updateResult.affectedRows > 0) {
           return resolve(result[0]);
         }
@@ -446,7 +453,7 @@ class Admin {
       try {
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
         );
 
         // If student ID not found
@@ -466,10 +473,10 @@ class Admin {
 
         // Claim t-shirt
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET tshirt_claimed = NOW() WHERE student_id = ?", [ student_id ]
+          "UPDATE ict2024_students SET tshirt_claimed = NOW() WHERE student_id = ?", [student_id]
         );
-        
-         // If t-shirt successfully claimed
+
+        // If t-shirt successfully claimed
         if (updateResult.affectedRows > 0) {
           // Log claimed
           Log.i(`T-shirt claimed by student ID ${student_id}`);
@@ -538,7 +545,7 @@ class Admin {
 
       try {
         // Remove pending orders
-        await db.query("DELETE FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [ campus_id ]);
+        await db.query("DELETE FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [campus_id]);
         resolve();
       }
 
@@ -561,7 +568,7 @@ class Admin {
       try {
         // Get student
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [ student_id ]
+          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
         );
 
         // If student not found
@@ -576,7 +583,7 @@ class Admin {
 
         // Remove pending order
         const updateResult = await db.query<MariaUpdateResult>(
-          "DELETE FROM ict2024_students WHERE student_id = ?", [ student_id ]
+          "DELETE FROM ict2024_students WHERE student_id = ?", [student_id]
         );
 
         // If student successfully removed
@@ -597,6 +604,69 @@ class Admin {
   }
 
   /**
+   * Export data to excel spreadsheet
+   * @param campus_id Campus ID
+   */
+  public static exportToSheets(campus_id: number): Promise<File> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // From the session data, select students who claimed t-shirts associated with their campus.
+        const result = await db.query<ICTStudentModel[]>(
+          `SELECT * FROM ict2024_students WHERE campus_id = ? AND tshirt_claimed IS NOT NULL ORDER BY last_name`, [campus_id]
+        );
+
+        // If no students found
+        if (result.length === 0) {
+          return reject("No students found.");
+        }
+        
+        // Get template's absolute path
+        const path = join(import.meta.dir, "../../../templates/xlsx/ictcongress2024_campus.xlsx");
+        // Create XLSX template
+        const xlsx = new XLSXTemplate();
+        const courses = await Admin.getCourses() as ICTCourse[];
+        const tshirtSizes = await Admin.getTShirtSizes() as ICTShirtSize[];
+        const campuses = await Admin.getCampuses() as ICTCampus[];
+        let i = 1;
+
+        // Get campus from campus_id
+        const campus = campuses.find(c => c.id === campus_id);
+
+        // Load template
+        xlsx.loadTemplate(Buffer.from(await Bun.file(path).arrayBuffer()));
+        // Substitute data
+        xlsx.substitute(1, {
+          campus: `ICT Congress 2024 – ${campus?.campus_name}`,
+          date: getDatestamp(new Date()),
+          student: result.map(student => ({
+            id: i++,
+            student_id: student.student_id,
+            first_name: student.first_name,
+            last_name: student.last_name,
+            courseyear: courses.find(c => c.id === student.course_id)?.course_name + " " + student.year_level,
+            tshirt_size: tshirtSizes.find(s => s.id === student.tshirt_size_id)?.code.toUpperCase(),
+          }))
+        });
+
+        // Generate output
+        const output: Uint8Array = xlsx.generate({ type: "blob" });
+        // Create file
+        const file = new File([output], `ictcongress2024_report_${campus?.campus}.xlsx`, {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+
+        // Resolve
+        resolve(file);
+      } catch (e) {
+        Log.e(e);
+        reject(e);
+      }
+    });
+  }
+
+  /**
    * Get ICT Congress status statistics
    * @param campus_id Campus ID
    */
@@ -608,17 +678,17 @@ class Admin {
         // Main query
         const query = "SELECT COUNT(*) as count FROM ict2024_students WHERE campus_id = ? AND ";
         // Get count all
-        const countAll = await db.query<[{ count: bigint }]>(query.split("AND")[0], [ campus_id ]);
+        const countAll = await db.query<[{ count: bigint }]>(query.split("AND")[0], [campus_id]);
         // Get pending payments count
-        const countPendingPayments = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NULL`, [ campus_id ]);
+        const countPendingPayments = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NULL`, [campus_id]);
         // Get present count
-        const countPresent = await db.query<[{ count: bigint }]>(`${query} attendance IS NOT NULL`, [ campus_id ]);
+        const countPresent = await db.query<[{ count: bigint }]>(`${query} attendance IS NOT NULL`, [campus_id]);
         // Get snack claimed count
-        const countSnackClaimed = await db.query<[{ count: bigint }]>(`${query} snack_claimed = 1`, [ campus_id ]);
+        const countSnackClaimed = await db.query<[{ count: bigint }]>(`${query} snack_claimed = 1`, [campus_id]);
         // Get paytment confirmed count
-        const countPaymentConfirmed = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NOT NULL`, [ campus_id ]);
+        const countPaymentConfirmed = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NOT NULL`, [campus_id]);
         // Get T-shirt claimed count
-        const countTShirtClaimed = await db.query<[{ count: bigint }]>(`${query} tshirt_claimed IS NOT NULL`, [ campus_id ]);
+        const countTShirtClaimed = await db.query<[{ count: bigint }]>(`${query} tshirt_claimed IS NOT NULL`, [campus_id]);
 
         // Resolve
         resolve({
@@ -626,7 +696,7 @@ class Admin {
           countPendingPayments: Number(countPendingPayments[0].count),
           countPresent: Number(countPresent[0].count),
           countSnackClaimed: Number(countSnackClaimed[0].count),
-          countPaymentConfirmed: Number(countPaymentConfirmed[0].count), 
+          countPaymentConfirmed: Number(countPaymentConfirmed[0].count),
           countTShirtClaimed: Number(countTShirtClaimed[0].count),
         });
       }
@@ -650,7 +720,7 @@ class Admin {
       try {
         // Get discount code
         const result = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code ]
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [discount_code]
         );
 
         // If discount code not found
@@ -674,7 +744,7 @@ class Admin {
       }
     });
   }
-  
+
   /**
    * Get courses
    */
@@ -722,7 +792,7 @@ class Admin {
         if (id) {
           return resolve(campuses[0]);
         }
-        
+
         // Otherwise, return all courses
         resolve(campuses);
       }
@@ -776,7 +846,7 @@ class Admin {
       try {
         // Get discount code
         const result = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [ discount_code.length > 0 ? discount_code : "-" ]
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [discount_code.length > 0 ? discount_code : "-"]
         );
 
         // If discount code not found

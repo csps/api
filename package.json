@@ -17,7 +17,8 @@
     "nodemailer": "^6.9.9",
     "p-queue": "^8.0.1",
     "pug": "^3.0.2",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "xlsx-template": "^1.4.3"
   },
   "devDependencies": {
     "@types/nodemailer": "^6.4.14",

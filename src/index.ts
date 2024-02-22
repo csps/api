@@ -27,7 +27,7 @@ app.onBeforeHandle((context: ElysiaContext) => {
   setHeader(context, "x-powered-by", "Bun + Elysia (UC Main CSP-S Server)");
   setHeader(context, "access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS");
   setHeader(context, "access-control-allow-headers", "Origin, Content-Type, Authorization");
-  setHeader(context, "access-control-expose-headers", "Authorization");
+  setHeader(context, "access-control-expose-headers", "Authorization, Content-Disposition");
   setHeader(context, "access-control-allow-credentials", "true");
   setHeader(context, "access-control-allow-origin", "https://ucmncsps.org");
 });
