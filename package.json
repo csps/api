@@ -23,7 +23,7 @@
     "@types/nodemailer": "^6.4.14",
     "@types/pug": "^2.0.10",
     "@types/qrcode": "^1.5.5",
-    "bun-types": "^1.0.27"
+    "bun-types": "^1.0.28"
   },
   "module": "src/index.js"
 }

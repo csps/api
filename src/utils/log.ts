@@ -2,8 +2,11 @@ import chalk from "chalk";
 import Elysia from "elysia";
 import { ip } from "elysia-ip";
 
-import { ElysiaContext, ResponseBody } from "../types";
+import { ElysiaContext, MariaUpdateResult } from "../types";
 import { getDatestamp } from "./date";
+import Database from "../db";
+import { LoginLogModel } from "../types/models";
+import { AuthType } from "../types/enums";
 
 /**
  * Custom logging event for CSPS Web App API
@@ -120,6 +123,30 @@ class Log {
         `[${data}${context.ip?.address}] [${date}] [${context.request.method} ${path}] [${statusCode}] [ success: ${success}, message: ${message} ]`
       )
     );
+  }
+
+  /**
+   * Log user/admin login
+   * @param data Login data
+   */
+  static async login(data: LoginLogModel): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      // Log the login
+      const result = await db.query<MariaUpdateResult>(
+        `INSERT INTO login_logs (students_id, type, date_stamp) VALUES (?, ?, NOW())`, [data.students_id, data.type]
+      ); 
+
+      // If insertion is successful
+      if (result.affectedRows > 0) {
+        console.log(chalk.blue.bold("[*] New login detected [" + (data.type === AuthType.STUDENT ? 'STUDENT' : 'ADMIN') + "]: " + data.name + " #" + data.students_id + " (" + data.student_id + ")"));
+        return resolve();
+      }
+
+      return reject("Failed to log login event.");
+    });
   }
 }
 

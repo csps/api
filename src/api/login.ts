@@ -145,6 +145,14 @@ async function postLogin(context: ElysiaContext) {
     // Create refresh token (15 days)
     const refreshToken = await createSessionToken(true, data, "15d");
 
+    // Log the login
+    Log.login({
+      student_id: user.student_id,
+      type: data.role,
+      name: `${user.first_name} ${user.last_name}`,
+      students_id: user.id,
+    });
+
     // Remove password from user
     delete user.password;
     // Return success and user data
