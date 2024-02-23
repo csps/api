@@ -213,7 +213,7 @@ class Admin {
         }
 
         // Register student
-        await db.query(`
+        const result = await db.query<MariaUpdateResult>(`
           INSERT INTO ict2024_students (
             campus_id, student_id, course_id, tshirt_size_id, year_level,
             first_name, last_name, email, discount_code, snack_claimed, date_stamp
@@ -232,6 +232,23 @@ class Admin {
             student.discount_code
           ]
         );
+
+        // If has error
+        if (result.affectedRows === 0) {
+          return reject("An error occured while registering student. Please try again.");
+        }
+
+        // Send email
+        sendEmail({
+          to: student.email,
+          subject: "ICT Congress 2024 Registration Confirmation",
+          type: EmailType.ICT_REGISTER,
+          title: "ICT Congress 2024 Registration Confirmation",
+          data: {
+            first_name: student.first_name,
+            last_name: student.last_name,
+          }
+        });
 
         resolve();
       }

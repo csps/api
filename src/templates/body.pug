@@ -429,6 +429,8 @@ html(lang="en")
                             include ./ict-receipt.pug
                           when "ict_qr"
                             include ./ict-qr.pug
+                          when "ict_register"
+                            include ./ict-register.pug
 
                         if type != "receipt" && type != "order" && type != "ict_receipt"
                           br/

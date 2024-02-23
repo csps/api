@@ -90,4 +90,5 @@ export enum EmailType {
   RECEIPT = "receipt",
   ICT_RECEIPT = "ict_receipt",
   ICT_QR = "ict_qr",
+  ICT_REGISTER = "ict_register",
 }
