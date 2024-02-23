@@ -26,13 +26,27 @@ export function ictexport(context: ElysiaContext): Promise<ResponseBody | undefi
  */
 async function getExport(context: ElysiaContext) {
   try {
-    // Get sheet with campus ID
-    const sheet = await Admin.exportToSheets(context.user.campus_id);
+    // Conditions
+    const isXlsx = context.path.includes("/xlsx");
+
+    // If exporting to xlsx
+    if (isXlsx) {
+      // Get sheet with campus ID
+      const sheet = await Admin.exportToSheets(context.user.campus_id);
+      // Set content type
+      setHeader(context, 'content-type', sheet.type);
+      setHeader(context, 'content-disposition', `attachment; filename="${sheet.name}"`);
+      // Export sheet
+      return sheet;
+    }
+
+    // Otherwise, export csv
+    const csv = await Admin.exportToCsv(context.user.campus_id);
     // Set content type
-    setHeader(context, 'content-type', sheet.type);
-    setHeader(context, 'content-disposition', `attachment; filename="${sheet.name}"`);
-    // Export sheet
-    return sheet;
+    setHeader(context, 'content-type', csv.type);
+    setHeader(context, 'content-disposition', `attachment; filename="${csv.name}"`);
+    // Export csv
+    return csv;
   }
 
   // Log error and return error response

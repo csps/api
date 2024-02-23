@@ -667,6 +667,63 @@ class Admin {
   }
 
   /**
+   * Export data to CSV
+   * @param campus_id Campus ID
+   */
+  public static exportToCsv(campus_id: number): Promise<File> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // From the session data, select students who claimed t-shirts associated with their campus.
+        const result = await db.query<ICTStudentModel[]>(
+          `SELECT * FROM ict2024_students WHERE campus_id = ? AND tshirt_claimed IS NOT NULL ORDER BY last_name`, [campus_id]
+        );
+
+        // If no students found
+        if (result.length === 0) {
+          return reject("No students found.");
+        }
+
+        // Data
+        const courses = await Admin.getCourses() as ICTCourse[];
+        const tshirtSizes = await Admin.getTShirtSizes() as ICTShirtSize[];
+        const campuses = await Admin.getCampuses() as ICTCampus[];
+        let i = 1;
+
+        // Get campus from campus_id
+        const campus = campuses.find(c => c.id === campus_id);
+
+        // Create CSV
+        const csv = [
+          "ID,Student ID,First Name,Last Name,Course/Year Level,T-shirt Size",
+          ...result.map(student => [
+            i++,
+            student.student_id,
+            student.first_name,
+            student.last_name,
+            `${courses.find(c => c.id === student.course_id)?.course_name} ${student.year_level}`,
+            tshirtSizes.find(s => s.id === student.tshirt_size_id)?.code.toUpperCase()
+          ].join(","))
+        ].join("\n");
+
+        // Convert array to Uint8Array
+        const data = Buffer.from(new TextEncoder().encode(csv));
+        // Create file
+        const file = new File([data], `ictcongress2024_report_${campus?.campus}.csv`, {
+          type: "text/csv"
+        });
+
+        // Resolve
+        resolve(file);
+      } catch (e) {
+        Log.e(e);
+        reject(e);
+      }
+    });
+  }
+
+  /**
    * Get ICT Congress status statistics
    * @param campus_id Campus ID
    */
