@@ -14,7 +14,7 @@
     "jose": "^5.2.2",
     "juice": "^10.0.0",
     "mariadb": "^3.2.3",
-    "nodemailer": "^6.9.9",
+    "nodemailer": "^6.9.10",
     "p-queue": "^8.0.1",
     "pug": "^3.0.2",
     "qrcode": "^1.5.3",
@@ -24,7 +24,7 @@
     "@types/nodemailer": "^6.4.14",
     "@types/pug": "^2.0.10",
     "@types/qrcode": "^1.5.5",
-    "bun-types": "^1.0.28"
+    "bun-types": "^1.0.29"
   },
   "module": "src/index.js"
 }
