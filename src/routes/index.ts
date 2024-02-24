@@ -35,6 +35,7 @@ const routes: AppRoutes[] = [
 
   { path: "/ucdays2024/login", methods: ["POST", "OPTIONS"], handler: uclogin },
 
+  { path: "/tatakforms/:slug", methods: ["GET"], handler: tatakforms },
   { path: "/tatakforms", methods: ["GET"], handler: tatakforms },
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},

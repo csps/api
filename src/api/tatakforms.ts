@@ -21,8 +21,17 @@ export function tatakforms(context: ElysiaContext): Promise<ResponseBody | undef
  * GET /tatakforms (read)
  */
 async function getTatakforms(context: ElysiaContext) {
-  // Get all tatakforms
+  // Get slug param
+  const slug = context.params?.slug;
+
   try {
+    // if slug is provided
+    if (slug) {
+      const tatakform = await Tatakform.getBySlug(slug);
+      return response.success("Tatakform found!", tatakform);
+    }
+
+    // Otherwise, get all tatakforms
     const tatakforms = await Tatakform.getAll();
     return response.success("Tatakforms found!", tatakforms);
   } catch (err) {

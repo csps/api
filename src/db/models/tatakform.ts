@@ -41,6 +41,37 @@ class Tatakform {
       }
     });
   }
+
+  /**
+   * Get by slug name
+   */
+  public static getBySlug(slug: string): Promise<TatakformModel> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Get tatakform by slug
+        const result = await db.query<TatakformModel[]>(
+          `SELECT * FROM tatakforms WHERE slug = ?`, [slug]
+        );
+
+        // If no results
+        if (result.length === 0) {
+          Log.e("No tatakform found");
+          return reject("No tatakform found");
+        }
+
+        // Return tatakform
+        resolve(result[0]);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+      }
+    });
+  }
 }
 
 export default Tatakform;
