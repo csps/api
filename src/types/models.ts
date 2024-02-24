@@ -9,11 +9,6 @@ export type AnnouncementModel = {
   date_stamp: string
 }
 
-export type CourseModel = {
-  id: number,
-  name: string,
-}
-
 export type EnvModel = {
   id: number,
   key: string,
@@ -234,7 +229,15 @@ export type CollegeModel = {
   id: number;
   acronym: string;
   name: string;
+  courses?: CourseModel[];
 };
+
+export type CourseModel = {
+  id: number;
+  college_id: number;
+  acronym: string;
+  name: string;
+}
 
 export type ICTStatistics = {
   countAll: number;

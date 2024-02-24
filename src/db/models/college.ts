@@ -1,7 +1,5 @@
 import { ErrorTypes } from "../../types/enums";
-
-import type { CollegeModel } from "../../types/models";
-import { MariaUpdateResult } from "../../types";
+import type { CollegeModel, CourseModel } from "../../types/models";
 
 import Log from "../../utils/log";
 import Database from "../";
@@ -23,16 +21,25 @@ class College {
 
       try {
         // Get all courses
-        const result = await db.query<CollegeModel[]>(`SELECT * FROM colleges`);
+        const colleges = await db.query<CollegeModel[]>(`SELECT * FROM colleges`);
 
         // If no results
-        if (result.length === 0) {
+        if (colleges.length === 0) {
           Log.e("No colleges found");
           return reject("No colleges found");
         }
 
+        // Get all courses
+        const courses = await db.query<CourseModel[]>(`SELECT * FROM colleges_courses`);
+
+        // For every colleges
+        for (const college of colleges) {
+          // Add courses to college
+          college.courses = courses.filter((course) => course.college_id === college.id);
+        } 
+
         // Return the courses
-        resolve(result);
+        resolve(colleges);
       }
       
       // Log error and reject promise
