@@ -1,4 +1,5 @@
 export * from "./announcements";
+export * from "./colleges";
 export * from "./courses";
 export * from "./env";
 export * from "./events";

@@ -3,7 +3,7 @@ import { AuthType } from "../types/enums";
 
 import {
   announcements, courses, env, events, example, forgot,
-  login, orders, photos, products, reset, students, qrcode
+  login, orders, photos, products, reset, students, qrcode, colleges
 } from "../api"
 
 import { login as ictlogin } from "../api/ictcongress2024/login";
@@ -36,6 +36,8 @@ const routes: AppRoutes[] = [
 
   { path: "/courses/:id", methods: ["PUT", "DELETE"], handler: courses, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN } },
   { path: "/courses", methods: ["GET", "POST"], handler: courses, auth: { POST: AuthType.ADMIN }},
+
+  { path: "/colleges", methods: ["GET"], handler: colleges },
 
   { path: "/env/:key", methods: ["GET", "PUT", "DELETE"], handler: env, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/env", methods: ["GET", "POST"], handler: env, auth: { POST: AuthType.ADMIN }},

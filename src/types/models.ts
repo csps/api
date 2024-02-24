@@ -230,6 +230,12 @@ export type ICTDiscountCode = {
   expiration: string;
 }
 
+export type CollegeModel = {
+  id: number;
+  acronym: string;
+  name: string;
+};
+
 export type ICTStatistics = {
   countAll: number;
   countPendingPayments: number;
