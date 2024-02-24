@@ -15,6 +15,8 @@ import { ictrfid } from "../api/ictcongress2024/rfid";
 import { ictstatistics } from "../api/ictcongress2024/statistics";
 import { ictexport } from "../api/ictcongress2024/export";
 
+import { login as uclogin } from "../api/ucdays2024/login";
+
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
   
@@ -30,6 +32,8 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/students/:student_id/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/qr/:qr/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
+
+  { path: "/ucdays2024/login", methods: ["POST", "OPTIONS"], handler: uclogin },
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},
