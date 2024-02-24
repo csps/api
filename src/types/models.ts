@@ -239,6 +239,14 @@ export type CourseModel = {
   name: string;
 }
 
+export type TatakformModel = {
+  id: number;
+  name: string;
+  from_date: string;
+  to_date: string;
+  date_stamp: string;
+}
+
 export type ICTStatistics = {
   countAll: number;
   countPendingPayments: number;

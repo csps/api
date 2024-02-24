@@ -11,4 +11,5 @@ export * from "./photos";
 export * from "./products";
 export * from "./reset";
 export * from "./students";
+export * from "./tatakforms";
 export * from "./qrcode";

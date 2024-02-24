@@ -3,7 +3,7 @@ import { AuthType } from "../types/enums";
 
 import {
   announcements, courses, env, events, example, forgot,
-  login, orders, photos, products, reset, students, qrcode, colleges
+  login, orders, photos, products, reset, students, qrcode, colleges, tatakforms
 } from "../api"
 
 import { login as ictlogin } from "../api/ictcongress2024/login";
@@ -31,9 +31,11 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["DELETE"], auth: { DELETE: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/qr/:qr/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, DELETE: AuthType.ICT_ADMIN }},
 
   { path: "/ucdays2024/login", methods: ["POST", "OPTIONS"], handler: uclogin },
+
+  { path: "/tatakforms", methods: ["GET"], handler: tatakforms },
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},
