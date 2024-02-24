@@ -537,7 +537,7 @@ class Admin {
       try {
         // Query pending orders
         const result = await db.query<[{ count: bigint }]>(
-          "SELECT COUNT(*) as count FROM ict2024_students WHERE payment_confirmed IS NULL"
+          "SELECT COUNT(*) as count FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [ campus_id ]
         );
 
         // Get count
