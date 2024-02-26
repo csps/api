@@ -305,7 +305,7 @@ class Admin {
             type: EmailType.ICT_RECEIPT,
             title: "Receipt for ICT Congress 2024",
             data: {
-              reference: generateICTCongressReference(Number(updateResult.insertId)),
+              reference: generateICTCongressReference(Number(result[0].id)),
               student_id: result[0].student_id,
               first_name: result[0].first_name,
               last_name: result[0].last_name,
