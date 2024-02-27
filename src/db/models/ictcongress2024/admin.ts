@@ -238,6 +238,11 @@ class Admin {
           return reject("An error occured while registering student. Please try again.");
         }
 
+        // Get campus from campus ID
+        const campus = await Admin.getCampuses(student.campus_id) as ICTCampus;
+        // Log registration
+        Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [REGISTERED] – ${student.first_name} ${student.last_name} (${student.student_id})`);
+        // Resolve with message
         resolve("You have successfully registered for the ICT Congress 2024 event. Please proceed to the officer in charge to pay for the registration fee. Thank you! 💛");
       }
 
@@ -307,6 +312,9 @@ class Admin {
             }
           });
 
+          // Log payment confirmed
+          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [PAYMENT_CONFIRMED] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
+          // Resolve
           return resolve();
         }
 
@@ -374,6 +382,11 @@ class Admin {
 
         // If student successfully marked as present
         if (updateResult.affectedRows > 0) {
+          // Get campus
+          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+          // Log marked as present
+          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [PRESENT] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
+          // Resolve
           return resolve(result[0]);
         }
 
@@ -432,6 +445,11 @@ class Admin {
 
         // If snack successfully claimed
         if (updateResult.affectedRows > 0) {
+          // Get campus
+          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+          // Log claimed
+          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [SNACK] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
+          // Resolve
           return resolve(result[0]);
         }
 
@@ -499,6 +517,10 @@ class Admin {
             }
           });
 
+          // Get campus
+          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+          // Log claimed
+          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [TSHIRT_QR] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           // Resolve
           return resolve();
         }
@@ -551,6 +573,9 @@ class Admin {
       try {
         // Remove pending orders
         await db.query("DELETE FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [campus_id]);
+        // Log removed
+        Log.i(`Removed pending orders for campus ID — ${campus_id}`);
+        // Resolve
         resolve();
       }
 
@@ -593,6 +618,9 @@ class Admin {
 
         // If student successfully removed
         if (updateResult.affectedRows > 0) {
+          // Log removed
+          Log.i(`Removed student ID ${student_id}`);
+          // Resolve
           return resolve(result[0]);
         }
 
