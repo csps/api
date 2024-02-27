@@ -173,7 +173,7 @@ class Admin {
   /**
    * Register student
    */
-  public static registerStudent(student: ICTStudentRegisterModel): Promise<void> {
+  public static registerStudent(student: ICTStudentRegisterModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
@@ -238,19 +238,7 @@ class Admin {
           return reject("An error occured while registering student. Please try again.");
         }
 
-        // Send email
-        sendEmail({
-          to: student.email,
-          subject: "ICT Congress 2024 Registration Confirmation",
-          type: EmailType.ICT_REGISTER,
-          title: "ICT Congress 2024 Registration Confirmation",
-          data: {
-            first_name: student.first_name,
-            last_name: student.last_name,
-          }
-        });
-
-        resolve();
+        resolve("You have successfully registered for the ICT Congress 2024 event. Please proceed to the officer in charge to pay for the registration fee. Thank you! 💛");
       }
 
       // Log error and reject promise

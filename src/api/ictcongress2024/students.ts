@@ -54,8 +54,8 @@ async function postStudents(context: ElysiaContext) {
   // If no operation param, register student
   if (!context.params) {
     try {
-      await Admin.registerStudent(await context.body);
-      return response.success("You have successfully registered! 💛"); // TODO: Add more info
+      const message = await Admin.registerStudent(await context.body);
+      return response.success(message);
     } catch (e) {
       console.error(e);
       return response.error(e);
