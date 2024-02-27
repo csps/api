@@ -279,6 +279,18 @@ class Admin {
           return reject("Payment already confirmed on " + getReadableDate(result[0].payment_confirmed));
         }
 
+        // If will set and RFID
+        if (rfid) {
+          try {
+            // Get student by RFID (for checking)
+            const rfidStudent = await Admin.getStudentByRFID(rfid);
+            // If student with this RFID already exists
+            return reject(`Student ${rfidStudent.first_name} ${rfidStudent.last_name} (${rfidStudent.student_id}) already has this RFID (${rfid}).`);
+          } catch (e) {
+            // Do nothing
+          }
+        }
+
         // Confirm student
         const updateResult = await db.query<MariaUpdateResult>(
           `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE student_id = ?`,
