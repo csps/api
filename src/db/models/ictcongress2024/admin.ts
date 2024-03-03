@@ -618,9 +618,9 @@ class Admin {
           return reject("Student not found.");
         }
 
-        // If student already confirmed payment
-        if (result[0].payment_confirmed) {
-          return reject("Cannot remove after the student's payment has already been confirmed.");
+        // If student already confirmed payment or tshirt
+        if ( result[0].payment_confirmed || result[0].tshirt_claimed) {
+          return reject("Only students with pending orders can be removed.");
         }
 
         // Remove pending order
