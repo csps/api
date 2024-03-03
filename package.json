@@ -1,6 +1,6 @@
 {
-  "name": "api",
-  "version": "2.0.0-pre.1",
+  "name": "csps-api",
+  "version": "2.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "NODE_ENV=dev bun run --watch src/index.ts",
