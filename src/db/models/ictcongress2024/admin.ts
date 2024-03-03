@@ -138,7 +138,7 @@ class Admin {
       try {
         // Get pagination
         if (pagination && !isObjectEmpty(pagination)) {
-          const { query, countQuery, values, countValues, search, filter } = paginationWrapper(db, {
+          const { query, countQuery, values, countValues, search, filter, filterLogic } = paginationWrapper(db, {
             query: `
               SELECT s.*, ts.name as tshirt_size, c.course_name as course FROM ict2024_students s
               INNER JOIN ict2024_tshirt_sizes ts ON s.tshirt_size_id = ts.id
@@ -154,7 +154,7 @@ class Admin {
 
           // If no students found
           if (students.length === 0) {
-            return reject(`No students found${search ? " for " + search : ""}${filter !== "-1" && filter ? ` with ${filter.replaceAll("_", " ")} ` : ""}.`);
+            return reject(`No students found${search ? " for " + search : ""}${filter !== "-1" && filter ? ` with ${!filterLogic && filter === 'payment_confirmed' ? 'pending payments' : filter.replaceAll("_", " ")}` : ""}.`);
           }
 
           resolve([students, Number(count[0].count)]);
