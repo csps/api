@@ -9,7 +9,6 @@ import {
 import { login as ictlogin } from "../api/ictcongress2024/login";
 import { students as ictstudents } from "../api/ictcongress2024/students";
 import { index as ictconfig } from "../api/ictcongress2024/";
-import { ictprice } from "../api/ictcongress2024/price";
 import { ictpendingorders } from "../api/ictcongress2024/orders";
 import { ictrfid } from "../api/ictcongress2024/rfid";
 import { ictstatistics } from "../api/ictcongress2024/statistics";
@@ -26,7 +25,6 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/export/xlsx", handler: ictexport, methods: ["GET", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, OPTIONS: AuthType.ADMIN }},
   { path:  "/ictcongress2024/export/csv", handler: ictexport, methods: ["GET", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, OPTIONS: AuthType.ADMIN }},
   { path:  "/ictcongress2024/rfid/:rfid", handler: ictrfid, methods: ["POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/price/:discount_code", handler: ictprice, methods: ["GET"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id", handler: ictstudents, methods: ["DELETE"], auth: { DELETE: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:student_id/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},

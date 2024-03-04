@@ -28,8 +28,9 @@ async function getConfig(context: ElysiaContext) {
     const campuses = await Admin.getCampuses();
     const courses = await Admin.getCourses();
     const tshirt_sizes = await Admin.getTShirtSizes();
+    const discount_codes = await Admin.getDiscountCodes();
 
-    return response.success("Config retrieved.", { campuses, courses, tshirt_sizes });
+    return response.success("Config retrieved.", { campuses, courses, tshirt_sizes, discount_codes });
   }
 
   // Log error and return error response

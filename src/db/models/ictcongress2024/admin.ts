@@ -194,13 +194,7 @@ class Admin {
         }
 
         // Check for discount code
-        if (student.discount_code.length > 0) {
-          try {
-            await Admin.isDiscountCodeValid(student.discount_code);
-          } catch (error) {
-            return reject(error);
-          }
-        }
+        await Admin.isDiscountCodeValid(Number(student.campus_id), student.discount_code);
 
         // Check for email
         results = await db.query<ICTStudentModel[]>(
@@ -249,7 +243,7 @@ class Admin {
       // Log error and reject promise
       catch (e) {
         Log.e(e);
-        reject(ErrorTypes.DB_ERROR);
+        reject("An error occured while registering student. Please try again later.");
       }
     });
   }
@@ -301,7 +295,7 @@ class Admin {
         if (updateResult.affectedRows > 0) {
           const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
           const course = await Admin.getCourses(result[0].course_id) as ICTCourse;
-          const price = await Admin.getPrice(result[0].discount_code);
+          const discount_code = await Admin.getDiscountCodes(result[0].discount_code) as ICTDiscountCode;
 
           // Send receipt
           sendEmail({
@@ -317,8 +311,8 @@ class Admin {
               campus: campus.campus_name,
               course: course.course_name,
               year_level: result[0].year_level,
-              price: price,
-              total: price,
+              price: discount_code.price,
+              total: discount_code.price,
               registered: getReadableDate(result[0].date_stamp),
               payment_confirmed: getReadableDate(new Date()),
             }
@@ -813,9 +807,10 @@ class Admin {
 
   /**
    * Check if discount code is valid
+   * @param campus_id Campus ID
    * @param discount_code Discount code
    */
-  public static isDiscountCodeValid(discount_code: string): Promise<boolean> {
+  public static isDiscountCodeValid(campus_id: number, discount_code: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
@@ -830,9 +825,14 @@ class Admin {
           return reject("Discount code not found.");
         }
 
+        // If discount code is for another campus
+        if (result[0].campus_id !== campus_id) {
+          return reject("Discount code is not valid for this campus.");
+        }
+
         // If discount has expired
-        if (new Date(result[0].expiration) < new Date()) {
-          return reject("Discount code is expired :(");
+        if (new Date(result[0].expiration) <= new Date()) {
+          return reject("Discount code is expired.");
         }
 
         // If discount code is valid
@@ -938,34 +938,32 @@ class Admin {
   }
 
   /**
-   * Get price w/ discount code if available
-   * @param discount_code 
+   * Get discount codes
    */
-  public static getPrice(discount_code: string) {
+  public static getDiscountCodes(discount_code?: string): Promise<ICTDiscountCode[] | ICTDiscountCode> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
-        // Get discount code
-        const result = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [
-            discount_code.length === 0 || discount_code === "-" ? "REGULAR" : discount_code
-          ]
+        // Get discount codes
+        const discountCodes = await db.query<ICTDiscountCode[]>(
+          "SELECT * FROM ict2024_discount_codes" + (discount_code ? " WHERE code = ? LIMIT 1" : ""),
+          discount_code ? [ discount_code ] : undefined
         );
 
-        // If discount code not found
-        if (result.length === 0) {
-          return reject("Discount code not found.");
+        // If discount code is provided
+        if (discountCodes.length === 1) {
+          return resolve(discountCodes[0]);
         }
 
-        // Get price
-        resolve(result[0].price);
+        // Resolve discount codes
+        return resolve(discountCodes);
       }
 
       // Log error and reject promise
       catch (e) {
         Log.e(e);
-        reject("Oops! Can't validate discount code. Please try again later.");
+        reject("Oops! Can't get discount codes. Please try again later.");
       }
     });
   }

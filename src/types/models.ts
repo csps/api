@@ -220,7 +220,8 @@ export type ICTCampus = {
 
 export type ICTDiscountCode = {
   id: number;
-  code: number;
+  campus_id: number;
+  code: string;
   price: number;
   expiration: string;
 }
