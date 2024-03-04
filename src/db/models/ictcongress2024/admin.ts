@@ -313,6 +313,7 @@ class Admin {
               year_level: result[0].year_level,
               price: discount_code.price,
               total: discount_code.price,
+              discount_code: result[0].discount_code,
               registered: getReadableDate(result[0].date_stamp),
               payment_confirmed: getReadableDate(new Date()),
             }
