@@ -827,7 +827,7 @@ class Admin {
 
         // If discount code not found
         if (result.length === 0) {
-          return reject("Discount code not found :(");
+          return reject("Discount code not found.");
         }
 
         // If discount has expired
@@ -948,12 +948,14 @@ class Admin {
       try {
         // Get discount code
         const result = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [discount_code.length > 0 ? discount_code : "-"]
+          "SELECT * FROM ict2024_discount_codes WHERE code = ? LIMIT 1", [
+            discount_code.length === 0 || discount_code === "-" ? "REGULAR" : discount_code
+          ]
         );
 
         // If discount code not found
         if (result.length === 0) {
-          return reject("Discount code not found :(");
+          return reject("Discount code not found.");
         }
 
         // Get price
