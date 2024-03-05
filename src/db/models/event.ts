@@ -221,16 +221,13 @@ class Event {
     if (!data) return [Strings.GENERAL_INVALID_REQUEST, ""];
     // Check if Title is Empty
     if (!data.title) return [Strings.EVENT_EMPTY_TITLE, "title"];
-    // Check if Venue is Empty
-    if (!data.venue) return [Strings.EVENT_EMPTY_VENUE, "venue"];
     // Check if date is empty
     if (!data.date) return [Strings.EVENT_EMPTY_DATE, "date"];
-    // Check if start time is empty
-    if (!data.start_time) return [Strings.EVENT_EMPTY_START_TIME, "start_time"];
-    // Check if end time is empty
-    if (!data.end_time) return [Strings.EVENT_EMPTY_END_TIME, "end_time"];
+
     // Check if End Time is earlier than Start Time
-    if (!isTimeBefore(data.start_time, data.end_time)) return [Strings.EVENT_INVALID_DATE_ORDER, "start_time"];
+    if (data.start_time && data.end_time) {
+      if (!isTimeBefore(data.start_time, data.end_time)) return [Strings.EVENT_INVALID_DATE_ORDER, "start_time"];
+    }
   }
 }
 
