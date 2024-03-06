@@ -120,7 +120,7 @@ class Log {
     // Log the response
     console.log(
       bgLog("[RESPONSE]") + " " + txLog(
-        `[${data}${context.ip?.address}] [${date}] [${context.request.method} ${path}] [${statusCode}] [ success: ${success}, message: ${message} ]`
+        `[${data}${context.ip?.address}]${context.user?.role === AuthType.ICT_ADMIN ? ` [${context.user.campus.toUpperCase()}]` : ''} [${date}] [${context.request.method} ${path}] [${statusCode}] [ success: ${success}, message: ${message} ]`
       )
     );
   }

@@ -185,7 +185,8 @@ class Admin {
 
         // If student exists
         if (results.length > 0) {
-          return reject("Student ID already registered.");
+          Log.w(`[ICT Congress 2024] [REGISTER] Student ID (${student.student_id}) already registered.`);
+          return reject(`Student ID already registered.`);
         }
 
         // Validate email
@@ -203,7 +204,8 @@ class Admin {
 
         // If email exists
         if (results.length > 0) {
-          return reject("Email already registered.");
+          Log.w(`[ICT Congress 2024] [REGISTER] Email (${student.email}) already registered.`);
+          return reject(`Email (${student.email}) already registered.`);
         }
 
         // Register student
@@ -266,11 +268,13 @@ class Admin {
 
         // If student ID not found
         if (result.length === 0) {
-          return reject("Student ID is not registered!");
+          Log.w("[ICT Congress 2024] [CONFIRM_PAYMENT] Student ID is not registered!");
+          return reject(`Student ID (${student_id}) is not registered!`);
         }
 
         // If payment already confirmed
         if (result[0].payment_confirmed) {
+          Log.w(`[ICT Congress 2024] [CONFIRM_PAYMENT] Payment already confirmed for student ${result[0].first_name} ${result[0].last_name} (${student_id})`);
           return reject("Payment already confirmed on " + getReadableDate(result[0].payment_confirmed));
         }
 
@@ -280,6 +284,7 @@ class Admin {
             // Get student by RFID (for checking)
             const rfidStudent = await Admin.getStudentByRFID(rfid);
             // If student with this RFID already exists
+            Log.w(`[ICT Congress 2024] [CONFIRM_PAYMENT] Student ${rfidStudent.first_name} ${rfidStudent.last_name} (${rfidStudent.student_id}) already has this RFID (${rfid}).`);
             return reject(`Student ${rfidStudent.first_name} ${rfidStudent.last_name} (${rfidStudent.student_id}) already has this RFID (${rfid}).`);
           } catch (e) {
             // Do nothing
@@ -293,8 +298,12 @@ class Admin {
         if (isCSPSMember === '1') {
           // Check if student is from UC Main and is a CSPS student (for discount)
           if (result[0].course_id !== 1 || result[0].campus_id !== 3) {
-            return reject("CSPS member discount is only available for UC Main CSPS students.");
+            Log.w("[ICT Congress 2024] [CONFIRM_PAYMENT] CSPS membership discount is only available for UC Main CSPS students.");
+            return reject("CSPS membership discount is only available for UC Main CSPS students.");
           }
+
+          // Log CSPS member discount
+          Log.i(`[ICT Congress 2024] [CONFIRM_PAYMENT] CSPS member discount for student ${result[0].first_name} ${result[0].last_name} (${student_id})`);
 
           // Get discount codes
           const earlyCode = await Admin.getDiscountCodes(5) as ICTDiscountCode;
@@ -390,21 +399,28 @@ class Admin {
 
         // If student ID not found
         if (result.length === 0) {
+          Log.w(`[ICT Congress 2024] [PRESENT] Student with (${data.qr || data.rfid}) not found!`);
           return reject("Student not found!");
         }
 
+        // Get campus
+        const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+
         // If student still pending payment
         if (!result[0].payment_confirmed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [PRESENT] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) still pending payment.`);
           return reject("Student's payment is still pending.");
         }
 
         // If student hasn't claimed the tshirt yet
         if (!result[0].tshirt_claimed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [PRESENT] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) hasn't claimed the tshirt yet.`);
           return reject("Student hasn't claimed the tshirt yet.");
         }
 
         // If student already marked as present
         if (result[0].attendance) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [PRESENT] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) already marked as present on ${getReadableDate(result[0].attendance)}`);
           return reject("You're already marked as present on " + getReadableDate(result[0].attendance));
         }
 
@@ -415,10 +431,8 @@ class Admin {
 
         // If student successfully marked as present
         if (updateResult.affectedRows > 0) {
-          // Get campus
-          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
           // Log marked as present
-          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [PRESENT] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
+          Log.i(`💜 [ICT Congress 2024] [${campus.campus_name}] [PRESENT] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           // Resolve
           return resolve(result[0]);
         }
@@ -458,16 +472,22 @@ class Admin {
 
         // If student ID not found
         if (result.length === 0) {
+          Log.w(`[ICT Congress 2024] [SNACK] Student with (${data.qr || data.rfid}) not found!`);
           return reject("Student ID is not registered!");
         }
 
+        // Get campus
+        const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+
         // If student still pending payment
         if (!result[0].payment_confirmed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [SNACK] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) still pending payment.`);
           return reject("Student's payment is still pending.");
         }
 
         // If snack already claimed
         if (result[0].snack_claimed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [SNACK] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) already claimed snack.`);
           return reject("Snack already claimed!");
         }
 
@@ -478,8 +498,6 @@ class Admin {
 
         // If snack successfully claimed
         if (updateResult.affectedRows > 0) {
-          // Get campus
-          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
           // Log claimed
           Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [SNACK] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           // Resolve
@@ -514,16 +532,22 @@ class Admin {
 
         // If student ID not found
         if (result.length === 0) {
+          Log.w(`[ICT Congress 2024] [CLAIM_TSHIRT] Student ID (${student_id}) not found!`);
           return reject("Student ID is not registered!");
         }
 
+        // Get campus
+        const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+
         // If student still pending payment
         if (!result[0].payment_confirmed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [TSHIRT] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) still pending payment.`);
           return reject("Student's payment is still pending.");
         }
 
         // If t-shirt already claimed
         if (result[0].tshirt_claimed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [TSHIRT] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) already claimed t-shirt on ${getReadableDate(result[0].tshirt_claimed)}`);
           return reject("T-shirt already claimed on " + getReadableDate(result[0].tshirt_claimed));
         }
 
@@ -534,9 +558,6 @@ class Admin {
 
         // If t-shirt successfully claimed
         if (updateResult.affectedRows > 0) {
-          // Log claimed
-          Log.i(`T-shirt claimed by student ID ${student_id}`);
-
           // Send QR code
           sendEmail({
             to: result[0].email,
@@ -550,10 +571,8 @@ class Admin {
             }
           });
 
-          // Get campus
-          const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
           // Log claimed
-          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [TSHIRT_QR] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
+          Log.i(`💛 [ICT Congress 2024] [${campus.campus_name}] [TSHIRT_QR] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           // Resolve
           return resolve();
         }
@@ -605,9 +624,11 @@ class Admin {
 
       try {
         // Remove pending orders
-        await db.query("DELETE FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [campus_id]);
+        const result = await db.query<MariaUpdateResult>("DELETE FROM ict2024_students WHERE campus_id = ? AND payment_confirmed IS NULL", [campus_id]);
+        // Get campus 
+        const campus = await Admin.getCampuses(campus_id) as ICTCampus;
         // Log removed
-        Log.i(`Removed pending orders for campus ID — ${campus_id}`);
+        Log.i(`[ICT Congress 2024] [${campus.campus_name}] Removed (${result.affectedRows}) pending orders.`);
         // Resolve
         resolve();
       }
@@ -634,13 +655,18 @@ class Admin {
           "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
         );
 
+        // Get campus
+        const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
+
         // If student not found
         if (result.length === 0) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Student ID (${student_id}) not found!`);
           return reject("Student not found.");
         }
 
         // If student already confirmed payment or tshirt
         if ( result[0].payment_confirmed || result[0].tshirt_claimed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Only students with pending orders can be removed - ${result[0].first_name} ${result[0].last_name} (${student_id}).`);
           return reject("Only students with pending orders can be removed.");
         }
 
@@ -652,7 +678,7 @@ class Admin {
         // If student successfully removed
         if (updateResult.affectedRows > 0) {
           // Log removed
-          Log.i(`Removed student ID ${student_id}`);
+          Log.i(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Removed student ${result[0].first_name} ${result[0].last_name} (${student_id})}`);
           // Resolve
           return resolve(result[0]);
         }
@@ -723,6 +749,8 @@ class Admin {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         });
 
+        // Log exports
+        Log.i(`🤍 [ICT Congress 2024] [${campus?.campus_name}] [XLSX_EXPORTED] – ${result.length} students`);
         // Resolve
         resolve(file);
       } catch (e) {
@@ -741,6 +769,8 @@ class Admin {
       const db = Database.getInstance();
 
       try {
+        // Campus
+        const campus = await Admin.getCampuses(campus_id) as ICTCampus;
         // From the session data, select students who claimed t-shirts associated with their campus.
         const result = await db.query<ICTStudentModel[]>(
           `SELECT * FROM ict2024_students WHERE campus_id = ? AND tshirt_claimed IS NOT NULL ORDER BY last_name`, [campus_id]
@@ -748,17 +778,14 @@ class Admin {
 
         // If no students found
         if (result.length === 0) {
-          return reject("No students found.");
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [CSV_EXPORT] No students with claimed t-shirts found.`);
+          return reject("No students with claimed t-shirts found.");
         }
 
         // Data
         const courses = await Admin.getCourses() as ICTCourse[];
         const tshirtSizes = await Admin.getTShirtSizes() as ICTShirtSize[];
-        const campuses = await Admin.getCampuses() as ICTCampus[];
         let i = 1;
-
-        // Get campus from campus_id
-        const campus = campuses.find(c => c.id === campus_id);
 
         // Create CSV
         const csv = [
@@ -780,6 +807,8 @@ class Admin {
           type: "text/csv"
         });
 
+        // Log export
+        Log.i(`🤍 [ICT Congress 2024] [${campus?.campus_name}] [CSV_EXPORTED] – ${result.length} students`);
         // Resolve
         resolve(file);
       } catch (e) {
@@ -1003,6 +1032,7 @@ class Admin {
     return new Promise((resolve, reject) => {
       // Check if QR code is valid
       if (!qr.trim().startsWith("CSPSICT2024")) {
+        Log.w(`[ICT Congress 2024] [QR] Invalid QR code: ${qr}`);
         return reject("Invalid QR code.");
       }
 
@@ -1011,6 +1041,7 @@ class Admin {
 
       // If ID is not a number
       if (isNaN(id)) {
+        Log.w(`[ICT Congress 2024] [QR] Malformed QR code: ${qr}`);
         return reject("Malformed QR code.");
       }
 
@@ -1019,4 +1050,5 @@ class Admin {
     });
   }
 }
+
 export default Admin;

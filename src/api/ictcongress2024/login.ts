@@ -126,6 +126,8 @@ async function postLogin(context: ElysiaContext) {
     // Create refresh token (15 days)
     const refreshToken = await createSessionToken(true, data, "3d");
 
+    // Log
+    Log.i(`[${admin.campus.toUpperCase()}] New ICT Congress Admin Login!`);
     // Return success and user data
     return response.success(Strings.LOGIN_SUCCESS, { admin: { ...data, campus_name: admin.campus_name }, accessToken, refreshToken });
   }
@@ -138,9 +140,9 @@ async function postLogin(context: ElysiaContext) {
     }
 
     // If error is DB_EMPTY_RESULT
-    if (err === ErrorTypes.DB_EMPTY_RESULT || err === ErrorTypes.UNAUTHORIZED) {
+    if (err === ErrorTypes.DB_EMPTY_RESULT|| err === ErrorTypes.UNAUTHORIZED) {
       context.set.status = 404;
-      return response.error(Strings.LOGIN_FAILED);
+      return response.error("Incorrect username or password.");
     }
 
     Log.e(err);
