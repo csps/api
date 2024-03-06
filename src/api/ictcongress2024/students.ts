@@ -75,6 +75,8 @@ async function postStudents(context: ElysiaContext) {
 
   // Get student ID param
   const student_id = context.params?.student_id;
+  // Get membership variable
+  const isCSPSMember = context.body?.isCSPSMember;
   // Get RFID from body
   const rfid = context.body?.rfid;
 
@@ -91,7 +93,7 @@ async function postStudents(context: ElysiaContext) {
   // If confirming payment for student
   if (isPaymentConfirm && student_id) {
     try {
-      await Admin.confirmPaymentByStudentID(student_id!, rfid);
+      await Admin.confirmPaymentByStudentID(student_id!, rfid, isCSPSMember);
       return response.success("Payment successfully confirmed!");
     } catch (e) {
       return response.error(e);

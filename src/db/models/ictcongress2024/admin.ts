@@ -252,8 +252,9 @@ class Admin {
    * Confirm payment
    * @param student_id Student ID
    * @param rfid RFID
+   * @param isCSPSMember Is CSPS member
    */
-  public static confirmPaymentByStudentID(student_id: string | number, rfid?: string): Promise<void> {
+  public static confirmPaymentByStudentID(student_id: string | number, rfid?: string, isCSPSMember?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
@@ -286,10 +287,35 @@ class Admin {
         }
 
         // Confirm student
-        const updateResult = await db.query<MariaUpdateResult>(
-          `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE student_id = ?`,
-          [rfid ?? null, student_id]
-        );
+        let updateResult;
+        
+        // If CSPS member
+        if (isCSPSMember === '1') {
+          // Check if student is from UC Main and is a CSPS student (for discount)
+          if (result[0].course_id !== 1 || result[0].campus_id !== 3) {
+            return reject("CSPS member discount is only available for UC Main CSPS students.");
+          }
+
+          // Get discount codes
+          const earlyCode = await Admin.getDiscountCodes(5) as ICTDiscountCode;
+          const regularCode = await Admin.getDiscountCodes(10) as ICTDiscountCode;
+          // If early bird
+          const isEarlyBird = new Date() < new Date(earlyCode.expiration);
+
+          // Confirm student
+          updateResult = await db.query<MariaUpdateResult>(
+            `UPDATE ict2024_students SET rfid = ?, discount_code = ?, payment_confirmed = NOW() WHERE student_id = ?`,
+            [rfid ?? null, isEarlyBird ? earlyCode.code : regularCode.code, student_id]
+          );
+        }
+        
+        // If not CSPS member
+        else {
+          updateResult = await db.query<MariaUpdateResult>(
+            `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE student_id = ?`,
+            [rfid ?? null, student_id]
+          );
+        }
 
         // If student successfully confirmed
         if (updateResult.affectedRows > 0) {
@@ -941,14 +967,14 @@ class Admin {
   /**
    * Get discount codes
    */
-  public static getDiscountCodes(discount_code?: string): Promise<ICTDiscountCode[] | ICTDiscountCode> {
+  public static getDiscountCodes(discount_code?: string | number): Promise<ICTDiscountCode[] | ICTDiscountCode> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get discount codes
         const discountCodes = await db.query<ICTDiscountCode[]>(
-          "SELECT * FROM ict2024_discount_codes" + (discount_code ? " WHERE code = ? LIMIT 1" : ""),
+          "SELECT * FROM ict2024_discount_codes" + (discount_code ? ` WHERE ${typeof discount_code === 'number' ? 'id': 'code'} = ? LIMIT 1` : ""),
           discount_code ? [ discount_code ] : undefined
         );
 
