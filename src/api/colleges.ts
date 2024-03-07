@@ -25,6 +25,13 @@ export function colleges(context: ElysiaContext): Promise<ResponseBody | undefin
 function getColleges(context: ElysiaContext): Promise<ResponseBody> {
   return new Promise(async (resolve) => {
     try {
+      if (context.params?.acronym) {
+        // Get college by acronym
+        const college = await College.getByAcronym(context.params.acronym);
+        // Return the college
+        return resolve(response.success("College retrieved!", college));
+      }
+
       // Get all colleges
       const colleges = await College.getAll();
       // Return the colleges

@@ -49,6 +49,43 @@ class College {
       }
     });
   }
+
+  /**
+   * Get college by acronym
+   * @param acronym 
+   */
+  public static getByAcronym(acronym: string): Promise<CollegeModel> {
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Get college by acronym
+        const college = await db.query<CollegeModel[]>(`SELECT * FROM colleges WHERE acronym = ? LIMIT 1`, [acronym]);
+
+        // If no results
+        if (college.length === 0) {
+          Log.e(`College with acronym ${acronym} not found`);
+          return reject(`College with acronym ${acronym} not found`);
+
+        }
+        
+        // Get all courses
+        const courses = await db.query<CourseModel[]>(`SELECT * FROM colleges_courses WHERE college_id = ?`, [college[0].id]);
+        // Set the courses to the college
+        college[0].courses = courses;
+
+        // Return the college
+        resolve(college[0]);
+      }
+      
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(ErrorTypes.DB_ERROR);
+      }
+    });
+  }
 }
 
 export default College;

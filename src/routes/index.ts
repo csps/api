@@ -43,6 +43,7 @@ const routes: AppRoutes[] = [
   { path: "/courses", methods: ["GET", "POST"], handler: courses, auth: { POST: AuthType.ADMIN }},
 
   { path: "/colleges", methods: ["GET"], handler: colleges },
+  { path: "/colleges/:acronym", methods: ["GET"], handler: colleges },
 
   { path: "/env/:key", methods: ["GET", "PUT", "DELETE"], handler: env, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/env", methods: ["GET", "POST"], handler: env, auth: { POST: AuthType.ADMIN }},
