@@ -14,6 +14,8 @@ type PaginationResult = {
   search?: string;
   filter?: string;
   filterLogic?: string;
+  filter2?: string;
+  filter2Value?: string;
 }
 
 type Search = {
@@ -92,6 +94,12 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
     }
   }
 
+  if (request.filter2) {
+    query = `SELECT * FROM (${query}) t`;
+    query += ` WHERE ${db.escapeId(request.filter2)} = ?`;
+    values.push(request.filter2Value!);
+  }
+
   const countQuery = `SELECT COUNT(*) AS count FROM (${query}) t`;
   const countValues = [...values];
   
@@ -123,6 +131,8 @@ export function paginationWrapper(db: Database, { query, request }: PaginationQu
     countQuery, query, values, countValues,
     search: values[0].toString().replaceAll("%", ""),
     filter: request.filter?.toString(),
-    filterLogic: request.filterLogic
+    filterLogic: request.filterLogic,
+    filter2: request.filter2,
+    filter2Value: request.filter2Value
   };
 }

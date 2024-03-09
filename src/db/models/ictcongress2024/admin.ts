@@ -1,5 +1,5 @@
 import { join } from "path";
-import { EmailType, ErrorTypes } from "../../../types/enums";
+import { EmailType, ErrorTypes, ICTSTudentEnum } from "../../../types/enums";
 import { PaginationOutput } from "../../../types/request";
 import { isEmail, isObjectEmpty } from "../../../utils/string";
 import { paginationWrapper } from "../../../utils/pagination";
@@ -130,7 +130,7 @@ class Admin {
    * @param campus_id Campus
    * @param search Search
    */
-  public static searchStudents(campus_id: number, pagination?: PaginationOutput): Promise<[ICTStudentModel[], count: number]> {
+  public static searchStudents(campus_id: number, pagination?: PaginationOutput): Promise<{ students: ICTStudentModel[], count: number, tshirt_sizes: Record<number, number> }> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
@@ -151,13 +151,15 @@ class Admin {
           // Get students
           const students = await db.query<ICTStudentModel[]>(query, values);
           const count = await db.query<[{ count: bigint }]>(countQuery, countValues);
+          const tshirt_sizes: Record<number, number> = await Admin.getShirtSizesCount(campus_id, filter !== "-1" ? filter : undefined, filterLogic);
 
           // If no students found
           if (students.length === 0) {
             return reject(`No students found${search ? " for " + search : ""}${filter !== "-1" && filter ? ` with ${!filterLogic && filter === 'payment_confirmed' ? 'pending payments' : filter.replaceAll("_", " ")}` : ""}.`);
           }
 
-          resolve([students, Number(count[0].count)]);
+          // Resolve with students and count
+          resolve({ students, count: Number(count[0].count), tshirt_sizes });
         }
       }
 
@@ -1027,15 +1029,20 @@ class Admin {
   /**
    * Get T-shirt sizes count
    * @param campus_id Campus ID
+   * @param statusColumn All | attendance | snack_claimed | payment_confirmed | tshirt_claimed
+   * @param filterLogic 0 | 1 | 2
    */
-  public static getShirtSizesCount(campus_id: number) {
+  public static getShirtSizesCount(campus_id: number, statusColumn?: string, filterLogic?: string): Promise<Record<number, number>> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get t-shirt sizes count
         const result = await db.query<{ tshirt_size_id: number, count: bigint }[]>(
-          "SELECT tshirt_size_id, COUNT(*) as count FROM ict2024_students WHERE campus_id = ? GROUP BY tshirt_size_id", [campus_id]
+          `SELECT tshirt_size_id, COUNT(*) as count FROM ict2024_students WHERE campus_id = ?
+            ${statusColumn ? `AND ${db.escapeId(statusColumn)} ${statusColumn === ICTSTudentEnum.snack_claimed ? '= 1 ' : `IS ${filterLogic === "1" ? 'NOT' : ''} NULL`}` : ''} GROUP BY tshirt_size_id
+          `, 
+          [campus_id]
         );
 
         // If no results

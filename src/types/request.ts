@@ -53,6 +53,8 @@ export type PaginationOutput = {
   filterColumns?: (string | -1)[]
   filter?: string | number,
   filterLogic?: string,
+  filter2?: string,
+  filter2Value?: string,
   page?: string;
   limit?: string;
 };

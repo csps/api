@@ -24,10 +24,8 @@ async function getStatistics(context: ElysiaContext) {
   try {
     // Get statistics
     const statistics = await Admin.getStatistics(context.user.campus_id);
-    // Get tshirt sizes
-    const tshirt_sizes = await Admin.getShirtSizesCount(context.user.campus_id);
     // Return success response
-    return response.success("Statistics retrieved", { tshirt_sizes, statistics });
+    return response.success("Statistics retrieved", statistics);
   }
 
   // Log error and return error response

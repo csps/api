@@ -34,7 +34,7 @@ async function getStudents(context: ElysiaContext) {
   if (Object.keys(context.query).length > 0) {
     try {
       const students = await Admin.searchStudents(context.user.campus_id, context.query as PaginationOutput);
-      return response.success(Strings.STUDENTS_FOUND, ...students);
+      return response.success(Strings.STUDENTS_FOUND, { students: students.students, tshirt_sizes: students.tshirt_sizes }, students.count);
     }
 
     catch (e) {

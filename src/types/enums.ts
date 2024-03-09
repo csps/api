@@ -83,6 +83,25 @@ export enum FullOrderEnum {
   date_stamp = "date_stamp",
 }
 
+export enum ICTSTudentEnum {
+  id = "id",
+  campus_id = "campus_id",
+  student_id = "student_id",
+  rfid = "rfid",
+  course_id = "course_id",
+  tshirt_size_id = "tshirt_size_id",
+  year_level = "year_level",
+  first_name = "first_name",
+  last_name = "last_name",
+  email = "email",
+  discount_code = "discount_code",
+  attendance = "attendance",
+  payment_confirmed = "payment_confirmed",
+  tshirt_claimed = "tshirt_claimed",
+  snack_claimed = "snack_claimed",
+  date_stamp = "date_stamp",
+}
+
 export enum EmailType {
   MESSAGE = "message",
   RESET_PASSWORD = "reset_password",
