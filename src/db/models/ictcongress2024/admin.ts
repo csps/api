@@ -1025,6 +1025,45 @@ class Admin {
   }
 
   /**
+   * Get T-shirt sizes count
+   * @param campus_id Campus ID
+   */
+  public static getShirtSizesCount(campus_id: number) {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get t-shirt sizes count
+        const result = await db.query<{ tshirt_size_id: number, count: bigint }[]>(
+          "SELECT tshirt_size_id, COUNT(*) as count FROM ict2024_students WHERE campus_id = ? GROUP BY tshirt_size_id", [campus_id]
+        );
+
+        // If no results
+        if (result.length === 0) {
+          return reject("No t-shirt sizes found.");
+        }
+
+        // T-shirt sizes
+        const tshirt_sizes: Record<number, number> = {};
+
+        // For each size
+        for (const size of result) {
+          tshirt_sizes[size.tshirt_size_id] = Number(size.count);
+        }
+
+        // Resolve
+        resolve(tshirt_sizes);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't get t-shirt sizes count. Please try again later.");
+      }
+    });
+  }
+
+  /**
    * Get ID from QR data
    * @param qr QR Code data
    */
