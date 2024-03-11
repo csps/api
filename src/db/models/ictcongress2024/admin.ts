@@ -293,8 +293,10 @@ class Admin {
           }
         }
 
-        // Confirm student
         let updateResult;
+        let cspsEarlyCode;
+        let cspsRegularCode;
+        let cspsIsEarlyBird;
         
         // If CSPS member
         if (isCSPSMember === '1') {
@@ -308,15 +310,15 @@ class Admin {
           Log.i(`[ICT Congress 2024] [CONFIRM_PAYMENT] CSPS member discount for student ${result[0].first_name} ${result[0].last_name} (${student_id})`);
 
           // Get discount codes
-          const earlyCode = await Admin.getDiscountCodes(5) as ICTDiscountCode;
-          const regularCode = await Admin.getDiscountCodes(10) as ICTDiscountCode;
+          cspsEarlyCode = await Admin.getDiscountCodes(5) as ICTDiscountCode;
+          cspsRegularCode = await Admin.getDiscountCodes(10) as ICTDiscountCode;
           // If early bird
-          const isEarlyBird = new Date() < new Date(earlyCode.expiration);
+          cspsIsEarlyBird = new Date() < new Date(cspsEarlyCode.expiration);
 
           // Confirm student
           updateResult = await db.query<MariaUpdateResult>(
             `UPDATE ict2024_students SET rfid = ?, discount_code = ?, payment_confirmed = NOW() WHERE student_id = ?`,
-            [rfid ?? null, isEarlyBird ? earlyCode.code : regularCode.code, student_id]
+            [rfid ?? null, cspsIsEarlyBird ? cspsEarlyCode.code : cspsRegularCode.code, student_id]
           );
         }
         
@@ -333,6 +335,13 @@ class Admin {
           const campus = await Admin.getCampuses(result[0].campus_id) as ICTCampus;
           const course = await Admin.getCourses(result[0].course_id) as ICTCourse;
           const discount_code = await Admin.getDiscountCodes(result[0].discount_code) as ICTDiscountCode;
+
+          // If CSPS member
+          if (isCSPSMember === '1') {
+            // Set discount code and price
+            result[0].discount_code = cspsIsEarlyBird ? cspsEarlyCode!.code : cspsRegularCode!.code;
+            discount_code.price = cspsIsEarlyBird ? cspsEarlyCode!.price : cspsRegularCode!.price;
+          }
 
           // Send receipt
           sendEmail({
