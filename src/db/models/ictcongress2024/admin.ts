@@ -185,8 +185,8 @@ class Admin {
           "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student.student_id]
         );
 
-        // If student exists
-        if (results.length > 0) {
+        // If student exists on the same campus
+        if (results.length > 0 && student.campus_id == results[0].campus_id) {
           Log.w(`[ICT Congress 2024] [REGISTER] Student ID (${student.student_id}) already registered.`);
           return reject(`Student ID already registered.`);
         }
