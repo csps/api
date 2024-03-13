@@ -18,7 +18,7 @@ import Config from "../../../config";
  * This model represents a student in the database
  * @author TotalElderBerry (Hey)
  */
-class Student {
+class UnivStudent {
 
   /**
    * Get all students
@@ -123,20 +123,20 @@ class Student {
   public static insert(student: UnivStudentModel): Promise<void> {
     return new Promise(async (resolve, reject) => {
       // Validate
-      const error = Student.validate(student);
+      const error = UnivStudent.validate(student);
 
       if (error) {
         return reject(error);
       }
 
       // Check if student id already exists
-      if (await Student.isExist(UnivStudentsColumn.STUDENT_ID, student.student_id)) {
+      if (await UnivStudent.isExist(UnivStudentsColumn.STUDENT_ID, student.student_id)) {
         Log.i(`Student ID already exists (${student.student_id})`);
         return reject([Strings.STUDENT_ALREADY_EXIST, UnivStudentsColumn.STUDENT_ID]);
       }
 
       // Check if email already exists
-      if (await Student.isExist(UnivStudentsColumn.EMAIL_ADDRESS, student.email_address)) {
+      if (await UnivStudent.isExist(UnivStudentsColumn.EMAIL_ADDRESS, student.email_address)) {
         Log.i(`Student email already exists (${student.email_address})`);
         return reject([Strings.STUDENT_EMAIL_ALREADY_EXIST, UnivStudentsColumn.EMAIL_ADDRESS]);
       }
@@ -246,4 +246,4 @@ class Student {
   }
 }
 
-export default Student;
+export default UnivStudent;

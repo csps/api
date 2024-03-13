@@ -32,7 +32,7 @@ export function login(context: ElysiaContext): Promise<ResponseBody | undefined>
 async function postLogin(context: ElysiaContext) {
   // Get request data
   let { username, password } = context.body || {};
-
+  const student_id = username;
   // If type isnt specified
   // if (!type) {
   //   context.set.status = 400;
@@ -40,7 +40,7 @@ async function postLogin(context: ElysiaContext) {
   // }
 
   // If student_id is not specified
-  if (!username) {
+  if (!student_id) {
     context.set.status = 400;
     return response.error("Username is required");
   }
@@ -52,7 +52,7 @@ async function postLogin(context: ElysiaContext) {
   }
 
   try {
-    const student = await Student.getByStudentId(username.trim());
+    const student = await Student.getByStudentId(student_id.trim());
 
     // Compare password
     if (!(await Bun.password.verify(password, student.password || ""))) {
@@ -61,7 +61,7 @@ async function postLogin(context: ElysiaContext) {
     }
   
     // Data to be stored in the token
-    const data = { role: AuthType.UNIV_ACCOUNT, ...username };
+    const data = { role: AuthType.UNIV_ACCOUNT, ...student };
     // Create access token (1 day)
     const accessToken = await createSessionToken(false, data, "1d");
     // Create refresh token (15 days)
@@ -69,10 +69,10 @@ async function postLogin(context: ElysiaContext) {
 
     // Log the login
     Log.login({
-      student_id: username.student_id,
+      student_id: student.student_id,
       type: data.role,
-      name: `${username.first_name} ${username.last_name}`,
-      students_id: username.id,
+      name: `${student.first_name} ${student.last_name}`,
+      students_id: student.id,
     });
 
     // Remove password from user

@@ -1,7 +1,7 @@
 import type { ElysiaContext, ResponseBody } from "../../types";
 import { ErrorTypes } from "../../types/enums";
 
-import Student from "../../db/models/univ_events/student";
+import UnivStudent from "../../db/models/univ_events/student";
 import response from "../../utils/response";
 import Strings from "../../config/strings";
 import { status501 } from "../../routes";
@@ -30,7 +30,7 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
 
 async function postStudents(context: ElysiaContext){
     try {
-        await Student.insert(context.body);
+        await UnivStudent.insert(context.body);
         // If no error, student is created
         return response.success(Strings.STUDENT_CREATED);
     } catch (error) {

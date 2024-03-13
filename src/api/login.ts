@@ -7,6 +7,7 @@ import { jwtVerify } from "jose";
 import response from "../utils/response";
 import Strings from "../config/strings";
 import Student from "../db/models/student";
+import UnivStudent from "../db/models/univ_events/student";
 import Log from "../utils/log";
 
 /**
@@ -64,8 +65,13 @@ async function getLogin(context: ElysiaContext) {
 
     // Get Role
     const role = payload.role as AuthType;
-    // If token is valid, get student
-    const student = await Student.getByStudentId(payload.student_id as string);
+    let student;
+    if(role === 4){
+      student = await UnivStudent.getByStudentId(payload.student_id as string);
+    }else{
+      // If token is valid, get student
+      const student = await Student.getByStudentId(payload.student_id as string);
+    }
 
     // If student is not found
     if (!student) {
