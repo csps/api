@@ -14,11 +14,11 @@
     "jose": "^5.2.3",
     "juice": "^10.0.0",
     "mariadb": "^3.2.3",
-    "nodemailer": "^6.9.11",
+    "nodemailer": "^6.9.12",
     "p-queue": "^8.0.1",
     "pug": "^3.0.2",
     "qrcode": "^1.5.3",
-    "xlsx-template": "^1.4.3"
+    "xlsx-template": "^1.4.4"
   },
   "devDependencies": {
     "@types/nodemailer": "^6.4.14",
