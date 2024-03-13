@@ -153,6 +153,18 @@ export type StudentModel = {
   date_stamp: string,
 }
 
+export type UnivStudentModel = {
+  id: number,
+  student_id: string,
+  course_id: string,
+  last_name: string,
+  first_name: string,
+  year_level: string,
+  email_address: string,
+  password?: string,
+  date_stamp: string,
+}
+
 export type TutorialModel = {
   id: number,
   student_id: string,

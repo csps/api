@@ -15,7 +15,8 @@ import { ictrfid } from "../api/ictcongress2024/rfid";
 import { ictstatistics } from "../api/ictcongress2024/statistics";
 import { ictexport } from "../api/ictcongress2024/export";
 
-import { login as uclogin } from "../api/ucdays2024/login";
+import { login as uclogin } from "../api/univ_events/login";
+import { students as univ_students } from "../api/univ_events/students";
 
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
@@ -33,7 +34,8 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/students/qr/:qr/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, DELETE: AuthType.ICT_ADMIN }},
 
-  { path: "/ucdays2024/login", methods: ["POST", "OPTIONS"], handler: uclogin },
+  { path: "/tatakforms/login", methods: ["POST", "OPTIONS"], handler: uclogin },
+  { path: "/tatakforms/register", methods: ["POST", "OPTIONS"], handler: univ_students },
 
   { path: "/tatakforms/:slug", methods: ["GET"], handler: tatakforms },
   { path: "/tatakforms", methods: ["GET"], handler: tatakforms },
@@ -45,7 +47,8 @@ const routes: AppRoutes[] = [
   { path: "/courses", methods: ["GET", "POST"], handler: courses, auth: { POST: AuthType.ADMIN }},
 
   { path: "/colleges", methods: ["GET"], handler: colleges },
-
+  { path: "/colleges/:acronym", methods: ["GET"], handler: colleges },
+  
   { path: "/env/:key", methods: ["GET", "PUT", "DELETE"], handler: env, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/env", methods: ["GET", "POST"], handler: env, auth: { POST: AuthType.ADMIN }},
 

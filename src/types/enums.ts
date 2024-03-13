@@ -3,7 +3,8 @@ export enum AuthType {
   STUDENT,
   ADMIN,
   ICT_ADMIN,
-  COLLEGE_ADMIN
+  COLLEGE_ADMIN,
+  UNIV_ACCOUNT
 }
 
 // Error types

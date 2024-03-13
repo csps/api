@@ -141,6 +141,18 @@ export enum StudentsColumn {
   DATE_STAMP = "date_stamp",
 };
 
+export enum UnivStudentsColumn {
+  ID = "id",
+  STUDENT_ID = "student_id",
+  LAST_NAME = "last_name",
+  FIRST_NAME = "first_name",
+  YEAR_LEVEL = "year_level",
+  COURSE_ID = "course_id",
+  EMAIL_ADDRESS = "email_address",
+  PASSWORD = "password",
+  DATE_STAMP = "date_stamp",
+};
+
 export enum VariationsColumn {
   ID = "id",
   NAME = "name"

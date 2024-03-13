@@ -9,7 +9,7 @@ type AdminData = {
 
 /**
  * UC Days Admin Model
- * @author mavyfaby (Maverick G. Fabroa)
+ * @author TotalElderBerry (lala)
  */
 class Admin {
   /**

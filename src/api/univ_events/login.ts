@@ -6,12 +6,12 @@ import { jwtVerify } from "jose";
 import response from "../../utils/response";
 import Strings from "../../config/strings";
 
-import Admin from "../../db/models/ucdays2024/admin";
+import Student from "../../db/models/univ_events/student";
 import Log from "../../utils/log";
 
 /**
  * UC Days Login API
- * @author mavyfaby (Maverick Fabroa)
+ * @author TotalElderBerry (huhu)
  */
 export function login(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody  {
   switch (context.request.method) {
@@ -24,6 +24,7 @@ export function login(context: ElysiaContext): Promise<ResponseBody | undefined>
   return status501(context);
 }
 
+
 /**
  * POST /ucdays2024/login
  * @param context Elysia context
@@ -31,6 +32,12 @@ export function login(context: ElysiaContext): Promise<ResponseBody | undefined>
 async function postLogin(context: ElysiaContext) {
   // Get request data
   let { username, password } = context.body || {};
+
+  // If type isnt specified
+  // if (!type) {
+  //   context.set.status = 400;
+  //   return response.error("Type is required");
+  // }
 
   // If student_id is not specified
   if (!username) {
@@ -45,17 +52,33 @@ async function postLogin(context: ElysiaContext) {
   }
 
   try {
-    const admin = await Admin.getByUsernameAndPassword(username.trim(), password);
+    const student = await Student.getByStudentId(username.trim());
 
+    // Compare password
+    if (!(await Bun.password.verify(password, student.password || ""))) {
+      context.set.status = 404;
+      return response.error(Strings.LOGIN_FAILED);
+    }
+  
     // Data to be stored in the token
-    const data = { role: AuthType.COLLEGE_ADMIN, college_id: admin.college_id, username: admin.username };
+    const data = { role: AuthType.UNIV_ACCOUNT, ...username };
     // Create access token (1 day)
     const accessToken = await createSessionToken(false, data, "1d");
     // Create refresh token (15 days)
-    const refreshToken = await createSessionToken(true, data, "3d");
+    const refreshToken = await createSessionToken(true, data, "15d");
 
-    // Return success and user data
-    return response.success(Strings.LOGIN_SUCCESS, { admin: data, accessToken, refreshToken });
+    // Log the login
+    Log.login({
+      student_id: username.student_id,
+      type: data.role,
+      name: `${username.first_name} ${username.last_name}`,
+      students_id: username.id,
+    });
+
+    // Remove password from user
+    delete username.password;
+
+    return response.success(Strings.LOGIN_SUCCESS, { data, accessToken, refreshToken });
   }
 
   catch (error) {
