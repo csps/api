@@ -166,8 +166,7 @@ class Admin {
       // Log error and reject promise
       catch (e) {
         Log.e(e);
-        console.error(e);
-        reject("An server error occured. Please try again later.");
+        reject(e);
       }
     });
   }
@@ -1067,7 +1066,7 @@ class Admin {
 
         // If no results
         if (result.length === 0) {
-          return reject("No t-shirt sizes found.");
+          return resolve({});
         }
 
         // T-shirt sizes
