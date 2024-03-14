@@ -177,6 +177,17 @@ class Admin {
    */
   public static registerStudent(student: ICTStudentRegisterModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
+      // Check student ID's length
+      if (student.student_id.toString().length !== 8) {
+        return reject("Student ID must be 8 characters long.");
+      }
+
+      // Check student ID's validity
+      if (!/^\d+$/.test(student.student_id)) {
+        return reject("Student ID must contain only numbers.");
+      }
+
+      // Get database instance
       const db = Database.getInstance();
 
       try {
