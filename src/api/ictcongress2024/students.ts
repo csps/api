@@ -73,8 +73,8 @@ async function postStudents(context: ElysiaContext) {
   const isClaimSnack = op === "claim-snack";
   const isClaimTshirt = op === "claim-tshirt";
 
-  // Get student ID param
-  const student_id = context.params?.student_id;
+  // Get student UID param
+  const uid = context.params?.uid;
   // Get membership variable
   const isCSPSMember = context.body?.isCSPSMember;
   // Get RFID from body
@@ -87,13 +87,13 @@ async function postStudents(context: ElysiaContext) {
 
   // For student ID operations
   if (isPaymentConfirm || isClaimTshirt) {
-    if (!student_id && !isUsingQR) return response.error("Student ID is required");
+    if (!uid && !isUsingQR) return response.error("Student UID is required");
   }
 
   // If confirming payment for student
-  if (isPaymentConfirm && student_id) {
+  if (isPaymentConfirm && uid) {
     try {
-      await Admin.confirmPaymentByStudentID(student_id!, rfid, isCSPSMember);
+      await Admin.confirmPaymentByUID(Number(uid), rfid, isCSPSMember);
       return response.success("Payment successfully confirmed!");
     } catch (e) {
       return response.error(e);
@@ -101,10 +101,10 @@ async function postStudents(context: ElysiaContext) {
   }
 
   // If claiming t-shirt
-  if (isClaimTshirt && student_id) {
+  if (isClaimTshirt && uid) {
     try {
-      await Admin.claimTShirtByStudentID(student_id!);
-      return response.success(`Student ID (${student_id}) successfully claimed t-shirt!`);
+      const student = await Admin.claimTShirtByUID(Number(uid));
+      return response.success(`Student ID (${student.first_name} ${student.last_name}) successfully claimed t-shirt!`);
     } catch (e) {
       return response.error(e);
     }
@@ -123,7 +123,7 @@ async function postStudents(context: ElysiaContext) {
   // If claiming snack
   if (isClaimSnack && isUsingQR) {
     try {
-      const student = await Admin.claimSnackByStudentID({ qr });
+      const student = await Admin.claimSnack({ qr });
       return response.success(`Student ID (${student.student_id}) successfully claimed snack!`, student);
     } catch (e) {
       return response.error(e);
@@ -139,19 +139,19 @@ async function postStudents(context: ElysiaContext) {
  * @param context Elysia context
  */
 async function deleteStudents(context: ElysiaContext) {
-  // Get student ID param
-  const student_id = context.params?.student_id;
+  // Get student UID param
+  const uid = context.params?.uid;
 
-  // If no student ID
-  if (!student_id) {
-    return response.error("Student ID is required");
+  // If no student UID
+  if (!uid) {
+    return response.error("Student UID is required");
   }
 
   try {
     // Remove student
-    const student = await Admin.removeStudent(student_id);
+    const student = await Admin.removeStudent(Number(uid));
     // Return success
-    return response.success(`Student ${student.first_name} ${student.last_name} (${student_id}) successfully deleted!`);
+    return response.success(`Student ${student.first_name} ${student.last_name} (${student.student_id}) successfully deleted!`);
   } catch (e) {
     // Return error
     return response.error(e);

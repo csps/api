@@ -265,29 +265,29 @@ class Admin {
 
   /**
    * Confirm payment
-   * @param student_id Student ID
+   * @param uid Student's UID
    * @param rfid RFID
    * @param isCSPSMember Is CSPS member
    */
-  public static confirmPaymentByStudentID(student_id: string | number, rfid?: string, isCSPSMember?: string): Promise<void> {
+  public static confirmPaymentByUID(uid: number, rfid?: string, isCSPSMember?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
+          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ uid ]
         );
 
         // If student ID not found
         if (result.length === 0) {
           Log.w("[ICT Congress 2024] [CONFIRM_PAYMENT] Student ID is not registered!");
-          return reject(`Student ID (${student_id}) is not registered!`);
+          return reject(`Student with UID #${uid} is not registered!`);
         }
 
         // If payment already confirmed
         if (result[0].payment_confirmed) {
-          Log.w(`[ICT Congress 2024] [CONFIRM_PAYMENT] Payment already confirmed for student ${result[0].first_name} ${result[0].last_name} (${student_id})`);
+          Log.w(`[ICT Congress 2024] [CONFIRM_PAYMENT] Payment already confirmed for student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           return reject("Payment already confirmed on " + getReadableDate(result[0].payment_confirmed));
         }
 
@@ -318,7 +318,7 @@ class Admin {
           }
 
           // Log CSPS member discount
-          Log.i(`[ICT Congress 2024] [CONFIRM_PAYMENT] CSPS member discount for student ${result[0].first_name} ${result[0].last_name} (${student_id})`);
+          Log.i(`[ICT Congress 2024] [CONFIRM_PAYMENT] CSPS member discount for student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
 
           // Get discount codes
           cspsEarlyCode = await Admin.getDiscountCodes(5) as ICTDiscountCode;
@@ -328,16 +328,16 @@ class Admin {
 
           // Confirm student
           updateResult = await db.query<MariaUpdateResult>(
-            `UPDATE ict2024_students SET rfid = ?, discount_code = ?, payment_confirmed = NOW() WHERE student_id = ?`,
-            [rfid ?? null, cspsIsEarlyBird ? cspsEarlyCode.code : cspsRegularCode.code, student_id]
+            `UPDATE ict2024_students SET rfid = ?, discount_code = ?, payment_confirmed = NOW() WHERE id = ?`,
+            [rfid ?? null, cspsIsEarlyBird ? cspsEarlyCode.code : cspsRegularCode.code, uid]
           );
         }
         
         // If not CSPS member
         else {
           updateResult = await db.query<MariaUpdateResult>(
-            `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE student_id = ?`,
-            [rfid ?? null, student_id]
+            `UPDATE ict2024_students SET rfid = ?, payment_confirmed = NOW() WHERE id = ?`,
+            [rfid ?? null, uid]
           );
         }
 
@@ -472,10 +472,10 @@ class Admin {
   }
 
   /**
-   * Claim snack by student ID
+   * Claim snack either by QR or RFID
    * @param data QR Code data or RFID
    */
-  public static claimSnackByStudentID(data: { qr?: string, rfid?: string }): Promise<ICTStudentModel> {
+  public static claimSnack(data: { qr?: string, rfid?: string }): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
@@ -539,22 +539,22 @@ class Admin {
   }
 
   /**
-   * Claim t-shirt by student ID
-   * @param student_id Student ID
+   * Claim t-shirt by student UID
+   * @param uid Student UID
    */
-  public static claimTShirtByStudentID(student_id: string | number): Promise<void> {
+  public static claimTShirtByUID(uid: number): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
+          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ uid ]
         );
 
         // If student ID not found
         if (result.length === 0) {
-          Log.w(`[ICT Congress 2024] [CLAIM_TSHIRT] Student ID (${student_id}) not found!`);
+          Log.w(`[ICT Congress 2024] [CLAIM_TSHIRT] Student UID #${uid} not found!`);
           return reject("Student ID is not registered!");
         }
 
@@ -575,7 +575,7 @@ class Admin {
 
         // Claim t-shirt
         const updateResult = await db.query<MariaUpdateResult>(
-          "UPDATE ict2024_students SET tshirt_claimed = NOW() WHERE student_id = ?", [student_id]
+          "UPDATE ict2024_students SET tshirt_claimed = NOW() WHERE id = ?", [ uid ]
         );
 
         // If t-shirt successfully claimed
@@ -596,7 +596,7 @@ class Admin {
           // Log claimed
           Log.i(`💛 [ICT Congress 2024] [${campus.campus_name}] [TSHIRT_QR] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           // Resolve
-          return resolve();
+          return resolve(result[0]);
         }
 
         // Last resort error
@@ -665,16 +665,16 @@ class Admin {
 
   /**
    * Remove student record
-   * @param student_id Student's ID
+   * @param uid Student's UID
    */
-  public static removeStudent(student_id: string): Promise<ICTStudentModel> {
+  public static removeStudent(uid: number): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
 
       try {
         // Get student
         const result = await db.query<ICTStudentModel[]>(
-          "SELECT * FROM ict2024_students WHERE student_id = ? LIMIT 1", [student_id]
+          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ uid ]
         );
 
         // Get campus
@@ -682,25 +682,25 @@ class Admin {
 
         // If student not found
         if (result.length === 0) {
-          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Student ID (${student_id}) not found!`);
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Student UID #${uid} not found!`);
           return reject("Student not found.");
         }
 
         // If student already confirmed payment or tshirt
         if ( result[0].payment_confirmed || result[0].tshirt_claimed) {
-          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Only students with pending orders can be removed - ${result[0].first_name} ${result[0].last_name} (${student_id}).`);
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Only students with pending orders can be removed - ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}).`);
           return reject("Only students with pending orders can be removed.");
         }
 
         // Remove pending order
         const updateResult = await db.query<MariaUpdateResult>(
-          "DELETE FROM ict2024_students WHERE student_id = ?", [student_id]
+          "DELETE FROM ict2024_students WHERE id = ?", [ uid ]
         );
 
         // If student successfully removed
         if (updateResult.affectedRows > 0) {
           // Log removed
-          Log.i(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Removed student ${result[0].first_name} ${result[0].last_name} (${student_id})}`);
+          Log.i(`[ICT Congress 2024] [${campus.campus_name}] [REMOVE_STUDENT] Removed student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})}`);
           // Resolve
           return resolve(result[0]);
         }
