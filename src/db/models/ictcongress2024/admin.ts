@@ -159,7 +159,7 @@ class Admin {
    * @param campus_id Campus
    * @param search Search
    */
-  public static searchStudents(campus_id: number, pagination?: PaginationOutput): Promise<{ students: ICTStudentModel[], count: number, tshirt_sizes: Record<number, number> }> {
+  public static searchStudents(campus_id: number, pagination?: PaginationOutput): Promise<{ students: ICTStudentModel[], count: number, tshirt_sizes: Record<number, number>, confirmed_count: Record<number, number> }> {
     return new Promise(async (resolve, reject) => {
       // Get database instance
       const db = Database.getInstance();
@@ -181,6 +181,7 @@ class Admin {
           const students = await db.query<ICTStudentModel[]>(query, values);
           const count = await db.query<[{ count: bigint }]>(countQuery, countValues);
           const tshirt_sizes: Record<number, number> = await Admin.getShirtSizesCount(campus_id, filter !== "-1" ? filter : undefined, filterLogic);
+          const confirmed_count: Record<number, number> = await Admin.getConfirmedCountByYearLevel(campus_id, filter !== "-1" ? filter : undefined, filterLogic);
 
           // If no students found
           if (students.length === 0) {
@@ -188,7 +189,7 @@ class Admin {
           }
 
           // Resolve with students and count
-          resolve({ students, count: Number(count[0].count), tshirt_sizes });
+          resolve({ students, count: Number(count[0].count), tshirt_sizes, confirmed_count });
         }
       }
 
@@ -1114,6 +1115,51 @@ class Admin {
       catch (e) {
         Log.e(e);
         reject("Oops! Can't get t-shirt sizes count. Please try again later.");
+      }
+    });
+  }
+
+  /**
+   * Get confirmed count by year level
+   * @param campus_id Campus ID
+   * @param statusColumn All | attendance | snack_claimed | payment_confirmed | tshirt_claimed
+   * @param filterLogic 0 | 1 | 2
+   * @returns 
+   */
+  public static getConfirmedCountByYearLevel(campus_id: number, statusColumn?: string, filterLogic?: string): Promise<Record<number, number>> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get t-shirt sizes count
+        const result = await db.query<{ year_level: number, count: bigint }[]>(
+          `SELECT year_level, COUNT(*) as count FROM ict2024_students WHERE campus_id = ?
+            ${statusColumn ? `AND ${db.escapeId(statusColumn)} ${statusColumn === ICTSTudentEnum.snack_claimed ? '= 1 ' : `IS ${filterLogic === "1" ? 'NOT' : ''} NULL`}` : ''} GROUP BY year_level
+          `, 
+          [campus_id]
+        );
+
+        // If no results
+        if (result.length === 0) {
+          return resolve({});
+        }
+
+        // Year levels
+        const year_levels: Record<number, number> = {};
+
+        // For each size
+        for (const level of result) {
+          year_levels[level.year_level] = Number(level.count);
+        }
+
+        // Resolve
+        resolve(year_levels);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Oops! Can't get year levels count. Please try again later.");
       }
     });
   }
