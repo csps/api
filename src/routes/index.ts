@@ -26,7 +26,7 @@ const routes: AppRoutes[] = [
   { path:  "/ictcongress2024/export/csv", handler: ictexport, methods: ["GET", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, OPTIONS: AuthType.ADMIN }},
   { path:  "/ictcongress2024/rfid/:rfid", handler: ictrfid, methods: ["POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students", handler: ictstudents, methods: ["GET", "POST", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN }},
-  { path:  "/ictcongress2024/students/:uid", handler: ictstudents, methods: ["DELETE"], auth: { DELETE: AuthType.ICT_ADMIN }},
+  { path:  "/ictcongress2024/students/:uid", handler: ictstudents, methods: ["GET", "DELETE"], auth: { GET: AuthType.ICT_ADMIN, DELETE: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/:uid/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/students/qr/:qr/:operation", handler: ictstudents, methods: ["POST", "OPTIONS"], auth: { POST: AuthType.ICT_ADMIN }},
   { path:  "/ictcongress2024/campus/pending-orders", handler: ictpendingorders, methods: ["GET", "DELETE", "OPTIONS"], auth: { GET: AuthType.ICT_ADMIN, DELETE: AuthType.ICT_ADMIN }},

@@ -26,10 +26,21 @@ export function students(context: ElysiaContext): Promise<ResponseBody | undefin
 }
 
 /**
- * GET /ictcongress2024/students
+ * GET /ictcongress2024/students/(:uid?)
  * @param context Elysia context
  */
 async function getStudents(context: ElysiaContext) {
+  // If getting student by UID
+  if (context.params?.uid) {
+    try {
+      const student = await Admin.getStudentByUID(Number(context.params.uid));
+      return response.success(Strings.STUDENT_FOUND, student);
+    } catch (e) {
+      context.set.status = 400;
+      return response.error(e);
+    }
+  }
+
   // If has query
   if (Object.keys(context.query).length > 0) {
     try {

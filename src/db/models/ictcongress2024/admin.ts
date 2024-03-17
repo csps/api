@@ -97,6 +97,35 @@ class Admin {
   }
 
   /**
+   * Get student by UID
+   * @param uid Student's UID
+   */
+  public static getStudentByUID(uid: number): Promise<ICTStudentModel> {
+    return new Promise(async (resolve, reject) => {
+      const db = Database.getInstance();
+
+      try {
+        // Get student by RFID
+        const result = await db.query<ICTStudentModel[]>(
+          "SELECT * FROM ict2024_students WHERE id = ? LIMIT 1", [ uid ]
+        );
+
+        if (result.length === 0) {
+          return reject("Student not found.");
+        }
+
+        resolve(result[0]);
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject("Error retrieving student.");
+      }
+    });
+  }
+
+  /**
    * Get student by RFID
    * @param rfid Student's RFID
    */
