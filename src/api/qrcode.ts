@@ -1,11 +1,16 @@
 import type { ElysiaContext, ResponseBody } from "../types";
+import { QRCodeCanvas } from '@loskir/styled-qr-code-node';
+import { join } from "path";
+
 import Strings from "../config/strings";
 import response from "../utils/response";
 import Log from "../utils/log";
-import QRCode from "qrcode";
 
 import { status501 } from "../routes";
 import { setHeader } from "../utils/security";
+
+// Get CSPS Logo
+const file = Bun.file(join(import.meta.path, "../../../assets/logo.png"));
 
 /**
  * QR Code API
@@ -37,19 +42,45 @@ async function getQrcode(context: ElysiaContext) {
   }
 
   try {
-    // Generate QR Code buffer imaage from query data
-    const output = await QRCode.toBuffer(q, {
+    // Generate QR Code
+    const output = new QRCodeCanvas({
       width: size ? parseInt(size) : 512,
-      type: 'png',
-      margin: 1,
-      color: {
-        dark: theme === 'dark' ? "#988e97" : "#4a2558",
-        light: '#0000',
-      }
+      height: size ? parseInt(size) : 512,
+      data: q.replace(/\s/g, ''),
+      image: Buffer.from(await file.arrayBuffer()),
+      margin: 16,
+      qrOptions: {
+        typeNumber: 0,
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      imageOptions: {
+        hideBackgroundDots: true,
+        imageSize: 0.4,
+        margin: 0
+      },
+      dotsOptions: {
+        type: "square",
+        color: theme === 'dark' ? "#988e97" : "#4a2558",
+      },
+      backgroundOptions: {
+        color: "transparent"
+      },
+      cornersSquareOptions: {
+        type: "extra-rounded",
+        color: theme === 'dark' ? "#988e97" : "#4a2558",
+      },
+      cornersDotOptions: {
+        type: "dot",
+        color: theme === 'dark' ? "#988e97" : "#4a2558",
+      },
     });
 
+    // Output data to buffer
+    const buffer = await output.toBuffer("png");
+
     // Convert buffer to file
-    const photo = new File([output], "qrcode.png", {
+    const photo = new File([buffer], "qrcode.png", {
       type: 'image/png'
     });
 
