@@ -49,7 +49,7 @@ class UnivStudent {
         }
         
         // Get all students
-        const result = await db.query<UnivStudentModel[]>(`SELECT * FROM unive_students ORDER BY id DESC`);
+        const result = await db.query<UnivStudentModel[]>(`SELECT * FROM univ_students ORDER BY id DESC`);
 
         // If no results
         if (result.length === 0) {

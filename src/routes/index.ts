@@ -17,6 +17,7 @@ import { ictexport } from "../api/ictcongress2024/export";
 
 import { login as uclogin } from "../api/univ_events/login";
 import { students as univ_students } from "../api/univ_events/students";
+import { tatak_attendance } from "../api/univ_events/tatak_attendance";
 
 const routes: AppRoutes[] = [
   { path: "/example", methods: ["GET", "POST", "DELETE", "PUT"], handler: example },
@@ -39,6 +40,8 @@ const routes: AppRoutes[] = [
 
   { path: "/tatakforms/:slug", methods: ["GET"], handler: tatakforms },
   { path: "/tatakforms", methods: ["GET"], handler: tatakforms },
+  { path: "/tatakforms/attendance/:slug" , methods: ['POST','GET'], handler: tatak_attendance, auth: {POST: AuthType.UNIV_ACCOUNT} },
+  { path: "/tatakforms/attendance/" , methods: ['GET'], handler: tatak_attendance, auth: {POST: AuthType.UNIV_ACCOUNT} },
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},

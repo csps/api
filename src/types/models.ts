@@ -268,3 +268,15 @@ export type ICTStatistics = {
   countPaymentConfirmed: number;
   countTShirtClaimed: number;
 }
+
+export type AttendanceModel = {
+  id: number;
+  event_id: number;
+  student_id: number;
+  day1_am: string;
+  day1_pm: string;
+  day2_am: string;
+  day2_pm: string;
+  day3_am: string;
+  day3_pm: string;
+}
