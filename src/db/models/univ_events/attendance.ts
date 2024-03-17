@@ -13,7 +13,7 @@ class Attendance {
         // Get database instance
         const db = Database.getInstance();
 
-        const currentDate = new Date("2024-03-08");
+        const currentDate = new Date();
         const fromDate = new Date(tatak_event.from_date);
         const toDate = new Date(tatak_event.to_date);
         let query;
@@ -135,10 +135,10 @@ class Attendance {
   
         try {
           // Get admin by username
-          const result = await db.query<string>(
+          const result = await db.query<any>(
             `SELECT ${columnName} FROM attendance WHERE student_id = ? and event_id = ?`, [studentId, eventId]
           );
-          if(result[0] === undefined){
+          if(result[0] === undefined || result[0][columnName] === null){
             resolve(result[0]);
           }else{
             reject("You already have attended")
