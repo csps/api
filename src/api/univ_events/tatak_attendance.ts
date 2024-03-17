@@ -61,10 +61,10 @@ async function getAttendanceHistory(context: ElysiaContext){
     if(slug){
       const tatak_event = await Tatakform.getBySlug(slug);
       const history = await Attendance.getAttendanceHistoryOfStudentEvent(context.user?.student_id, tatak_event.id);
-      return response.success(history);
+      return response.success("Fetch Successful",history);
     }else{
       const history = await Attendance.getAllAttendanceHistoryOfStudent(context.user?.student_id);
-      return response.success(history);
+      return response.success("Fetch Successful",history);
     }
   } catch (error) {
       // if list of errors
