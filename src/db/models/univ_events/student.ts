@@ -195,7 +195,7 @@ class UnivStudent {
         Log.i(`Checking if student exists (${key} = ${value})`);
         // Get result
         const result = await db.query<[{ count: bigint }]>(
-          `SELECT COUNT(*) AS count FROM students WHERE ${key} = ?`, [value]
+          `SELECT COUNT(*) AS count FROM univ_students WHERE ${key} = ?`, [value]
         );
 
         // If no results
