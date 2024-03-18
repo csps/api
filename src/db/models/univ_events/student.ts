@@ -97,7 +97,6 @@ class UnivStudent {
 
         // Get student
         const result = await db.query<UnivStudentModel[]>(query, [student_id]);
-        console.log(result)
         // If no results
         if (result.length === 0) {
           Log.e(`${fromAdmin ? 'Admin' : 'Student'} not found (id = ${student_id})`);

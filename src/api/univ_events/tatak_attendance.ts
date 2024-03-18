@@ -79,7 +79,7 @@ async function getAttendanceHistory(context: ElysiaContext){
       // If database error
       if (error === ErrorTypes.DB_ERROR) {
           context.set.status = 500;
-          return response.error(Strings.STUDENT_POST_ERROR);
+          return response.error("Fetching Attendance Error");
       }
 
       return response.error(error)
