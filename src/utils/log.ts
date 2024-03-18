@@ -141,7 +141,7 @@ class Log {
 
       // If insertion is successful
       if (result.affectedRows > 0) {
-        console.log(chalk.blue.bold("[*] New login detected [" + (data.type === AuthType.STUDENT ? 'STUDENT' : 'ADMIN') + "]: " + data.name + " #" + data.students_id + " (" + data.student_id + ")"));
+        console.log(chalk.blue.bold("[*] New login detected [" + ((data.type === AuthType.STUDENT || data.type === AuthType.UNIV_ACCOUNT) ? 'STUDENT' : 'ADMIN') + "]: " + data.name + " #" + data.students_id + " (" + data.student_id + ")"));
         return resolve();
       }
 
