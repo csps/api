@@ -128,6 +128,32 @@ class Attendance {
       });
   }
 
+  public static getAllOfEvent(eventId: any, courseId:any){
+    
+    return new Promise(async (resolve, reject) => {
+      // Get database instance
+      const db = Database.getInstance();
+
+      try {
+        // Get admin by username
+        const result = await db.query<AttendanceModel[]>(
+          `SELECT attendance.* FROM attendance INNER JOIN univ_students ON univ_students.course_id = ? where attendance.student_id = univ_students.student_id AND event_id = ?`, [courseId, eventId]
+        );
+        if(result){
+          resolve(result);
+        }else{
+          reject("Error")
+        }
+      }
+
+      // Log error and reject promise
+      catch (e) {
+        Log.e(e);
+        reject(e);
+      }
+    });
+  }
+
   private static hasNotYetTimeRegistered(studentId: any, eventId:any, columnName: string){
     return new Promise(async (resolve, reject) => {
         // Get database instance

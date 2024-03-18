@@ -66,11 +66,11 @@ async function getLogin(context: ElysiaContext) {
     // Get Role
     const role = payload.role as AuthType;
     let student;
-    if(role === 4){
+    if(role === AuthType.UNIV_ACCOUNT || role === AuthType.COLLEGE_ADMIN){
       student = await UnivStudent.getByStudentId(payload.student_id as string);
     }else{
       // If token is valid, get student
-      const student = await Student.getByStudentId(payload.student_id as string);
+      student = await Student.getByStudentId(payload.student_id as string);
     }
 
     // If student is not found

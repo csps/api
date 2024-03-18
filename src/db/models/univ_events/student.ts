@@ -84,16 +84,16 @@ class UnivStudent {
         let query = 'SELECT * FROM univ_students WHERE student_id = ?';
 
         // If getting data from admin
-        // if (fromAdmin) {
-        //   query = `
-        //     SELECT
-        //       s.id, s.student_id, s.last_name, s.first_name,
-        //       s.year_level, s.email_address, s.password, s.date_stamp
-        //     FROM
-        //       admin a
-        //     INNER JOIN students s ON s.id = a.students_id WHERE s.student_id = ?
-        //   `;
-        // }
+        if (fromAdmin) {
+          query = `
+            SELECT
+              s.id, s.student_id, s.last_name, s.first_name,
+              s.year_level, s.email_address, s.password, s.date_stamp, s.course_id
+            FROM
+              univ_admin a
+            INNER JOIN univ_students s ON s.id = a.students_id WHERE s.student_id = ?
+          `;
+        }
 
         // Get student
         const result = await db.query<UnivStudentModel[]>(query, [student_id]);

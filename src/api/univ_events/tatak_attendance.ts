@@ -18,6 +18,9 @@ import Tatakform from "../../db/models/tatakform";
 export function tatak_attendance(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
     switch (context.request.method) {
       case "GET":
+        if(context.params?.eventId){
+          return getAllStudentsAttended(context);
+        }
         return getAttendanceHistory(context);
       case "POST":
         return postAttendance(context);
@@ -80,5 +83,18 @@ async function getAttendanceHistory(context: ElysiaContext){
       }
 
       return response.error(error)
+  }
+}
+
+
+async function getAllStudentsAttended(context: ElysiaContext){
+  try {
+    const eventId = context.params?.eventId;
+    if(eventId){
+      const attendance = await Attendance.getAllOfEvent(eventId,1);
+      return response.success("Success",attendance)
+    }
+  } catch (error) {
+    return response.error(error)
   }
 }

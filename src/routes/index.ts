@@ -16,6 +16,7 @@ import { ictstatistics } from "../api/ictcongress2024/statistics";
 import { ictexport } from "../api/ictcongress2024/export";
 
 import { login as uclogin } from "../api/univ_events/login";
+import { login as admin_login } from "../api/univ_events/admin";
 import { students as univ_students } from "../api/univ_events/students";
 import { tatak_attendance } from "../api/univ_events/tatak_attendance";
 
@@ -37,11 +38,13 @@ const routes: AppRoutes[] = [
 
   { path: "/tatakforms/login", methods: ["POST", "OPTIONS"], handler: uclogin },
   { path: "/tatakforms/register", methods: ["POST", "OPTIONS"], handler: univ_students },
+  { path: "/tatakforms/admin/login", methods: ["POST", "OPTIONS"], handler: admin_login },
 
   { path: "/tatakforms/:slug", methods: ["GET"], handler: tatakforms },
   { path: "/tatakforms", methods: ["GET"], handler: tatakforms },
-  { path: "/tatakforms/attendance/:slug" , methods: ['POST','GET'], handler: tatak_attendance, auth: {POST: AuthType.UNIV_ACCOUNT} },
-  { path: "/tatakforms/attendance/" , methods: ['GET'], handler: tatak_attendance, auth: {POST: AuthType.UNIV_ACCOUNT} },
+  { path: "/tatakforms/attendance/:slug" , methods: ['POST','GET'], handler: tatak_attendance, auth: {POST: AuthType.COLLEGE_ADMIN} },
+  { path: "/tatakforms/attendance/" , methods: ['GET'], handler: tatak_attendance, auth: {GET: AuthType.UNIV_ACCOUNT} },
+  { path: "/tatakforms/attendance/event/:eventId" , methods: ['GET'], handler: tatak_attendance, auth: {GET: AuthType.COLLEGE_ADMIN}},
 
   { path: "/announcements/:id", methods: ["PUT", "DELETE", "OPTIONS"], handler: announcements, auth: { PUT: AuthType.ADMIN, DELETE: AuthType.ADMIN }},
   { path: "/announcements", methods: ["GET","POST"], handler: announcements, auth: { POST: AuthType.ADMIN }},

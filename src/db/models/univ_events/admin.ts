@@ -2,7 +2,11 @@ import Database from "../..";
 import Log from "../../../utils/log";
 
 type AdminData = {
+  id: number;
   college_id: number;
+  student_id: string;
+  first_name: string;
+  last_name: string;
   username: string;
   password: string;
 };
@@ -11,7 +15,7 @@ type AdminData = {
  * UC Days Admin Model
  * @author TotalElderBerry (lala)
  */
-class Admin {
+class UnivAdmin {
   /**
    * Get by username and password
    */
@@ -23,7 +27,7 @@ class Admin {
       try {
         // Get admin by username and password
         const result = await db.query<AdminData[]>(
-          "SELECT * FROM ucdays_accounts WHERE username = ?", [username]
+          "SELECT s.id, s.student_id, s.last_name, s.first_name, s.year_level, s.email_address, s.password, s.date_stamp, s.course_id FROM univ_admin a INNER JOIN univ_students s ON s.id = a.univstudents_id WHERE s.student_id = ?", [username]
         );
 
         // If no result or password is incorrect
@@ -53,7 +57,7 @@ class Admin {
       try {
         // Get admin by username
         const result = await db.query<AdminData[]>(
-          "SELECT * FROM ucdays_accounts WHERE username = ?", [username]
+          "SELECT s.id, s.student_id, s.last_name, s.first_name, s.year_level, s.email_address, s.password, s.date_stamp, s.course_id FROM univ_admin a INNER JOIN univ_students s ON s.id = a.univstudents_id WHERE s.student_id = ?", [username]
         );
 
         if (result.length === 0) {
@@ -72,4 +76,4 @@ class Admin {
   }
 }
 
-export default Admin;
+export default UnivAdmin;
