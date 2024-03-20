@@ -16,8 +16,10 @@ import UnivStudent from "../../db/models/univ_events/student";
  * @author TotalElderBerry (Unknown af)
  * @param context
  */
+
+
 export function tatak_attendance(context: ElysiaContext): Promise<ResponseBody | undefined> | ResponseBody {
-    switch (context.request.method) {
+  switch (context.request.method) {
       case "GET":
         if(context.params?.eventId){
           return getAllStudentsAttended(context);
@@ -25,13 +27,18 @@ export function tatak_attendance(context: ElysiaContext): Promise<ResponseBody |
         return getAttendanceHistory(context);
       case "POST":
         return postAttendance(context);
-      case "OPTIONS":
+        case "OPTIONS":
         return response.success();
     }
   
     return status501(context);
-}
+  }
 
+/**
+ * POST /tatakforms/attendance/:slug
+ * @param context
+ * Mark student as present in specific day
+ */
 async function postAttendance(context: ElysiaContext){
     try {
       const slug = context.params?.slug;
@@ -41,7 +48,7 @@ async function postAttendance(context: ElysiaContext){
         if(tatak_event){
           await Attendance.attendStudent(context.body.student_id, tatak_event);
         }
-        return response.success("Attended successfully");
+        return response.success("Attended successfully",{student_id: context.body.student_id});
       }
     } catch (error) {
         // if list of errors
@@ -60,6 +67,15 @@ async function postAttendance(context: ElysiaContext){
     }
 }
 
+/**
+ * GET /tatakforms/attendance/
+ * - Fetches the attedance history of a student in all events
+ * 
+ * GET /tatakforms/attendance/:slug
+ * - Fetches the attedance history of a student in an event
+ * @param context
+ * 
+ */
 async function getAttendanceHistory(context: ElysiaContext){
   try {
     const slug = context.params?.slug;
@@ -88,7 +104,12 @@ async function getAttendanceHistory(context: ElysiaContext){
   }
 }
 
-
+/**
+ * GET /tatakforms/attendance/event/:eventId
+ * - Fetches all attendance of students in an event of the course
+ * @param context
+ * 
+ */
 async function getAllStudentsAttended(context: ElysiaContext){
   try {
     const eventId = context.params?.eventId;
