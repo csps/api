@@ -7,6 +7,7 @@ import Strings from "../../config/strings";
 import { status501 } from "../../routes";
 import Attendance from "../../db/models/univ_events/attendance";
 import Tatakform from "../../db/models/tatakform";
+import UnivStudent from "../../db/models/univ_events/student";
 
 
 
@@ -36,6 +37,7 @@ async function postAttendance(context: ElysiaContext){
       const slug = context.params?.slug;
       if(slug){
         const tatak_event = await Tatakform.getBySlug(slug);
+        const student = await UnivStudent.getByStudentId(context.body.student_id);
         if(tatak_event){
           await Attendance.attendStudent(context.body.student_id, tatak_event);
         }
