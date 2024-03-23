@@ -254,9 +254,9 @@ class Admin {
         const result = await db.query<MariaUpdateResult>(`
           INSERT INTO ict2024_students (
             campus_id, student_id, course_id, tshirt_size_id, year_level,
-            first_name, last_name, email, discount_code, snack_claimed, date_stamp
+            first_name, last_name, email, discount_code, snack_claimed, kits_claimed, date_stamp
           ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW()
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, NOW()
           )`,
           [
             student.campus_id,
@@ -501,12 +501,14 @@ class Admin {
   }
 
   /**
-   * Claim snack either by QR or RFID
+   * Claim snack or kits either by QR or RFID
    * @param data QR Code data or RFID
    */
-  public static claimSnack(data: { qr?: string, rfid?: string }): Promise<ICTStudentModel> {
+  public static claimSnackOrKits(type: "snack" | "kits", data: { qr?: string, rfid?: string }): Promise<ICTStudentModel> {
     return new Promise(async (resolve, reject) => {
       const db = Database.getInstance();
+      const isSnack = type === "snack";
+      const prefix = isSnack ? 'SNACK' : 'KITS';
 
       try {
         let id;
@@ -518,13 +520,13 @@ class Admin {
 
         // Get current value
         const result = await db.query<ICTStudentModel[]>(
-          `SELECT * FROM ict2024_students WHERE id = ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
+          `SELECT * FROM ict2024_students WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
         );
 
         // If student ID not found
         if (result.length === 0) {
-          Log.w(`[ICT Congress 2024] [SNACK] Student with (${data.qr || data.rfid}) not found!`);
-          return reject("Student ID is not registered!");
+          Log.w(`[ICT Congress 2024] [${prefix}] Student with UID #${id || data.rfid} not found!`);
+          return reject("Student UID is not registered!");
         }
 
         // Get campus
@@ -532,31 +534,40 @@ class Admin {
 
         // If student still pending payment
         if (!result[0].payment_confirmed) {
-          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [SNACK] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) still pending payment.`);
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [${prefix}] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) still pending payment.`);
           return reject("Student's payment is still pending.");
         }
 
-        // If snack already claimed
-        if (result[0].snack_claimed) {
-          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [SNACK] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) already claimed snack.`);
-          return reject("Snack already claimed!");
+        // If claiming snack
+        if (isSnack) {
+          // If snack already claimed
+          if (result[0].snack_claimed) {
+            Log.w(`[ICT Congress 2024] [${campus.campus_name}] [SNACK] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) already claimed snack.`);
+            return reject("Snack already claimed!");
+          }
+        }
+        
+        // If kits already claimed
+        else if (result[0].kits_claimed) {
+          Log.w(`[ICT Congress 2024] [${campus.campus_name}] [KITS] Student ${result[0].first_name} ${result[0].last_name} (${result[0].student_id}) already claimed kits.`);
+          return reject("Kits already claimed!");
         }
 
         // Claim snack
         const updateResult = await db.query<MariaUpdateResult>(
-          `UPDATE ict2024_students SET snack_claimed = 1 WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
+          `UPDATE ict2024_students SET ${isSnack ? 'snack' : 'kits'}_claimed = 1 WHERE ${data.qr ? "id" : "rfid"} = ? LIMIT 1`, [data.qr ? id : data.rfid]
         );
 
         // If snack successfully claimed
         if (updateResult.affectedRows > 0) {
           // Log claimed
-          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [SNACK] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
+          Log.i(`🤍 [ICT Congress 2024] [${campus.campus_name}] [${prefix}] – ${result[0].first_name} ${result[0].last_name} (${result[0].student_id})`);
           // Resolve
           return resolve(result[0]);
         }
 
         // Last resort error
-        return reject("Oops! Can't claim snack. Please try again.");
+        return reject(`Oops! Can't claim ${isSnack ? 'snack' : 'kits'}. Please try again.`);
       }
 
       // Log error and reject promise
@@ -888,6 +899,8 @@ class Admin {
         const countPresent = await db.query<[{ count: bigint }]>(`${query} attendance IS NOT NULL`, [campus_id]);
         // Get snack claimed count
         const countSnackClaimed = await db.query<[{ count: bigint }]>(`${query} snack_claimed = 1`, [campus_id]);
+        // Get kits claimed count
+        const countKitsClaimed = await db.query<[{ count: bigint }]>(`${query} kits_claimed = 1`, [campus_id]);
         // Get paytment confirmed count
         const countPaymentConfirmed = await db.query<[{ count: bigint }]>(`${query} payment_confirmed IS NOT NULL`, [campus_id]);
         // Get T-shirt claimed count
@@ -899,6 +912,7 @@ class Admin {
           countPendingPayments: Number(countPendingPayments[0].count),
           countPresent: Number(countPresent[0].count),
           countSnackClaimed: Number(countSnackClaimed[0].count),
+          countKitsClaimed: Number(countKitsClaimed[0].count),
           countPaymentConfirmed: Number(countPaymentConfirmed[0].count),
           countTShirtClaimed: Number(countTShirtClaimed[0].count),
         });
@@ -1078,7 +1092,7 @@ class Admin {
   /**
    * Get T-shirt sizes count
    * @param campus_id Campus ID
-   * @param statusColumn All | attendance | snack_claimed | payment_confirmed | tshirt_claimed
+   * @param statusColumn All | attendance | snack_claimed | kits_claimed | payment_confirmed | tshirt_claimed
    * @param filterLogic 0 | 1 | 2
    */
   public static getShirtSizesCount(campus_id: number, statusColumn?: string, filterLogic?: string): Promise<Record<number, number>> {
@@ -1089,7 +1103,7 @@ class Admin {
         // Get t-shirt sizes count
         const result = await db.query<{ tshirt_size_id: number, count: bigint }[]>(
           `SELECT tshirt_size_id, COUNT(*) as count FROM ict2024_students WHERE campus_id = ?
-            ${statusColumn ? `AND ${db.escapeId(statusColumn)} ${statusColumn === ICTSTudentEnum.snack_claimed ? '= 1 ' : `IS ${filterLogic === "1" ? 'NOT' : ''} NULL`}` : ''} GROUP BY tshirt_size_id
+            ${statusColumn ? `AND ${db.escapeId(statusColumn)} ${(statusColumn === ICTSTudentEnum.snack_claimed || statusColumn === ICTSTudentEnum.kits_claimed) ? '= 1 ' : `IS ${filterLogic === "1" ? 'NOT' : ''} NULL`}` : ''} GROUP BY tshirt_size_id
           `, 
           [campus_id]
         );
@@ -1122,7 +1136,7 @@ class Admin {
   /**
    * Get confirmed count by year level
    * @param campus_id Campus ID
-   * @param statusColumn All | attendance | snack_claimed | payment_confirmed | tshirt_claimed
+   * @param statusColumn All | attendance | snack_claimed | kits_claimed | payment_confirmed | tshirt_claimed
    * @param filterLogic 0 | 1 | 2
    * @returns 
    */
@@ -1134,7 +1148,7 @@ class Admin {
         // Get t-shirt sizes count
         const result = await db.query<{ year_level: number, count: bigint }[]>(
           `SELECT year_level, COUNT(*) as count FROM ict2024_students WHERE campus_id = ?
-            ${statusColumn ? `AND ${db.escapeId(statusColumn)} ${statusColumn === ICTSTudentEnum.snack_claimed ? '= 1 ' : `IS ${filterLogic === "1" ? 'NOT' : ''} NULL`}` : ''} GROUP BY year_level
+            ${statusColumn ? `AND ${db.escapeId(statusColumn)} ${(statusColumn === ICTSTudentEnum.snack_claimed || statusColumn === ICTSTudentEnum.kits_claimed) ? '= 1 ' : `IS ${filterLogic === "1" ? 'NOT' : ''} NULL`}` : ''} GROUP BY year_level
           `, 
           [campus_id]
         );

@@ -99,6 +99,7 @@ export enum ICTSTudentEnum {
   payment_confirmed = "payment_confirmed",
   tshirt_claimed = "tshirt_claimed",
   snack_claimed = "snack_claimed",
+  kits_claimed = "kits_claimed",
   date_stamp = "date_stamp",
 }
 

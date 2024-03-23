@@ -185,6 +185,7 @@ export type ICTStudentModel = {
   payment_confirmed?: string;
   tshirt_claimed?: string;
   snack_claimed: number;
+  kits_claimed: number;
   date_stamp: string;
 }
 
@@ -254,6 +255,7 @@ export type ICTStatistics = {
   countPendingPayments: number;
   countPresent: number;
   countSnackClaimed: number;
+  countKitsClaimed: number;
   countPaymentConfirmed: number;
   countTShirtClaimed: number;
 }

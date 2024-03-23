@@ -1,10 +1,10 @@
 import { status501 } from "../../routes";
 import { ElysiaContext, ResponseBody } from "../../types";
+import { PaginationOutput } from "../../types/request";
+
 import response from "../../utils/response";
 import Strings from "../../config/strings";
-
 import Admin from "../../db/models/ictcongress2024/admin";
-import { PaginationOutput } from "../../types/request";
 
 /**
  * ICT Congress Students API
@@ -81,7 +81,7 @@ async function postStudents(context: ElysiaContext) {
   const isUsingQR = qr !== undefined;
   const isMarkPresent = op === "mark-present";
   const isPaymentConfirm = op === "payment-confirm";
-  const isClaimSnack = op === "claim-snack";
+  const isClaimSnackOrKits = op === "claim-snack" || op === "claim-kits";
   const isClaimTshirt = op === "claim-tshirt";
 
   // Get student UID param
@@ -92,11 +92,11 @@ async function postStudents(context: ElysiaContext) {
   const rfid = context.body?.rfid;
 
   // For QR code operations
-  if (isMarkPresent || isClaimSnack) {
+  if (isMarkPresent || isClaimSnackOrKits) {
     if (isUsingQR && !qr) return response.error("QR code is required");
   }
 
-  // For student ID operations
+  // For student UID operations
   if (isPaymentConfirm || isClaimTshirt) {
     if (!uid && !isUsingQR) return response.error("Student UID is required");
   }
@@ -131,11 +131,12 @@ async function postStudents(context: ElysiaContext) {
     }
   }
 
-  // If claiming snack
-  if (isClaimSnack && isUsingQR) {
+  // If claiming snack or kits
+  if (isClaimSnackOrKits && isUsingQR) {
     try {
-      const student = await Admin.claimSnack({ qr });
-      return response.success(`Student ID (${student.student_id}) successfully claimed snack!`, student);
+      const type = op === 'claim-snack' ? 'snack' : 'kits';
+      const student = await Admin.claimSnackOrKits(type, { qr });
+      return response.success(`Student ID (${student.student_id}) successfully claimed ${type}!`, student);
     } catch (e) {
       return response.error(e);
     }
