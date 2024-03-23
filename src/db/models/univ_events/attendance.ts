@@ -30,7 +30,7 @@ class Attendance {
                 columnName = "day2_pm";
             }else if(currentDay === 3 && isAm){
                 columnName = "day3_am";
-            }else{
+            }else if(currentDay === 3 && !isAm){
                 columnName = "day3_pm";
             }
         } else {
