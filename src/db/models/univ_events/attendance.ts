@@ -135,10 +135,10 @@ class Attendance {
       const db = Database.getInstance();
 
       try {
-        // Get admin by username
         const result = await db.query<AttendanceModel[]>(
-          `SELECT attendance.* FROM attendance INNER JOIN univ_students ON univ_students.course_id = ? where attendance.student_id = univ_students.student_id AND event_id = ?`, [courseId, eventId]
+          `select attendance.*, s.first_name, s.last_name, s.course_id, c.acronym from attendance inner join univ_students s inner join colleges_courses c on c.id = s.course_id where attendance.student_id = s.student_id and event_id = ? and c.college_id = ?`, [eventId,courseId]
         );
+
         if(result){
           resolve(result);
         }else{
