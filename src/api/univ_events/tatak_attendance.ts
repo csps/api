@@ -114,7 +114,7 @@ async function getAllStudentsAttended(context: ElysiaContext){
   try {
     const eventId = context.params?.eventId;
     if(eventId){
-      const attendance = await Attendance.getAllOfEvent(eventId,1);
+      const attendance = await Attendance.getAllOfEvent(eventId,context.user.college_id);
       return response.success("Success",attendance)
     }
   } catch (error) {
