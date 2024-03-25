@@ -11,7 +11,7 @@ import PriorityQueue from 'p-queue';
 // SMTP credentials transporter
 let transporter: Transporter;
 // Email queue (with concurrency of 10)
-const queue = new PriorityQueue({ concurrency: 10 });
+const queue = new PriorityQueue({ concurrency: 1 });
 
 /**
  * Send email using Gmail SMTP
@@ -78,7 +78,7 @@ export async function sendEmail(metadata: EmailMetaData, callback?: (err: Error 
     // Log email
     Log.i(`Sending email to <${metadata.to}> (${metadata.subject})`);
     // Send email
-    transporter.sendMail(request, (err, info) => {
+    transporter.sendMail(request, async (err, info) => {
       // Call callback (if exists)
       if (typeof callback === "function") {
         callback(err, info);
@@ -91,7 +91,12 @@ export async function sendEmail(metadata: EmailMetaData, callback?: (err: Error 
       }
 
       // Success
-      Log.i(`Email sent to <${metadata.to}> (${metadata.subject})`);
+      Log.i(`Email sent to <${metadata.to}> (${metadata.subject}). Delaying for 3 seconds...`);
+      // Delay for 3 second after sending email
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Log done delay
+      Log.i(`Done delaying for 3 seconds!`);
+      // Resolve 
       resolve(info);
     });
   }));
