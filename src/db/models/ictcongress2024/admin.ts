@@ -206,6 +206,16 @@ class Admin {
    */
   public static registerStudent(student: ICTStudentRegisterModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
+      // If accepting registration
+      if (Bun.env.IS_ICT_CONGRESS_ACCEPTING_REGISTRATION !== "1") {
+        return reject("Registration is currently closed.");
+      }
+
+      // Check if student is provided
+      if (!student) {
+        return reject("No data provided.");
+      }
+
       // Check student ID's length
       if (student.student_id.toString().length !== 8) {
         return reject("Student ID must be 8 characters long.");

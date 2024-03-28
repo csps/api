@@ -9,9 +9,9 @@
   "dependencies": {
     "@loskir/styled-qr-code-node": "^1.5.1",
     "chalk": "^5.3.0",
-    "elysia": "^1.0.7",
+    "elysia": "^1.0.9",
     "elysia-helmet": "^1.0.2",
-    "elysia-ip": "^0.0.7",
+    "elysia-ip": "^1.0.2",
     "jose": "^5.2.3",
     "juice": "^10.0.0",
     "mariadb": "^3.3.0",
